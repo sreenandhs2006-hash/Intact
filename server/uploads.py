@@ -11,6 +11,7 @@ Design (offset-based, similar in spirit to the tus resumable-upload protocol):
   its SHA-256 equals the hash the client declared when the session was created.
 """
 import hashlib
+import json
 import os
 import re
 import threading
@@ -250,3 +251,61 @@ def verified_file(upload_id):
     if sha256_file(path) != info["server_sha256"]:
         raise UploadError(500, "file_changed", "Stored file no longer matches its verified hash")
     return path
+
+
+# ---------- capture log (M5): per-frame timing written by the browser while recording ----------
+
+MAX_CAPTURE_LOG_BYTES = 5 * 1024 * 1024
+
+
+def capture_log_path(upload_id):
+    return config.DATA_DIR / "capture_logs" / f"{upload_id}.json"
+
+
+def put_capture_log(upload_id, data, content_sha256):
+    """Store the capture log of an upload. It must arrive before finalize, so the analysis that
+    finalize starts always sees it, and it must name the video it describes (video_sha256)."""
+    with _lock(upload_id), db.connect() as conn:
+        now = time.time()
+        row = _refresh_state(conn, _row(conn, upload_id), now)
+        path = capture_log_path(upload_id)
+        if len(data) > MAX_CAPTURE_LOG_BYTES:
+            raise UploadError(413, "log_too_large", f"Max capture log is {MAX_CAPTURE_LOG_BYTES} bytes")
+        if hashlib.sha256(data).hexdigest() != content_sha256.lower():
+            raise UploadError(422, "log_hash_mismatch", "Capture log SHA-256 does not match its bytes")
+        if path.exists():
+            if path.read_bytes() == data:
+                return {"stored": True, "duplicate": True, "sha256": content_sha256.lower()}  # idempotent
+            raise UploadError(409, "log_conflict", "A different capture log is already stored")
+        if row["state"] in TERMINAL:
+            raise UploadError(409, "terminal_state",
+                              f"Upload is {row['state']}; the capture log must be sent before finalize",
+                              state=row["state"])
+        try:
+            log = json.loads(data)
+        except ValueError:
+            raise UploadError(400, "bad_log", "Capture log is not valid JSON")
+        if not isinstance(log, dict) or not isinstance(log.get("frames"), list):
+            raise UploadError(400, "bad_log", "Capture log must be an object with a 'frames' list")
+        if log.get("video_sha256") != row["sha256"]:
+            raise UploadError(409, "log_video_mismatch",
+                              "Capture log describes a different video (video_sha256 differs)")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".tmp")
+        with open(tmp, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+        db.add_event(conn, upload_id, now, "CAPTURE_LOG",
+                     f"{len(log['frames'])} frame records, sha256={content_sha256.lower()}")
+        return {"stored": True, "duplicate": False, "sha256": content_sha256.lower()}
+
+
+def capture_log(upload_id):
+    """The stored capture log (dict) with its SHA-256, or None."""
+    path = capture_log_path(upload_id)
+    if not path.exists():
+        return None
+    data = path.read_bytes()
+    return {"sha256": hashlib.sha256(data).hexdigest(), "log": json.loads(data)}

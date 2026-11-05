@@ -45,7 +45,9 @@ def _run(upload_id):
                                          "received_bytes", "chunks_received", "duplicate_chunks",
                                          "rejected_chunks", "completed_at", "detail")}
         transfer["events"] = uploads.events(upload_id)
-        report = analyze(path, transfer)
+        cap = uploads.capture_log(upload_id)
+        transfer["capture_log_sha256"] = cap["sha256"] if cap else None
+        report = analyze(path, transfer, capture_log=cap["log"] if cap else None)
         report["input"]["file"] = info["filename"]
         write_reports(report, report_dir(), upload_id)
     except Exception:

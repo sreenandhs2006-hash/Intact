@@ -71,6 +71,32 @@ def timeline_strip(tl):
             "red: slot filling a source timestamp gap</p>")
 
 
+def capture_section(ce):
+    if not ce or not ce.get("present"):
+        return f"<div class='card muted'>{e((ce or {}).get('note', 'No capture log.'))}</div>"
+    if not ce.get("usable"):
+        return f"<div class='card warn'>Capture log present but not usable: {e(ce.get('reason'))}</div>"
+    gaps = "".join(f"<li>{g['t0_ms']:.1f}–{g['t1_ms']:.1f} ms (page clock): {g['interval_ms']} ms, ~{g['estimated_missing']} frame(s)</li>"
+                   for g in ce["delivery_gaps"][:50]) or "<li class='muted'>none</li>"
+    faults = "".join(f"<li>{e(f)}</li>" for f in ce.get("simulated_faults") or [])
+    return f"""<div class="card">
+ <div class="grid">
+  <div><div class="k">Source</div><div class="v">{e(ce.get('source'))}</div><div class="k">{e(ce.get('mime_type'))}</div></div>
+  <div><div class="k">Time base</div><div class="v">{e(ce['time_base'])}</div></div>
+  <div><div class="k">Coverage of recording</div><div class="v">{ce['coverage']:.1%}</div></div>
+  <div><div class="k">Logged FPS (median)</div><div class="v">{e(ce['measured_fps'])}</div></div>
+  <div><div class="k">Frames presented / in file</div><div class="v">{e(ce['presented_frames_in_recording'])} / {e(ce.get('file_frames'))}</div></div>
+  <div><div class="k">Missed callbacks</div><div class="v">{e(ce['callbacks_missed'])}</div></div>
+ </div>
+ <p>Recording ran {e(ce.get('recording_duration_s'))} s; log spans {e(ce.get('log_span_s'))} s; file spans {e(ce.get('file_span_s'))} s.
+ Verdicts per anomaly: {e(', '.join(f'{k}: {n}' for k, n in (ce.get('anomaly_verdicts') or {}).items()) or 'none')}.</p>
+ <p class="k">Delivery gaps (no new frame reached the page)</p><ul>{gaps}</ul>
+ {f"<p class='k warn'>Simulated faults injected by the test-pattern source (test aid, not a real camera):</p><ul>{faults}</ul>" if faults else ""}
+ <p class="k">What this log can prove</p><ul>{''.join(f'<li>{e(x)}</li>' for x in ce['can_prove'])}</ul>
+ <p class="k">What it cannot prove</p><ul>{''.join(f'<li>{e(x)}</li>' for x in ce['cannot_prove'])}</ul>
+</div>"""
+
+
 def render(r):
     s = r["summary"]
     v = r["validation"]
@@ -82,7 +108,9 @@ def render(r):
         f"<div class='k'>frames {e(a['frame_index_start'])}–{e(a['frame_index_end'])}</div></td>"
         f"<td>{e(a['evidence'])}</td><td class='{CONF_CLASS.get(a['confidence'],'')}'>{e(a['confidence'])}</td>"
         f"<td><b>{e(a['likely_cause'])}</b><div class='k'>candidates: {e(', '.join(a['other_candidates']) or '–')};"
-        f" ruled out: {e(', '.join(a['ruled_out']) or '–')}</div><div class='k'>{e(a['cause_reasoning'])}</div></td></tr>"
+        f" ruled out: {e(', '.join(a['ruled_out']) or '–')}</div><div class='k'>{e(a['cause_reasoning'])}</div>"
+        + (f"<div class='k'>capture log: <b>{e(a['capture_evidence']['verdict'])}</b></div>" if a.get('capture_evidence') else "")
+        + "</td></tr>"
         for a in r["anomalies"]) or "<tr><td colspan='6' class='muted'>No anomalies detected.</td></tr>"
     errs = "".join(f"<li><code>{e(x.get('packet_time_s'))}</code> {e(x['kind'])}: {e(x['message'])}</li>"
                    for x in v["decode"]["errors"][:50])
@@ -109,6 +137,9 @@ def render(r):
 
 <h2>Anomalies</h2>
 <div class="card scroll"><table><tr><th>ID</th><th>Type</th><th>Location</th><th>Evidence</th><th>Confidence</th><th>Likely cause</th></tr>{rows}</table></div>
+
+<h2>Capture evidence (browser frame log)</h2>
+{capture_section(r.get('capture_evidence'))}
 
 <h2>Source timestamps (before 30 FPS conversion)</h2>
 <div class="card">

@@ -9,8 +9,8 @@ Confluentia 2026 (IIT BHU) · nSEPIA technical challenge. Full README arrives in
 | M1 Reliable transfer | done |
 | M2 Integrity analysis | done |
 | M3 Known-fault test set | done: held-out recall 0.933, precision 0.995 ([results](testset/results/HELDOUT.md)) |
-| M4 Network tests | – |
-| M5 Browser capture | – |
+| M4 Network tests | harness built and checked without netem; real runs pending on a Linux laptop ([runbook](nettest/RUNBOOK.md)) |
+| M5 Browser capture | done: headless-Chrome runs in [evidence/m5](evidence/m5/README.md); real-webcam run not yet done |
 | M6 Submission | – |
 
 ## Setup
@@ -28,6 +28,9 @@ uvicorn server.app:app --port 8000          # status page: http://127.0.0.1:8000
 python -m client.uploader path/to/video.mp4 --log upload.jsonl
 python -m analysis.analyze path/to/video.mp4 --out reports/   # analyse a local file
 ```
+
+Browser capture: open http://127.0.0.1:8000/capture in Chrome/Edge, pick Camera, press *Record 30 s and upload*.
+Scripted (headless, Chrome's fake camera): `python -m client.browser_run --source camera --out evidence/m5/run1`.
 
 After an upload reaches COMPLETE the server analyses it automatically; the status page links the
 HTML/JSON report (`/uploads/{id}/report.html`). FFmpeg/ffprobe must be on PATH.
@@ -88,3 +91,19 @@ verified on raw FFmpeg output. The code was then frozen and seeds 2-6 (seed 6 at
 recall 0.933, precision 0.995, 0 false positives on controls, validation 100%. Every miss is listed in
 `testset/results/HELDOUT.md`; the classes are low-motion content (detector abstains below `MOTION_MIN`), VFR jitter
 just under the 25% threshold, and byte flips that decode silently (only a hash can catch those).
+
+## M5 design in one paragraph
+
+`/capture` records 30 s with MediaRecorder while `requestVideoFrameCallback` on the live preview logs every frame
+that reaches the page (`captureTime` when the browser provides it, else `presentationTime`, plus the
+`presentedFrames` counter and page visibility). The recording is kept in IndexedDB until the upload is COMPLETE,
+so a reload or crash can resume. `static/uploader.js` is a port of the Python client (same chunk hashes, backoff
+with jitter, adaptive chunks, resume by file hash); before finalize it posts the log, which the server accepts
+only if its SHA-256 matches and it names the video's SHA-256. `analysis/capture.py` aligns page clock and file
+timestamps by searching the offset at which file frames and logged frames coincide (robust to frames lost on one
+side), then per file anomaly asks one question: did frames reach the browser then? A file gap with no logged frame
+inside is **capture**; a file gap the page did receive frames during is **encoding** (the recording pipeline); a
+moment the log cannot judge (hidden page, gap shorter than the log's time resolution, unreliable alignment) stays
+**undetermined**. The log is evidence about delivery to the page, not about what MediaRecorder encoded, and it is
+written by the client: its integrity is checked, its authenticity cannot be. Each report lists exactly what the log
+can and cannot prove (`capture_evidence.can_prove / cannot_prove`).

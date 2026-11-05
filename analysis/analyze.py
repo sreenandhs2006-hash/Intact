@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 
 from . import decode as decode_mod
+from . import capture as capture_mod
 from . import detect, probe, timeline, tools
 from .report_html import render
 
@@ -21,7 +22,8 @@ LIMITATIONS = [
     "Frames dropped before encoding, with timestamps re-generated at a constant rate, leave no "
     "timestamp gap. Only content cues (motion spikes) hint at them, and those are low confidence.",
     "Without a capture log or reference recording, capture drops and encoder drops cannot be told apart; "
-    "such anomalies are reported with likely cause 'undetermined'.",
+    "such anomalies are reported with likely cause 'undetermined'. With a browser capture log, see "
+    "capture_evidence.can_prove / cannot_prove for what it settles.",
     "Content checks use fixed thresholds on 160x90 grayscale thumbnails. Static scenes, slow motion, "
     "fades and scene cuts can cause misses or false alarms. Thresholds are measured in the M3 test set.",
     "Only the first video stream is analysed; audio is ignored.",
@@ -81,7 +83,7 @@ def attribute(a, transfer_verified):
     return a
 
 
-def analyze(path, transfer=None):
+def analyze(path, transfer=None, capture_log=None):
     path = Path(path)
     started = time.time()
     transfer_verified = bool(transfer and transfer.get("state") == "COMPLETE" and transfer.get("verified"))
@@ -117,6 +119,11 @@ def analyze(path, transfer=None):
     for n, a in enumerate(anomalies, 1):
         a["id"] = f"A{n}"
         attribute(a, transfer_verified)
+    # M5: the browser's per-frame log is independent capture evidence; it can settle
+    # capture-vs-encoding for timing anomalies at moments it covers.
+    capture_evidence = (capture_mod.evaluate(capture_log, frames, anomalies) if capture_log
+                        else {"present": False, "note": "No capture log: capture and encoding drops cannot "
+                                                        "be told apart."})
 
     nominal = (timing_summary.get("median_interval_ms") or 0) / 1000 or None
     tl = timeline.build(frames, nominal, anomalies)
@@ -153,6 +160,7 @@ def analyze(path, transfer=None):
         "source_timing": {**timing_summary, **content_info,
                           "note": "Computed from original timestamps, before any 30 FPS conversion."},
         "timeline_30fps": tl,
+        "capture_evidence": capture_evidence,
         "anomalies": anomalies,
         "summary": None,
         "limitations": LIMITATIONS,
@@ -169,12 +177,17 @@ def summarize(r):
     for a in an:
         counts[a["type"]] = counts.get(a["type"], 0) + 1
     gaps = [a for a in an if a["type"] == "missing_frames"]
+    ce = r.get("capture_evidence") or {}
     if r["validation"]["status"] == "INVALID":
         drops = "cannot determine: the file could not be decoded"
+    elif ce.get("present") and ce.get("usable"):
+        drops = _drops_with_log(gaps, ce)
     elif gaps:
         missing = sum(a.get("estimated_missing", 1) for a in gaps)
+        why = (f"the capture log is not usable ({ce.get('reason')})" if ce.get("present")
+               else "there is no capture log")
         drops = (f"frames missing from the file timeline: ~{missing} in {len(gaps)} gap(s). Whether they were "
-                 f"lost during capture or encoding cannot be determined without a capture log.")
+                 f"lost during capture or encoding cannot be determined: {why}.")
     else:
         drops = ("cannot determine: no timestamp gaps were found in the file, but frames dropped before "
                  "encoding with re-generated timestamps would leave no gap. A capture log or reference "
@@ -188,6 +201,24 @@ def summarize(r):
         "conversion_artefacts": {k: r["timeline_30fps"].get(k) for k in
                                  ("conversion_duplicates", "conversion_omissions", "gap_fill_slots")},
     }
+
+
+def _drops_with_log(gaps, ce):
+    by = {}
+    for a in gaps:
+        by[a.get("likely_cause", "undetermined")] = by.get(a.get("likely_cause", "undetermined"), 0) + a.get("estimated_missing", 1)
+    log = (f"The capture log covers {ce['coverage']:.0%} of the recording ({ce['time_base']}) and shows "
+           f"{len(ce['delivery_gaps'])} delivery gap(s) (~{ce['delivery_gap_frames']} frames).")
+    if gaps:
+        parts = ", ".join(f"~{n} {cause}" for cause, n in sorted(by.items()))
+        return (f"frames missing from the file timeline: ~{sum(by.values())} in {len(gaps)} gap(s); "
+                f"by likely cause: {parts}. {log}")
+    if ce["coverage"] >= 0.99 and not ce["delivery_gaps"]:
+        return (f"no drops found: the file has no timestamp gaps and the capture log shows every frame reached "
+                f"the browser without a gap. {log} This cannot exclude drops inside the camera that the "
+                f"driver hid by re-timing frames.")
+    return (f"no timestamp gaps in the file, but the capture log does not cover the whole recording, so drops "
+            f"in the uncovered parts cannot be excluded. {log}")
 
 
 def write_reports(report, out_dir, stem):
@@ -208,8 +239,10 @@ def main(argv=None):
     p = argparse.ArgumentParser(description="Frame integrity analysis of a video file.")
     p.add_argument("video")
     p.add_argument("--out", default="reports")
+    p.add_argument("--capture-log", help="browser capture log JSON (M5) for this video")
     args = p.parse_args(argv)
-    report = analyze(args.video)
+    log = json.loads(Path(args.capture_log).read_text(encoding="utf-8")) if args.capture_log else None
+    report = analyze(args.video, capture_log=log)
     j, h = write_reports(report, args.out, Path(args.video).stem)
     print(json.dumps(report["summary"], indent=2))
     print(f"JSON: {j}\nHTML: {h}")

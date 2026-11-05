@@ -3,9 +3,12 @@
 POST /uploads                         create a session  {filename, size, sha256}
 PUT  /uploads/{id}/chunks?offset=N    upload bytes; header X-Chunk-SHA256
 GET  /uploads/{id}                    status (state, received_bytes, ...)
+POST /uploads/{id}/capture-log        browser frame-timing log (M5); header X-Content-SHA256; before finalize
+GET  /uploads/{id}/capture-log        the stored log
 POST /uploads/{id}/finalize           verify full-file SHA-256 -> COMPLETE or REJECTED
 GET  /uploads, /uploads/{id}/events   used by the live status page
 GET  /uploads/{id}/report[.html]      integrity report (analysis starts automatically on COMPLETE)
+GET  /capture                         browser client: record 30 s, upload with the same protocol (M5)
 POST /uploads/{id}/analyze            (re)start analysis of a COMPLETE upload
 """
 from contextlib import asynccontextmanager
@@ -14,6 +17,7 @@ from pathlib import Path
 from fastapi import FastAPI, Header, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import analysis_jobs, config, db, uploads
@@ -27,6 +31,7 @@ async def lifespan(_app):
 
 app = FastAPI(title="Reliable video upload", lifespan=lifespan)
 STATIC = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 
 @app.exception_handler(uploads.UploadError)
@@ -75,6 +80,25 @@ async def put_chunk(upload_id: str, request: Request, offset: int = Query(...),
     return {**info, "duplicate": duplicate}
 
 
+@app.post("/uploads/{upload_id}/capture-log", status_code=201)
+async def put_capture_log(upload_id: str, request: Request, x_content_sha256: str = Header(...)):
+    data = bytearray()
+    async for part in request.stream():
+        data += part
+        if len(data) > uploads.MAX_CAPTURE_LOG_BYTES:
+            break
+    return await run_in_threadpool(uploads.put_capture_log, upload_id, bytes(data), x_content_sha256)
+
+
+@app.get("/uploads/{upload_id}/capture-log")
+def get_capture_log(upload_id: str):
+    uploads.get(upload_id)  # 404 for unknown ids
+    path = uploads.capture_log_path(upload_id)
+    if not path.exists():
+        return JSONResponse(status_code=404, content={"error": "no_capture_log"})
+    return FileResponse(path, media_type="application/json")
+
+
 @app.post("/uploads/{upload_id}/finalize")
 def finalize(upload_id: str):
     info = uploads.finalize(upload_id)
@@ -115,6 +139,11 @@ def report_html(upload_id: str):
 @app.get("/")
 def status_page():
     return FileResponse(STATIC / "status.html")
+
+
+@app.get("/capture")
+def capture_page():
+    return FileResponse(STATIC / "capture.html")
 
 
 @app.get("/health")
