@@ -31,7 +31,7 @@ What else the runs show, stated as found:
   (`track_settings.frameRate`), not the 30 fps requested.
 - 45 `possible_skipped_frames` on the fake camera's synthetic picture stay **undetermined** (frames reached the
   page irregularly but without gaps). Not investigated further; likely the fake device's animation, not drops.
-- Two runs in a hidden Browser pane (not kept) produced only 2 frame callbacks: frame callbacks and painting stop
+- One run in a hidden Browser pane (not kept) produced only 2 frame callbacks: frame callbacks and painting stop
   when the page is not rendered. The analysis reported that log as "not usable" instead of guessing.
 
 ## Browser upload under faults (pytest, not stored here)
