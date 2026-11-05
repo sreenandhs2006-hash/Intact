@@ -1,7 +1,10 @@
-# Pinned for reproducible runs (Python 3.13). M2 adds PyAV / OpenCV.
+# Pinned for reproducible runs (Python 3.13). FFmpeg/ffprobe CLI must be on PATH (tested with 9.0.2).
 fastapi==0.162.0
 starlette==1.10.0
 pydantic==2.14.2
 uvicorn[standard]==0.54.0
 httpx==0.28.1
 pytest==9.2.0
+av==19.0.2
+opencv-python-headless==5.0.0.93
+numpy==2.5.4
