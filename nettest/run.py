@@ -42,7 +42,8 @@ from .toxi import LISTEN, Toxi
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_VIDEO = ROOT / "nettest" / "video30s.mp4"
 DEFAULT_TOXIPROXY = ROOT / "nettest" / "bin" / ("toxiproxy-server.exe" if os.name == "nt" else "toxiproxy-server")
-SERVER_PORT = 8000
+SERVER_PORT = 8000       # inside the server namespace (Linux)
+LOCAL_PORT = 18080       # --no-netem harness check on localhost, away from any dev server on 8000
 MAX_CHUNK_KB = 512       # small chunks so faults land mid-transfer even at 100% strength
 RUN_TIMEOUT_S = 40 * 60  # a run that takes longer is recorded as failed
 
@@ -69,10 +70,12 @@ class Run:
         self.lab, self.toxi = lab, toxi
         self.netem = not args.no_netem
         self.server_host = SRV_IP if self.netem else "127.0.0.1"
-        self.server_url = f"http://{self.server_host}:{SERVER_PORT}"
+        self.port = SERVER_PORT if self.netem else LOCAL_PORT
+        self.server_url = f"http://{self.server_host}:{self.port}"
         self.client = self.server = None
         self.client_no = 0
         self.lock = threading.Lock()
+        self.faults = []  # (action, time) - checked against the client log after the run
 
     def act(self, event, **f):
         with open(self.dir / "actions.jsonl", "a", encoding="utf-8") as fh:
@@ -82,14 +85,19 @@ class Run:
     def start_server(self):
         env = {**os.environ, "VI_DATA_DIR": str(self.dir / "server-data"), "VI_STALL_SECONDS": "15"}
         cmd = [sys.executable, "-m", "uvicorn", "server.app:app", "--host", self.server_host,
-               "--port", str(SERVER_PORT), "--log-level", "warning"]
+               "--port", str(self.port), "--log-level", "warning"]
         if self.netem:
             cmd = ["ip", "netns", "exec", NS] + cmd
         self.server = popen(cmd, open(self.dir / "server.log", "a"), env)
         deadline = time.time() + 30
         while time.time() < deadline:
             try:
-                if httpx.get(f"{self.server_url}/health", timeout=2).status_code == 200:
+                h = httpx.get(f"{self.server_url}/health", timeout=2)
+                if h.status_code == 200:
+                    # make sure the answer comes from OUR server (a stray server on the same
+                    # port once answered for a harness run whose own server failed to bind)
+                    if Path(h.json().get("data_dir", "")).resolve() != (self.dir / "server-data").resolve():
+                        raise RuntimeError(f"another server answers on port {self.port}: {h.json()}")
                     self.act("server_started", pid=self.server.pid)
                     return
             except httpx.HTTPError:
@@ -106,8 +114,12 @@ class Run:
         self.act("client_started", n=self.client_no, pid=self.client.pid)
 
     # -- scenario actions
+    FAULTS = {"profile", "disable", "toxic", "kill_client", "kill_server"}
+
     def do(self, action):
         kind = action[0]
+        if kind in self.FAULTS:
+            self.faults.append((kind, time.time()))
         self.act("action", action=list(action))
         if kind == "profile":
             if self.netem:
@@ -152,7 +164,21 @@ class Run:
         t0 = time.time()
         self.start_client()
 
-        fired, threads = set(), []
+        # Steps run one after another on a single worker: a step never starts while the
+        # previous one's window (e.g. a 2 s reset) is still open.
+        fired, queue, self.errors = set(), [], []
+        worker = None
+
+        def run_queue():
+            while queue:
+                i, actions = queue.pop(0)
+                for x in actions:
+                    try:
+                        self.do(x)
+                    except Exception as e:  # recorded in the result, never silently lost
+                        self.errors.append(f"step {i} {list(x)}: {type(e).__name__}: {e}")
+                        self.act("action_error", step=i, action=list(x), error=str(e))
+
         timed_out = False
         while True:
             p = metrics.progress(metrics.read_log(self.dir / "client.jsonl"))
@@ -160,12 +186,13 @@ class Run:
                 if i not in fired and p >= at:
                     fired.add(i)
                     self.act("step_fired", step=i, at=at, progress=round(p, 4))
-                    th = threading.Thread(target=lambda a=actions: [self.do(x) for x in a], daemon=True)
-                    th.start()
-                    threads.append(th)
+                    queue.append((i, actions))
+            if queue and not (worker and worker.is_alive()):
+                worker = threading.Thread(target=run_queue, daemon=True)
+                worker.start()
             with self.lock:
                 client_done = self.client.poll() is not None
-            if client_done and not any(t.is_alive() for t in threads):
+            if client_done and not queue and not (worker and worker.is_alive()):
                 with self.lock:
                     if self.client.poll() is not None:
                         break
@@ -196,13 +223,19 @@ class Run:
         (self.dir / "server_upload.json").write_text(json.dumps(server_info, indent=2))
         hard_kill(self.server)
 
+        landed = [metrics.fault_landed(events, t) for _, t in self.faults]
+        self.act("faults_checked", faults=[{"action": k, "t": round(t, 3), "landed_mid_transfer": l}
+                                           for (k, t), l in zip(self.faults, landed)])
         result = {"scenario": self.name, "rep": self.dir.name, "netem": self.netem,
                   "steps_total": len(self.sc["steps"]), "steps_fired": len(fired), "timed_out": timed_out,
+                  "faults_total": len(self.faults), "faults_mid_transfer": sum(landed),
+                  "harness_errors": self.errors,
                   **metrics.run_metrics(events, server_info)}
         (self.dir / "result.json").write_text(json.dumps(result, indent=2))
         print(f"  {self.name}/{self.dir.name}: {result['final_state']} hash_ok={result['server_sha256_matches_client']}"
               f" {result['duration_s']}s retries={result['retries']} resumed={result['resumed_bytes']}"
-              f" steps {result['steps_fired']}/{result['steps_total']}")
+              f" faults mid-transfer {result['faults_mid_transfer']}/{result['faults_total']}"
+              + (f" HARNESS ERRORS: {self.errors}" if self.errors else ""))
         return result
 
 
@@ -323,7 +356,7 @@ def cmd_run(args):
     try:
         if not args.no_netem:
             lab.up()
-        toxi.create_proxy(f"{SRV_IP if not args.no_netem else '127.0.0.1'}:{SERVER_PORT}")
+        toxi.create_proxy(f"{SRV_IP}:{SERVER_PORT}" if not args.no_netem else f"127.0.0.1:{LOCAL_PORT}")
         (out / "environment.json").write_text(json.dumps(environment(args, toxi), indent=2))
         names = args.scenarios or list(SCENARIOS)
         for rep in range(1, args.reps + 1):  # interleave scenarios so slow drift affects all equally
@@ -354,7 +387,7 @@ def cmd_summarize(args):
               "Network strength: 100% = 20 Mbit/s, 20 ms RTT, 0% loss · 60% = 5 Mbit/s, 80 ms, 1% · "
               "20% = 500 kbit/s, 400 ms, 5% (loss per direction).", "",
               "| Scenario | Runs | Success | Success rate | Hash verified | Duration median (min-max) s | "
-              "Retries mean (max) | Resumed bytes mean | Runs with server STALLED | All steps fired |",
+              "Retries mean (max) | Resumed bytes mean | Runs with server STALLED | Faults that hit mid-transfer |",
               "|---|---|---|---|---|---|---|---|---|---|"]
     for name in SCENARIOS:
         if name in table:
@@ -362,10 +395,11 @@ def cmd_summarize(args):
             lines.append(f"| {name} | {t['runs']} | {t['successes']} | {t['success_rate']:.0%} | {t['hash_verified']}/{t['runs']} | "
                          f"{t['duration_s_median']} ({t['duration_s_min']}-{t['duration_s_max']}) | "
                          f"{t['retries_mean']} ({t['retries_max']}) | {t['resumed_bytes_mean']} | "
-                         f"{t['server_stalled_runs']} | {'yes' if t['steps_fired_all'] else 'NO'} |")
+                         f"{t['server_stalled_runs']} | {t['faults_mid_transfer']}/{t['faults_total']} |")
     lines += ["", "## Scenarios", ""] + [f"- **{n}**: {s['description']}" for n, s in SCENARIOS.items()]
-    failed = [r for r in results if not r["success"]]
-    lines += ["", "## Failed runs", ""] + ([f"- {r['scenario']}/{r['rep']}: {r['final_state']}, timed_out={r['timed_out']}"
+    failed = [r for r in results if not r["success"] or r.get("harness_errors")]
+    lines += ["", "## Failed runs or harness errors", ""] + ([f"- {r['scenario']}/{r['rep']}: {r['final_state']}, timed_out={r['timed_out']}, "
+                                            f"harness errors={r.get('harness_errors') or 'none'}"
                                             for r in failed] or ["- none"])
     (out / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     sys.stdout.reconfigure(encoding="utf-8")

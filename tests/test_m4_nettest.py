@@ -121,7 +121,15 @@ def test_log_with_a_line_cut_by_sigkill_is_still_readable(tmp_path):
 
 def test_summary_aggregates_per_scenario():
     base = metrics.run_metrics(KILLED_AND_RESUMED, {"state": "COMPLETE", "server_sha256": "abc", "events": []})
-    runs = [{**base, "scenario": "x", "steps_fired": 1, "steps_total": 1},
-            {**base, "scenario": "x", "success": False, "steps_fired": 1, "steps_total": 1}]
+    runs = [{**base, "scenario": "x", "steps_fired": 1, "steps_total": 1, "faults_total": 1, "faults_mid_transfer": 1},
+            {**base, "scenario": "x", "success": False, "steps_fired": 1, "steps_total": 1,
+             "faults_total": 1, "faults_mid_transfer": 0}]
     t = metrics.summarize(runs)["x"]
     assert t["runs"] == 2 and t["successes"] == 1 and t["success_rate"] == 0.5 and t["steps_fired_all"]
+    assert (t["faults_mid_transfer"], t["faults_total"]) == (1, 2)  # late faults are visible, not hidden
+
+
+def test_fault_counts_only_if_bytes_were_still_left():
+    assert metrics.fault_landed(KILLED_AND_RESUMED, 2.5)        # 50% uploaded, result later
+    assert not metrics.fault_landed(KILLED_AND_RESUMED, 11.5)   # all bytes already confirmed
+    assert not metrics.fault_landed(KILLED_AND_RESUMED, 13)     # after the result

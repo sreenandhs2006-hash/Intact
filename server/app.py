@@ -119,4 +119,5 @@ def status_page():
 
 @app.get("/health")
 def health():
-    return {"ok": True}
+    # data_dir lets a test harness confirm it reached the server it started, not another one
+    return {"ok": True, "data_dir": str(config.DATA_DIR.resolve())}

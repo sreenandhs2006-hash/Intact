@@ -35,7 +35,10 @@ class ServerProcess:
         deadline = time.time() + 20
         while time.time() < deadline:
             try:
-                if httpx.get(f"{self.url}/health", timeout=1).status_code == 200:
+                h = httpx.get(f"{self.url}/health", timeout=1)
+                if h.status_code == 200:
+                    if Path(h.json()["data_dir"]).resolve() != Path(self.env["VI_DATA_DIR"]).resolve():
+                        raise RuntimeError(f"another server answers on port {self.port}")
                     return self
             except httpx.HTTPError:
                 time.sleep(0.1)

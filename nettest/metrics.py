@@ -33,6 +33,14 @@ def progress(events):
     return done / size if size else 0.0
 
 
+def fault_landed(events, fault_t):
+    """A fault tests something only if bytes were still left to upload when it hit
+    (progress from events logged before the fault < 100%) and the run ended after it."""
+    before = [e for e in events if e["t"] <= fault_t]
+    ended_after = any(e["event"] == "result" and e["t"] > fault_t for e in events)
+    return progress(before) < 1.0 and ended_after
+
+
 def run_metrics(events, server_info=None):
     starts = [e for e in events if e["event"] == "start"]
     results = [e for e in events if e["event"] == "result"]
@@ -84,5 +92,8 @@ def summarize(results):
             "resumed_bytes_mean": round(statistics.fmean(r["resumed_bytes"] for r in runs)),
             "server_stalled_runs": sum("STALLED" in r["server_events"] for r in runs),
             "steps_fired_all": all(r.get("steps_fired") == r.get("steps_total") for r in runs),
+            # a fault that lands after the upload finished tests nothing - count them explicitly
+            "faults_total": sum(r.get("faults_total", 0) for r in runs),
+            "faults_mid_transfer": sum(r.get("faults_mid_transfer", 0) for r in runs),
         }
     return table
