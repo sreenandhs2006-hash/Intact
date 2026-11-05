@@ -1,0 +1,7 @@
+# Pinned for reproducible runs (Python 3.13). M2 adds PyAV / OpenCV.
+fastapi==0.162.0
+starlette==1.10.0
+pydantic==2.14.2
+uvicorn[standard]==0.54.0
+httpx==0.28.1
+pytest==9.2.0
