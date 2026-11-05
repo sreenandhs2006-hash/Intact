@@ -19,7 +19,7 @@ def _thumb(frame):
 
 
 def decode(path):
-    out = {"opened": False, "packets": 0, "corrupt_packets": [], "frames": [],
+    out = {"opened": False, "packets": 0, "packet_times": [], "corrupt_packets": [], "frames": [],
            "errors": [], "stream": None}
     try:
         container = av.open(str(path))
@@ -62,6 +62,8 @@ def decode(path):
             packet_time = float(packet.pts * tb) if packet.pts is not None else None
             if packet.size:
                 out["packets"] += 1
+                if packet_time is not None:
+                    out["packet_times"].append(packet_time)
                 if packet.is_corrupt:
                     out["corrupt_packets"].append(packet_time)
             with av.logging.Capture() as logs:

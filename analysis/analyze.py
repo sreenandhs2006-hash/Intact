@@ -93,11 +93,26 @@ def analyze(path, transfer=None):
     header_fps = ((pr.get("video") or {}).get("avg_frame_rate")
                   or (decoded["stream"] or {}).get("average_rate"))
 
-    timing_summary, anomalies = detect.timing(frames, header_fps) if frames else ({}, [])
-    content_anoms, content_info = detect.content(frames, anomalies) if frames else ([], {})
-    anomalies += content_anoms
+    timing_summary, anomalies = (detect.timing(frames, header_fps, decoded["packet_times"])
+                                 if frames else ({}, []))
     anomalies += detect.corruption(frames, decoded, cli)
-    anomalies += detect.truncation(frames, pr, decoded, timing_summary)
+    # content cues are meaningless on damaged pictures (corrupted frame -> next keyframe)
+    damaged = detect.corruption_affected(frames, [a for a in anomalies if a["type"] == "corrupted_frame"])
+    content_anoms, content_info = detect.content(frames, anomalies, damaged) if frames else ([], {})
+    content_info["frames_skipped_as_damaged"] = len(damaged)
+    anomalies += content_anoms
+    trunc = detect.truncation(frames, pr, decoded, timing_summary)
+    if trunc and decoded["packet_times"]:
+        # The last packet of a cut file is usually only partly present. Its decode failure
+        # is how the truncation shows, not a separate corruption: fold it in.
+        last = decoded["packet_times"][-1]  # last packet in file (demux) order
+        for a in [a for a in anomalies if a["type"] == "corrupted_frame" and a["time_start_s"] is not None
+                  and a["time_start_s"] - 1e-3 <= last <= (a["time_end_s"] or a["time_start_s"]) + 1e-3]:
+            anomalies.remove(a)
+            trunc[0]["evidence"] += f"; final packet at {last:.3f}s is incomplete ({a['evidence']})"
+            if trunc[0].get("estimated_missing") is not None:
+                trunc[0]["estimated_missing"] += 1
+    anomalies += trunc
     anomalies.sort(key=lambda a: (a["time_start_s"] is None, a["time_start_s"] or 0))
     for n, a in enumerate(anomalies, 1):
         a["id"] = f"A{n}"
@@ -107,8 +122,11 @@ def analyze(path, transfer=None):
     tl = timeline.build(frames, nominal, anomalies)
 
     decode_errors = [e for e in decoded["errors"] if e["kind"] != "no_video_stream"]
-    if not frames:
+    if len(frames) < 2:
+        # zero frames = not decodable; one frame = a still image, not a video
         validation = "INVALID"
+        if len(frames) == 1:
+            decode_errors.append({"kind": "not_a_video", "message": "only one frame decoded (still image)"})
     elif decode_errors or pr["errors"] or cli["error_lines"] or not pr["ok"]:
         validation = "VALID_WITH_ERRORS"
     else:

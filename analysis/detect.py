@@ -8,6 +8,7 @@ Two independent kinds of evidence:
                  a motion spike suggests frames were removed and re-timed.
 Thresholds are named constants so M3 can measure them; they are not tuned per video.
 """
+import bisect
 import statistics
 
 GAP_FACTOR = 1.5          # interval > 1.5x nominal  => at least one frame slot is empty
@@ -36,7 +37,7 @@ def nominal_interval(times, header_fps):
     return median, header
 
 
-def timing(frames, header_fps):
+def timing(frames, header_fps, packet_times=()):
     """Return (summary, anomalies) from presentation timestamps."""
     anomalies = []
     missing_pts = [i for i, f in enumerate(frames) if f["pts_s"] is None]
@@ -47,6 +48,7 @@ def timing(frames, header_fps):
     times = [frames[i]["pts_s"] for i in idx]
     if len(times) < 2:
         return {"frames_with_timestamps": len(times)}, anomalies
+    packet_times = sorted(packet_times)
 
     median, header = nominal_interval(times, header_fps)
     nominal = median or header
@@ -77,12 +79,26 @@ def timing(frames, header_fps):
                                       f"timestamp goes backwards by {-d*1000:.2f} ms", "high"))
         elif d > GAP_FACTOR * nominal:
             flush_irregular()
-            missing = round(d / nominal) - 1
-            anomalies.append(_anomaly(
-                "missing_frames", frames, i, j,
-                f"interval {d*1000:.2f} ms = {d/nominal:.2f}x nominal {nominal*1000:.2f} ms;"
-                f" ~{missing} frame slot(s) empty between {times[k]:.4f}s and {times[k+1]:.4f}s",
-                "high", estimated_missing=max(missing, 1)))
+            missing = max(round(d / nominal) - 1, 1)
+            # Packets that ARE in the file inside this gap but produced no frame are
+            # undecodable (corruption), not frames missing from the recording.
+            lo = bisect.bisect_right(packet_times, times[k] + eps)
+            hi = bisect.bisect_left(packet_times, times[k + 1] - eps)
+            undecodable = packet_times[lo:hi]
+            if undecodable:
+                anomalies.append({
+                    "type": "corrupted_frame", "frame_index_start": i, "frame_index_end": j,
+                    "time_start_s": undecodable[0], "time_end_s": undecodable[-1], "confidence": "high",
+                    "evidence": f"{len(undecodable)} packet(s) present in the container between {times[k]:.4f}s"
+                                f" and {times[k+1]:.4f}s produced no decodable frame",
+                    "undecodable_packets": len(undecodable)})
+            missing -= len(undecodable)
+            if missing > 0:
+                anomalies.append(_anomaly(
+                    "missing_frames", frames, i, j,
+                    f"interval {d*1000:.2f} ms = {d/nominal:.2f}x nominal {nominal*1000:.2f} ms;"
+                    f" ~{missing} frame slot(s) empty between {times[k]:.4f}s and {times[k+1]:.4f}s"
+                    f" with no packet in the container", "high", estimated_missing=missing))
         elif abs(d - nominal) > IRREGULAR_TOLERANCE * nominal:
             irregular_run.append(k)
         elif irregular_run and k - irregular_run[-1] > IRREGULAR_MERGE:
@@ -110,7 +126,7 @@ def timing(frames, header_fps):
     return summary, anomalies
 
 
-def content(frames, timing_anomalies):
+def content(frames, timing_anomalies, unreliable=frozenset()):
     """Duplicate and skipped frames from picture content. Returns (anomalies, info)."""
     diffs = [f["diff_prev"] for f in frames]
     n = len(frames)
@@ -126,7 +142,7 @@ def content(frames, timing_anomalies):
     i = 1
     while i < n:
         d = diffs[i]
-        if d is None:
+        if d is None or i in unreliable or i - 1 in unreliable:  # a diff with a damaged picture says nothing
             i += 1
             continue
         if d <= DUP_MAX_DIFF:
@@ -211,12 +227,17 @@ def truncation(frames, probe, decoded, timing_summary):
     v = (probe or {}).get("video") or {}
     declared_frames = v.get("declared_frames")
     n = len(frames)
+    # Count packets present in the file, not decoded frames: an undecodable frame is
+    # corruption, not truncation.
+    n_packets = decoded["packets"]
     demux_errors = [e for e in decoded["errors"] if e["kind"] == "demux_error"]
     reasons = []
-    if declared_frames and n < declared_frames:
-        reasons.append(f"header declares {declared_frames} frames, {n} decoded")
+    if declared_frames and n_packets < declared_frames:
+        reasons.append(f"header declares {declared_frames} frames, file contains {n_packets} packets")
     declared = v.get("declared_duration_s") or ((probe or {}).get("format") or {}).get("duration_s")
-    span = timing_summary.get("span_s")
+    pt = decoded.get("packet_times") or []
+    first = timing_summary.get("first_pts_s") or 0
+    span = (max(pt) - first + 1 / (v.get("avg_frame_rate") or 30)) if pt else timing_summary.get("span_s")
     if declared and span and declared - span > 2 * (1 / (v.get("avg_frame_rate") or 30)):
         reasons.append(f"header duration {declared:.3f}s, decoded frames span {span:.3f}s")
     if demux_errors:
@@ -228,5 +249,20 @@ def truncation(frames, probe, decoded, timing_summary):
                           "time_start_s": frames[last]["pts_s"] if n else None,
                           "time_end_s": declared, "confidence": "high" if len(reasons) > 1 or demux_errors else "medium",
                           "evidence": "; ".join(reasons),
-                          "estimated_missing": (declared_frames - n) if declared_frames and n < declared_frames else None})
+                          "estimated_missing": (declared_frames - n_packets)
+                          if declared_frames and n_packets < declared_frames else None})
     return anomalies
+
+
+def corruption_affected(frames, corruption_anomalies):
+    """Frame indices whose picture may be damaged: from each corrupted frame up to the next keyframe."""
+    affected = set()
+    for a in corruption_anomalies:
+        start = a.get("frame_index_start")
+        if start is None:
+            continue
+        k = start
+        while k < len(frames) and (k == start or not frames[k]["key"]):
+            affected.add(k)
+            k += 1
+    return affected
