@@ -26,9 +26,8 @@ pip install -r requirements.txt
 ```bash
 uvicorn server.app:app --port 8000          # status page: http://127.0.0.1:8000/
 python -m client.uploader path/to/video.mp4 --log upload.jsonl
-```
-
 python -m analysis.analyze path/to/video.mp4 --out reports/   # analyse a local file
+```
 
 After an upload reaches COMPLETE the server analyses it automatically; the status page links the
 HTML/JSON report (`/uploads/{id}/report.html`). FFmpeg/ffprobe must be on PATH.
