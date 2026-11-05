@@ -224,9 +224,11 @@ def main(argv=None):
     p.add_argument("--log", help="append JSON-lines events here")
     p.add_argument("--stall-timeout", type=float, default=20.0)
     p.add_argument("--max-failures", type=int, default=15)
+    p.add_argument("--max-chunk-kb", type=int, default=8 * 1024)
     args = p.parse_args(argv)
     up = Uploader(args.server, log_path=args.log, stall_timeout=args.stall_timeout,
-                  max_consecutive_failures=args.max_failures)
+                  max_consecutive_failures=args.max_failures,
+                  max_chunk=args.max_chunk_kb * KB, initial_chunk=min(256 * KB, args.max_chunk_kb * KB))
     result = up.upload(args.file)
     print(json.dumps(result, indent=2))
     return 0 if result["state"] == "COMPLETE" else 1

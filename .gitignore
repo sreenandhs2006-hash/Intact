@@ -5,3 +5,7 @@ __pycache__/
 *.jsonl
 data/
 .claude/
+nettest/bin/
+nettest/video30s.mp4
+nettest/**/server-data/
+nettest/**/client-state/
