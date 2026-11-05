@@ -17,7 +17,7 @@ RECIPES = {
     "gap": SRC + ["-vf", "select='not(between(n\\,60\\,64))'", "-fps_mode", "passthrough"] + ENC,
     # frames 60-62 removed and timestamps re-generated -> no gap, only a motion jump at 2.0 s
     "retimed": SRC + ["-vf", "select='not(between(n\\,60\\,62))',setpts=N/30/TB"] + ENC,
-    # frame 90 shown 3 times with regular timestamps -> duplicated frames at 3.0 s
+    # loop at 90: output frames 90-91 repeat frame 89 -> duplicated frames at 3.0 s
     "dup": SRC + ["-vf", "loop=loop=2:size=1:start=90,setpts=N/30/TB"] + ENC,
     # timestamps jittered by +-20% of a frame -> variable frame rate, no gaps
     "vfr": SRC + ["-vf", "settb=1/15360,setpts='(N+0.2*sin(N*1.7))/30/TB'"] + FINE_TB + ENC,

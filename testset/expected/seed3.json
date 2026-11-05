@@ -1,0 +1,437 @@
+[
+  {
+    "name": "clean_testsrc",
+    "file": "clean_testsrc.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "clean testsrc, control",
+    "validation": "VALID",
+    "anomalies": [],
+    "control": true
+  },
+  {
+    "name": "clean_mandelbrot",
+    "file": "clean_mandelbrot.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "clean mandelbrot, control",
+    "validation": "VALID",
+    "anomalies": [],
+    "control": true
+  },
+  {
+    "name": "static_flat",
+    "file": "static_flat.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "clean flat, control",
+    "validation": "VALID",
+    "anomalies": [],
+    "control": true
+  },
+  {
+    "name": "static_noisy",
+    "file": "static_noisy.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "clean noisy, control",
+    "validation": "VALID",
+    "anomalies": [],
+    "control": true
+  },
+  {
+    "name": "src25",
+    "file": "src25.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "25 fps source, control: 30 FPS timeline must show conversion duplicates, not anomalies",
+    "validation": "VALID",
+    "anomalies": [],
+    "control": true
+  },
+  {
+    "name": "gap_testsrc",
+    "file": "gap_testsrc.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "testsrc: frames [(170, 176)] removed, original timestamps kept (timestamp gap)",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "missing_frames",
+        "time_s": 5.9,
+        "count": 7
+      }
+    ]
+  },
+  {
+    "name": "gap_mandelbrot",
+    "file": "gap_mandelbrot.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "mandelbrot: frames [(107, 109)] removed, original timestamps kept (timestamp gap)",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "missing_frames",
+        "time_s": 3.6666666666666665,
+        "count": 3
+      }
+    ]
+  },
+  {
+    "name": "gap_multi_noisy",
+    "file": "gap_multi_noisy.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "noisy: frames [(50, 58), (158, 161), (231, 236)] removed, original timestamps kept (timestamp gap)",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "missing_frames",
+        "time_s": 1.9666666666666666,
+        "count": 9
+      },
+      {
+        "type": "missing_frames",
+        "time_s": 5.4,
+        "count": 4
+      },
+      {
+        "type": "missing_frames",
+        "time_s": 7.9,
+        "count": 6
+      }
+    ]
+  },
+  {
+    "name": "retimed_testsrc",
+    "file": "retimed_testsrc.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "testsrc: frames 189-193 removed and timestamps re-generated (no gap, content jump only)",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "possible_skipped_frames",
+        "time_s": 6.3,
+        "count": 5
+      }
+    ]
+  },
+  {
+    "name": "retimed_mandelbrot",
+    "file": "retimed_mandelbrot.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "mandelbrot: frames 109-113 removed and timestamps re-generated (no gap, content jump only)",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "possible_skipped_frames",
+        "time_s": 3.6333333333333333,
+        "count": 5
+      }
+    ]
+  },
+  {
+    "name": "dup_testsrc",
+    "file": "dup_testsrc.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "testsrc: frame 108 repeated 2 extra time(s) with regular timestamps",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "duplicated_frame",
+        "time_s": 3.6,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "name": "dup_mandelbrot",
+    "file": "dup_mandelbrot.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "mandelbrot: frame 210 repeated 1 extra time(s) with regular timestamps",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "duplicated_frame",
+        "time_s": 7.0,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "name": "dup_noisy",
+    "file": "dup_noisy.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "noisy: frame 115 repeated 2 extra time(s) with regular timestamps",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "duplicated_frame",
+        "time_s": 3.8333333333333335,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "name": "mixed_dup_gap",
+    "file": "mixed_dup_gap.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "testsrc: frame 58 repeated 1x, then frames 228-229 removed keeping timestamps",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "duplicated_frame",
+        "time_s": 1.9333333333333333,
+        "count": 1
+      },
+      {
+        "type": "missing_frames",
+        "time_s": 7.666666666666667,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "name": "vfr_jitter",
+    "file": "vfr_jitter.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "timestamps jittered by +-0.17 frame throughout (variable frame rate)",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "irregular_timing",
+        "start_s": 0,
+        "end_s": 10
+      }
+    ]
+  },
+  {
+    "name": "vfr_burst",
+    "file": "vfr_burst.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "timestamps jittered only for frames 128-164",
+    "validation": "VALID",
+    "anomalies": [
+      {
+        "type": "irregular_timing",
+        "start_s": 4.266666666666667,
+        "end_s": 5.466666666666667
+      }
+    ]
+  },
+  {
+    "name": "flipped_5",
+    "file": "flipped_5.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "4 bytes inverted inside 5 video packets",
+    "validation": "VALID_WITH_ERRORS",
+    "anomalies": [
+      {
+        "type": "corrupted_frame",
+        "time_s": 6.2
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 7.0
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 7.9
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 9.0
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 9.366667
+      }
+    ]
+  },
+  {
+    "name": "flipped_20",
+    "file": "flipped_20.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "4 bytes inverted inside 20 video packets",
+    "validation": "VALID_WITH_ERRORS",
+    "anomalies": [
+      {
+        "type": "corrupted_frame",
+        "time_s": 0.033333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 0.2
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 0.333333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 0.433333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 0.7
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 0.933333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 1.166667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 1.866667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 2.166667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 2.566667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 3.833333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 4.666667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.033333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.266667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.333333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 6.833333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 6.933333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 9.366667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 9.433333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 9.933333
+      }
+    ]
+  },
+  {
+    "name": "zeroed_block",
+    "file": "zeroed_block.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "16 KiB overwritten with zeros across 6 packets",
+    "validation": "VALID_WITH_ERRORS",
+    "anomalies": [
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.566667
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.6
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.633333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.7
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.733333
+      },
+      {
+        "type": "corrupted_frame",
+        "time_s": 5.8
+      }
+    ]
+  },
+  {
+    "name": "truncated",
+    "file": "truncated.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "file cut to 567867 of 972517 bytes (faststart: header intact)",
+    "validation": "VALID_WITH_ERRORS",
+    "anomalies": [
+      {
+        "type": "truncation",
+        "time_s": 5.8,
+        "count": 125
+      }
+    ]
+  },
+  {
+    "name": "truncated_moov_end",
+    "file": "truncated_moov_end.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "file cut to 80%, index (moov) stored at the end so it is lost: unplayable",
+    "validation": "INVALID",
+    "anomalies": []
+  },
+  {
+    "name": "fake_random",
+    "file": "fake_random.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "random bytes named .mp4",
+    "validation": "INVALID",
+    "anomalies": []
+  },
+  {
+    "name": "fake_text",
+    "file": "fake_text.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "text file named .mp4",
+    "validation": "INVALID",
+    "anomalies": []
+  },
+  {
+    "name": "fake_image",
+    "file": "fake_image.mp4",
+    "seed": 3,
+    "duration_s": 10,
+    "description": "single PNG image named .mp4",
+    "validation": "INVALID",
+    "anomalies": []
+  }
+]

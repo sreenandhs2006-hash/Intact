@@ -85,7 +85,8 @@ def test_frames_removed_and_retimed_are_found_by_content_only(report):
 def test_duplicated_frames_are_located(report):
     r = report("dup")
     dups = [a for a in r["anomalies"] if a["type"] == "duplicated_frame"]
-    assert len(dups) == 1 and dups[0]["count"] == 2 and near(dups[0]["time_start_s"], 91 / 30)
+    # loop=...:start=90 makes frames 90 and 91 copies of frame 89 (checked on raw FFmpeg output)
+    assert len(dups) == 1 and dups[0]["count"] == 2 and near(dups[0]["time_start_s"], 90 / 30, tol=0.001)
 
 
 def test_variable_frame_rate_is_timing_irregularity_and_conversion_artefacts(report):

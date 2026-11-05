@@ -7,8 +7,8 @@ Confluentia 2026 (IIT BHU) · nSEPIA technical challenge. Full README arrives in
 | Milestone | State |
 |---|---|
 | M1 Reliable transfer | done |
-| M2 Integrity analysis | – |
-| M3 Known-fault test set | – |
+| M2 Integrity analysis | done |
+| M3 Known-fault test set | done: held-out recall 0.933, precision 0.995 ([results](testset/results/HELDOUT.md)) |
 | M4 Network tests | – |
 | M5 Browser capture | – |
 | M6 Submission | – |
@@ -40,6 +40,14 @@ Server data goes to `~/.nihilent-vi/data` (override with `VI_DATA_DIR`).
 python -m pytest -q
 ```
 
+## Known-fault test set and detector score
+
+```bash
+python -m testset.generate --out ~/.nihilent-vi/testset/seed2 --seed 2     # 24 videos + expected results
+python -m testset.score --set ~/.nihilent-vi/testset/seed2 --out testset/results/seed2-heldout
+python -m testset.summary testset/results/seed*-heldout --out testset/results/HELDOUT.md
+```
+
 ## M1 design in one paragraph
 
 The client creates a session declaring the file's size and SHA-256, then sends chunks
@@ -64,3 +72,19 @@ a frame are labelled conversion duplicates, or gap-fill when they cover a source
 Each anomaly has evidence, confidence, a likely cause with candidates and what is ruled out (transfer is
 ruled out only when the SHA-256 was verified). Regular timestamps never produce "no drops": the report
 says "cannot determine" without a capture log.
+
+## M3 design in one paragraph
+
+`testset/generate.py` builds 24 videos per seed: controls (clean synthetic, clean Mandelbrot zoom, flat static,
+noisy static, 25 fps source), removed frames with and without re-timing, duplicated frames, mixed faults,
+whole-file and burst VFR, flipped bytes, a zeroed block, truncation with and without a usable index, and three
+fake files. Ground truth comes from the FFmpeg recipe (frame indices) or from ffprobe's packet table of the clean
+source (byte position -> packet -> time), never from the detector; each video gets a `.expected.json`.
+`testset/score.py` matches detections to expected events by identical type within ±200 ms and reports precision,
+recall, timestamp error, count error, false positives (also on control videos only) and validation accuracy.
+Seed 1 was the development set: its untouched baseline is in `testset/results/seed1-baseline` (recall 0.957,
+precision 0.722). Fixes were rules, not threshold changes, and two generator ground-truth errors were found and
+verified on raw FFmpeg output. The code was then frozen and seeds 2-6 (seed 6 at 30 s) scored once:
+recall 0.933, precision 0.995, 0 false positives on controls, validation 100%. Every miss is listed in
+`testset/results/HELDOUT.md`; the classes are low-motion content (detector abstains below `MOTION_MIN`), VFR jitter
+just under the 25% threshold, and byte flips that decode silently (only a hash can catch those).

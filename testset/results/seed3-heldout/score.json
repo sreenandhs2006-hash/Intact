@@ -1,0 +1,887 @@
+{
+  "set": "C:\\Users\\Admin\\.nihilent-vi\\testset\\seed3",
+  "seed": 3,
+  "scored_at": "2026-11-05T20:28:41+0530",
+  "tool_versions": {
+    "python": "3.13.3",
+    "os": "Windows-11-10.0.26300-SP0",
+    "ffmpeg": "ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+    "ffprobe": "ffprobe version 9.0.2-full_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers",
+    "pyav": "19.0.2",
+    "pyav_libavcodec": "63.1.102",
+    "pyav_libavformat": "63.1.102",
+    "opencv": "5.0.0",
+    "numpy": "2.5.4"
+  },
+  "tolerance_s": 0.2,
+  "overall": {
+    "expected_events": 46,
+    "found": 41,
+    "detections": 38,
+    "false_positives": 0,
+    "recall": 0.8913,
+    "precision": 1.0,
+    "validation_accuracy": 1.0,
+    "false_positives_on_controls": 0,
+    "control_videos": 5
+  },
+  "per_type": {
+    "corrupted_frame": {
+      "expected_events": 31,
+      "found": 27,
+      "missed": 4,
+      "detections": 24,
+      "false_positives": 0,
+      "recall": 0.871,
+      "precision": 1.0,
+      "time_error_mean_ms": null,
+      "time_error_max_ms": null,
+      "count_exact": null,
+      "count_error_mean": null
+    },
+    "duplicated_frame": {
+      "expected_events": 4,
+      "found": 3,
+      "missed": 1,
+      "detections": 3,
+      "false_positives": 0,
+      "recall": 0.75,
+      "precision": 1.0,
+      "time_error_mean_ms": 0.0,
+      "time_error_max_ms": 0.0,
+      "count_exact": 1.0,
+      "count_error_mean": 0.0
+    },
+    "irregular_timing": {
+      "expected_events": 2,
+      "found": 2,
+      "missed": 0,
+      "detections": 2,
+      "false_positives": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "time_error_mean_ms": null,
+      "time_error_max_ms": null,
+      "count_exact": null,
+      "count_error_mean": null
+    },
+    "missing_frames": {
+      "expected_events": 6,
+      "found": 6,
+      "missed": 0,
+      "detections": 6,
+      "false_positives": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "time_error_mean_ms": 0.0,
+      "time_error_max_ms": 0.0,
+      "count_exact": 1.0,
+      "count_error_mean": 0.0
+    },
+    "possible_skipped_frames": {
+      "expected_events": 2,
+      "found": 2,
+      "missed": 0,
+      "detections": 2,
+      "false_positives": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "time_error_mean_ms": 0.0,
+      "time_error_max_ms": 0.0,
+      "count_exact": 0.0,
+      "count_error_mean": 2.5
+    },
+    "truncation": {
+      "expected_events": 1,
+      "found": 1,
+      "missed": 0,
+      "detections": 1,
+      "false_positives": 0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "time_error_mean_ms": 0.0,
+      "time_error_max_ms": 0.0,
+      "count_exact": 0.0,
+      "count_error_mean": 1.0
+    }
+  },
+  "videos": [
+    {
+      "name": "clean_testsrc",
+      "description": "clean testsrc, control",
+      "control": true,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.8
+    },
+    {
+      "name": "clean_mandelbrot",
+      "description": "clean mandelbrot, control",
+      "control": true,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.79
+    },
+    {
+      "name": "static_flat",
+      "description": "clean flat, control",
+      "control": true,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.42
+    },
+    {
+      "name": "static_noisy",
+      "description": "clean noisy, control",
+      "control": true,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 3.11
+    },
+    {
+      "name": "src25",
+      "description": "25 fps source, control: 30 FPS timeline must show conversion duplicates, not anomalies",
+      "control": true,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 50,
+      "analysis_s": 1.2
+    },
+    {
+      "name": "gap_testsrc",
+      "description": "testsrc: frames [(170, 176)] removed, original timestamps kept (timestamp gap)",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "missing_frames",
+            "time_s": 5.9,
+            "count": 7
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 0
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.11
+    },
+    {
+      "name": "gap_mandelbrot",
+      "description": "mandelbrot: frames [(107, 109)] removed, original timestamps kept (timestamp gap)",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "missing_frames",
+            "time_s": 3.6666666666666665,
+            "count": 3
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 0
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.41
+    },
+    {
+      "name": "gap_multi_noisy",
+      "description": "noisy: frames [(50, 58), (158, 161), (231, 236)] removed, original timestamps kept (timestamp gap)",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 3,
+      "found_events": 3,
+      "detections": 3,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "missing_frames",
+            "time_s": 1.9666666666666666,
+            "count": 9
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 0
+        },
+        {
+          "expected": {
+            "type": "missing_frames",
+            "time_s": 5.4,
+            "count": 4
+          },
+          "found": true,
+          "detection": "A2",
+          "time_error_s": 0.0,
+          "count_error": 0
+        },
+        {
+          "expected": {
+            "type": "missing_frames",
+            "time_s": 7.9,
+            "count": 6
+          },
+          "found": true,
+          "detection": "A3",
+          "time_error_s": 0.0,
+          "count_error": 0
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 3.73
+    },
+    {
+      "name": "retimed_testsrc",
+      "description": "testsrc: frames 189-193 removed and timestamps re-generated (no gap, content jump only)",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "possible_skipped_frames",
+            "time_s": 6.3,
+            "count": 5
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 3
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.13
+    },
+    {
+      "name": "retimed_mandelbrot",
+      "description": "mandelbrot: frames 109-113 removed and timestamps re-generated (no gap, content jump only)",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "possible_skipped_frames",
+            "time_s": 3.6333333333333333,
+            "count": 5
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 2
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 2.29
+    },
+    {
+      "name": "dup_testsrc",
+      "description": "testsrc: frame 108 repeated 2 extra time(s) with regular timestamps",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "duplicated_frame",
+            "time_s": 3.6,
+            "count": 2
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 0
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.25
+    },
+    {
+      "name": "dup_mandelbrot",
+      "description": "mandelbrot: frame 210 repeated 1 extra time(s) with regular timestamps",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "duplicated_frame",
+            "time_s": 7.0,
+            "count": 1
+          },
+          "found": false
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.46
+    },
+    {
+      "name": "dup_noisy",
+      "description": "noisy: frame 115 repeated 2 extra time(s) with regular timestamps",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "duplicated_frame",
+            "time_s": 3.8333333333333335,
+            "count": 2
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 0
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 3.47
+    },
+    {
+      "name": "mixed_dup_gap",
+      "description": "testsrc: frame 58 repeated 1x, then frames 228-229 removed keeping timestamps",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 2,
+      "found_events": 2,
+      "detections": 2,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "duplicated_frame",
+            "time_s": 1.9333333333333333,
+            "count": 1
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 0
+        },
+        {
+          "expected": {
+            "type": "missing_frames",
+            "time_s": 7.666666666666667,
+            "count": 2
+          },
+          "found": true,
+          "detection": "A2",
+          "time_error_s": 0.0,
+          "count_error": 0
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.39
+    },
+    {
+      "name": "vfr_jitter",
+      "description": "timestamps jittered by +-0.17 frame throughout (variable frame rate)",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "irregular_timing",
+            "start_s": 0,
+            "end_s": 10
+          },
+          "found": true,
+          "detection": "A1"
+        }
+      ],
+      "conversion_duplicates": 81,
+      "analysis_s": 1.09
+    },
+    {
+      "name": "vfr_burst",
+      "description": "timestamps jittered only for frames 128-164",
+      "control": false,
+      "expected_validation": "VALID",
+      "validation": "VALID",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "irregular_timing",
+            "start_s": 4.266666666666667,
+            "end_s": 5.466666666666667
+          },
+          "found": true,
+          "detection": "A1"
+        }
+      ],
+      "conversion_duplicates": 10,
+      "analysis_s": 1.07
+    },
+    {
+      "name": "flipped_5",
+      "description": "4 bytes inverted inside 5 video packets",
+      "control": false,
+      "expected_validation": "VALID_WITH_ERRORS",
+      "validation": "VALID_WITH_ERRORS",
+      "validation_ok": true,
+      "expected_events": 5,
+      "found_events": 3,
+      "detections": 3,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 6.2
+          },
+          "found": true,
+          "detection": "A1"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 7.0
+          },
+          "found": true,
+          "detection": "A2"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 7.9
+          },
+          "found": false
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 9.0
+          },
+          "found": true,
+          "detection": "A3"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 9.366667
+          },
+          "found": false
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.1
+    },
+    {
+      "name": "flipped_20",
+      "description": "4 bytes inverted inside 20 video packets",
+      "control": false,
+      "expected_validation": "VALID_WITH_ERRORS",
+      "validation": "VALID_WITH_ERRORS",
+      "validation_ok": true,
+      "expected_events": 20,
+      "found_events": 18,
+      "detections": 16,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 0.033333
+          },
+          "found": true,
+          "detection": "A2"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 0.2
+          },
+          "found": true,
+          "detection": "A3"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 0.333333
+          },
+          "found": true,
+          "detection": "A4"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 0.433333
+          },
+          "found": true,
+          "detection": "A4"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 0.7
+          },
+          "found": true,
+          "detection": "A5"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 0.933333
+          },
+          "found": false
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 1.166667
+          },
+          "found": true,
+          "detection": "A6"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 1.866667
+          },
+          "found": false
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 2.166667
+          },
+          "found": true,
+          "detection": "A7"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 2.566667
+          },
+          "found": true,
+          "detection": "A8"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 3.833333
+          },
+          "found": true,
+          "detection": "A9"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 4.666667
+          },
+          "found": true,
+          "detection": "A10"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.033333
+          },
+          "found": true,
+          "detection": "A11"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.266667
+          },
+          "found": true,
+          "detection": "A12"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.333333
+          },
+          "found": true,
+          "detection": "A12"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 6.833333
+          },
+          "found": true,
+          "detection": "A14"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 6.933333
+          },
+          "found": true,
+          "detection": "A14"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 9.366667
+          },
+          "found": true,
+          "detection": "A15"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 9.433333
+          },
+          "found": true,
+          "detection": "A15"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 9.933333
+          },
+          "found": true,
+          "detection": "A16"
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 1.06
+    },
+    {
+      "name": "zeroed_block",
+      "description": "16 KiB overwritten with zeros across 6 packets",
+      "control": false,
+      "expected_validation": "VALID_WITH_ERRORS",
+      "validation": "VALID_WITH_ERRORS",
+      "validation_ok": true,
+      "expected_events": 6,
+      "found_events": 6,
+      "detections": 5,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.566667
+          },
+          "found": true,
+          "detection": "A3"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.6
+          },
+          "found": true,
+          "detection": "A4"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.633333
+          },
+          "found": true,
+          "detection": "A4"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.7
+          },
+          "found": true,
+          "detection": "A5"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.733333
+          },
+          "found": true,
+          "detection": "A5"
+        },
+        {
+          "expected": {
+            "type": "corrupted_frame",
+            "time_s": 5.8
+          },
+          "found": true,
+          "detection": "A5"
+        }
+      ],
+      "conversion_duplicates": 6,
+      "analysis_s": 1.11
+    },
+    {
+      "name": "truncated",
+      "description": "file cut to 567867 of 972517 bytes (faststart: header intact)",
+      "control": false,
+      "expected_validation": "VALID_WITH_ERRORS",
+      "validation": "VALID_WITH_ERRORS",
+      "validation_ok": true,
+      "expected_events": 1,
+      "found_events": 1,
+      "detections": 1,
+      "false_positives": [],
+      "events": [
+        {
+          "expected": {
+            "type": "truncation",
+            "time_s": 5.8,
+            "count": 125
+          },
+          "found": true,
+          "detection": "A1",
+          "time_error_s": 0.0,
+          "count_error": 1
+        }
+      ],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.84
+    },
+    {
+      "name": "truncated_moov_end",
+      "description": "file cut to 80%, index (moov) stored at the end so it is lost: unplayable",
+      "control": false,
+      "expected_validation": "INVALID",
+      "validation": "INVALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.32
+    },
+    {
+      "name": "fake_random",
+      "description": "random bytes named .mp4",
+      "control": false,
+      "expected_validation": "INVALID",
+      "validation": "INVALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.39
+    },
+    {
+      "name": "fake_text",
+      "description": "text file named .mp4",
+      "control": false,
+      "expected_validation": "INVALID",
+      "validation": "INVALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.35
+    },
+    {
+      "name": "fake_image",
+      "description": "single PNG image named .mp4",
+      "control": false,
+      "expected_validation": "INVALID",
+      "validation": "INVALID",
+      "validation_ok": true,
+      "expected_events": 0,
+      "found_events": 0,
+      "detections": 0,
+      "false_positives": [],
+      "events": [],
+      "conversion_duplicates": 0,
+      "analysis_s": 0.46
+    }
+  ]
+}
