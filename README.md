@@ -10,7 +10,7 @@ Confluentia 2026 (IIT BHU) · nSEPIA technical challenge. Full README arrives in
 | M2 Integrity analysis | done |
 | M3 Known-fault test set | done: held-out recall 0.933, precision 0.995 ([results](testset/results/HELDOUT.md)) |
 | M4 Network tests | harness built and checked without netem; real runs pending on a Linux laptop ([runbook](nettest/RUNBOOK.md)) |
-| M5 Browser capture | done: headless-Chrome runs in [evidence/m5](evidence/m5/README.md); real-webcam run not yet done |
+| M5 Browser capture | done: real webcam + headless-Chrome runs in [evidence/m5](evidence/m5/README.md) |
 | M6 Submission | – |
 
 ## Setup
