@@ -24,10 +24,17 @@ from tests import videos
 FPS_MS = 1000 / 30
 
 
+def jitter_ms(k):
+    """Every 7th frame arrives 10 ms late, in the log and in the file alike. Real cameras are never
+    perfectly periodic; a perfectly periodic log matches the file equally well one frame later, so the
+    analysis (rightly) refuses to align it."""
+    return 10 if k % 7 == 5 else 0
+
+
 def make_log(n_frames=150, drop=(), start_ms=1000.0, base="capture_time", hidden=None, skip_callbacks=(),
              video_sha="0" * 64):
-    """Capture log for a 30 fps source: frame k captured at start + k/30 s. `drop` = frames never
-    delivered to the page; `skip_callbacks` = frames presented without a callback."""
+    """Capture log for a 30 fps source: frame k captured at start + k/30 s (+ jitter). `drop` = frames
+    never delivered to the page; `skip_callbacks` = frames presented without a callback."""
     frames, presented = [], 0
     for k in range(n_frames):
         if k in drop:
@@ -35,7 +42,7 @@ def make_log(n_frames=150, drop=(), start_ms=1000.0, base="capture_time", hidden
         presented += 1
         if k in skip_callbacks:
             continue
-        t = start_ms + k * FPS_MS
+        t = start_ms + k * FPS_MS + jitter_ms(k)
         rec = {"now": t + 5, "presented_frames": presented, "capture_time": None,
                "presentation_time": t + 4}
         if base == "capture_time":
@@ -47,11 +54,15 @@ def make_log(n_frames=150, drop=(), start_ms=1000.0, base="capture_time", hidden
 
 
 def file_frames(n=150, drop=()):
-    return [{"pts_s": k / 30} for k in range(n) if k not in drop]
+    return [{"pts_s": pts(k)} for k in range(n) if k not in drop]
+
+
+def pts(k):
+    return (k * FPS_MS + jitter_ms(k)) / 1000
 
 
 def gap_anomaly(first_missing, last_missing):
-    return {"type": "missing_frames", "time_start_s": (first_missing - 1) / 30, "time_end_s": (last_missing + 1) / 30,
+    return {"type": "missing_frames", "time_start_s": pts(first_missing - 1), "time_end_s": pts(last_missing + 1),
             "estimated_missing": last_missing - first_missing + 1, "ruled_out": ["transfer"], "cause_reasoning": ""}
 
 
@@ -63,6 +74,29 @@ def test_alignment_finds_the_offset_even_when_the_file_lost_frames():
     _, idx = capture.summarize_log(log)
     a = capture.align(file_pts, [t for t, _ in idx["pts"]], guess_ms=900, nominal_ms=idx["nominal"])
     assert a["reliable"] and abs(a["offset_ms"] - 1000) < 1
+
+
+def test_alignment_regular_timing_is_pinned_only_by_a_shared_gap():
+    # Perfectly regular 30 fps (like the canvas test source): the log runs 0.5 s past the file on both
+    # sides, so one frame later matches just as well. The start-time guess is 120 ms off, as in a real
+    # headless run. Without a shared gap this must stay unreliable - never decided by the guess ...
+    def regular(frames, drop=()):
+        return [k * FPS_MS for k in range(frames) if k not in drop]
+    log_ms = [1000 + t for t in regular(330)]                      # log frames 0..329
+    file_pts = [t / 1000 for t in regular(300)]                    # file = log frames 15..314
+    true_offset = 1000 + 15 * FPS_MS
+    a = capture.align(file_pts, log_ms, guess_ms=true_offset + 120, nominal_ms=FPS_MS)
+    assert not a["reliable"] and a["gap_anchors"] == 0
+
+
+def test_alignment_real_regular_run_is_pinned_by_the_shared_stall():
+    # Real headless run (tests/data): frame pattern ambiguous (810 vs 809), start-time guess 121 ms off.
+    # The 0.5 s stall is in both file (10.127-10.655 s) and log (10709-11239 ms): offset ~582 ms.
+    fx = json.loads((Path(__file__).parent / "data" / "headless-stall-regular.json").read_text(encoding="utf-8"))
+    a = capture.align(fx["file_pts_s"], fx["log_ms"], fx["guess_ms"], fx["nominal_ms"])
+    assert a["frames_matched"] - a["frames_matched_next_best"] < 3          # pattern alone cannot decide
+    assert a["reliable"] and a["decided_by"] == "gap edges" and a["gap_anchors"] == 1
+    assert abs(a["offset_ms"] - 582) < 3
 
 
 def test_gap_in_file_and_log_is_capture():
@@ -103,8 +137,8 @@ def test_hidden_page_is_not_covered():
 
 
 def test_single_frame_gap_is_too_short_for_presentation_times():
-    anomalies = [gap_anomaly(60, 60)]
-    capture.evaluate(make_log(base="presentation_time"), file_frames(drop={60}), anomalies)
+    anomalies = [gap_anomaly(59, 59)]       # neighbours 58 and 60 are on time (no late frame widens the gap)
+    capture.evaluate(make_log(base="presentation_time"), file_frames(drop={59}), anomalies)
     ev = anomalies[0]["capture_evidence"]
     assert ev["verdict"] == "not_covered" and "resolution" in ev["reason"]
 
@@ -132,11 +166,18 @@ def test_analyze_with_capture_log_attributes_the_real_gap(gap_video):
     gap = lambda r: next(a for a in r["anomalies"] if a["type"] == "missing_frames")
     without = analyze(gap_video)
     assert gap(without)["likely_cause"] == "undetermined" and not without["capture_evidence"]["present"]
-    with_cap_gap = analyze(gap_video, capture_log=make_log(drop=range(60, 65)))
-    assert gap(with_cap_gap)["likely_cause"] == "capture"
+    # the FFmpeg video is perfectly regular, so the log for it must be too (no late frames)
+    regular_log = lambda drop=(): {**make_log(drop=drop), "frames": [
+        {**f, "capture_time": 1000 + k * FPS_MS, "presentation_time": 1004 + k * FPS_MS}
+        for k, f in zip([k for k in range(150) if k not in drop], make_log(drop=drop)["frames"])]}
+    with_cap_gap = analyze(gap_video, capture_log=regular_log(range(60, 65)))
+    assert gap(with_cap_gap)["likely_cause"] == "capture"                  # the shared gap pins the alignment
+    assert with_cap_gap["capture_evidence"]["alignment"]["gap_anchors"] == 1
     assert "capture" in with_cap_gap["summary"]["dropped_frames_in_original_recording"]
-    with_regular = analyze(gap_video, capture_log=make_log())
-    assert gap(with_regular)["likely_cause"] == "encoding"
+    # perfectly regular log, gap only in the file: one frame later fits as well -> no verdict, not a guess
+    with_regular = analyze(gap_video, capture_log=regular_log())
+    assert not with_regular["capture_evidence"]["alignment"]["reliable"]
+    assert gap(with_regular)["likely_cause"] == "undetermined"
 
 
 # ---------------- server: capture-log endpoint ----------------

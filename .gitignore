@@ -4,7 +4,7 @@ __pycache__/
 .pytest_cache/
 *.jsonl
 !nettest/**/*.jsonl
-data/
+/data/
 .claude/
 nettest/bin/
 nettest/video30s.mp4

@@ -149,6 +149,8 @@ def align(file_pts, log_ms, guess_ms, nominal_ms, search_ms=3000):
     sit closest to logged frames (each distance capped at one frame interval, so frames missing on
     one side cost the same at every offset). Ties go to the offset nearest the guess. Matching by
     time rather than by frame index keeps working when one side has dropped frames.
+    Reliable only if the data pins the offset: clearly more frames matched than one frame away
+    ("frame pattern"), or a long gap shared by file and log lines up at both edges ("gap edges").
     """
     import bisect
     cap = nominal_ms
@@ -185,12 +187,22 @@ def align(file_pts, log_ms, guess_ms, nominal_ms, search_ms=3000):
                            if 0 <= i < len(log_ms)), default=cap) <= nominal_ms / 4)
     m_best = matched(offset)
     m_rival = matched(rival_o) if rival_o is not None else 0
+    # Gap anchors: a long gap (>= 3 frames) present in both file and log, whose start AND end line up
+    # within a quarter frame at this offset. One frame later both edges are a whole frame off, so a
+    # shared gap pins the offset even when the timing is otherwise perfectly regular.
+    def gaps(ts):
+        return [(a, b) for a, b in zip(ts, ts[1:]) if b - a >= 3 * nominal_ms]
+    file_ms = [f * 1000 for f in file_pts]
+    anchors = sum(1 for fa, fb in gaps(file_ms) for la, lb in gaps(log_ms)
+                  if abs(fa + offset - la) <= nominal_ms / 4 and abs(fb + offset - lb) <= nominal_ms / 4)
+    # Only the data may pin the offset. The start-time guess is NOT trusted to decide: in real runs it was
+    # 29-64 ms (1-2 frames) off, so with perfectly regular timing it would pick the wrong frame.
+    decided_by = "frame pattern" if m_best - m_rival >= 3 else "gap edges" if anchors else None
     return {"method": "time_search", "offset_ms": round(offset, 1), "guess_ms": round(guess_ms, 1),
             "mean_distance_ms": round(fine[offset], 2), "frames_matched": m_best, "file_frames": len(file_pts),
-            "frames_matched_next_best": m_rival,
-            # the data pins the offset, or (regular timing) the start-time guess agrees with the best fit
-            "reliable": fine[offset] < nominal_ms / 4 and (m_best - m_rival >= 3 or abs(offset - guess_ms) < nominal_ms / 2),
-            "decided_by": "frame pattern" if m_best - m_rival >= 3 else "start time"}
+            "frames_matched_next_best": m_rival, "gap_anchors": anchors,
+            "reliable": fine[offset] < nominal_ms / 4 and decided_by is not None,
+            "decided_by": decided_by or "ambiguous (regular timing, no shared gap)"}
 
 
 def _overlaps(a0, a1, b0, b1):

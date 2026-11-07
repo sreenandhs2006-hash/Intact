@@ -101,7 +101,10 @@ so a reload or crash can resume. `static/uploader.js` is a port of the Python cl
 with jitter, adaptive chunks, resume by file hash); before finalize it posts the log, which the server accepts
 only if its SHA-256 matches and it names the video's SHA-256. `analysis/capture.py` aligns page clock and file
 timestamps by searching the offset at which file frames and logged frames coincide (robust to frames lost on one
-side), then per file anomaly asks one question: did frames reach the browser then? A file gap with no logged frame
+side). The offset counts as reliable only if the data pins it: clearly more frames match than one frame later
+(camera jitter makes the pattern unique), or a long gap present in both file and log lines up at both edges. A
+perfectly regular source with no shared gap is ambiguous and the log is not used; the recorder's start time is
+not trusted for this, because in real runs it was 1-2 frames off. Then per file anomaly it asks one question: did frames reach the browser then? A file gap with no logged frame
 inside is **capture**; a file gap the page did receive frames during is **encoding** (the recording pipeline); a
 moment the log cannot judge (hidden page, gap shorter than the log's time resolution, unreliable alignment) stays
 **undetermined**. The log is evidence about delivery to the page, not about what MediaRecorder encoded, and it is

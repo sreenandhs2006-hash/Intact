@@ -46,6 +46,14 @@ What else the runs show, stated as found:
   MP4 and may lack captureTime" did not hold for this version. One run, one phone: no statistics.
 - The iPhone run has 900 presented frames and 899 in the file, but no gap in the file. The one-frame difference
   is not located (most likely at the very end of the recording, where the file span is 34 ms shorter than the log).
+- **Alignment rule tightened (2026-11-08).** A later headless test-pattern run came out perfectly regular: the file
+  matched the log 810 frames at the right offset and 809 one frame later, and the recorder start time was 121 ms off.
+  The old rule then fell back to the start time, which in all five runs above was 29–64 ms (1–2 frames) off, so it
+  could not be trusted. Now only the data may pin the offset: the frame pattern (margin ≥ 3 frames, as in all five runs
+  above) or a long gap shared by file and log whose edges line up within a quarter frame (here the 0.5 s stall:
+  offset 581.5 ms, the same as computed by hand from the stall edges). Otherwise the alignment is unreliable and
+  the log judges nothing. The five runs above are unaffected (all decided by frame pattern). That run's timestamps
+  are kept as a regression test (`tests/data/headless-stall-regular.json`).
 - The two webcam "encoding" frames rest on the `presentedFrames` counter alone (callback missed, exact time
   unknown); the report shows `log_frames_inside_gap: 0, presented_inside_gap: 1` for both.
 
