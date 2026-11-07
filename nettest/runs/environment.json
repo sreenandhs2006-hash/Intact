@@ -1,0 +1,295 @@
+{
+  "recorded_at": "2026-11-08T00:55:04+0530",
+  "netem": true,
+  "platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+  "os_release": "Ubuntu 24.04.5 LTS",
+  "uname": "Linux pai 7.0.0-42-generic #42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2 x86_64 x86_64 x86_64 GNU/Linux",
+  "python": "3.12.3",
+  "tc": "tc utility, iproute2-6.1.0, libbpf 1.3.0",
+  "toxiproxy": "{\"version\": \"2.9.0\"}",
+  "git_commit": "7c50be86efc40beb2c93238358bc5b02877820ad",
+  "video": {
+    "file": "video30s.mp4",
+    "size_bytes": 3756860,
+    "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"
+  },
+  "max_chunk_kb": 512,
+  "profiles": {
+    "100": {
+      "name": "100",
+      "rate_kbit": 20000,
+      "rtt_ms": 20,
+      "loss_pct": 0
+    },
+    "60": {
+      "name": "60",
+      "rate_kbit": 5000,
+      "rtt_ms": 80,
+      "loss_pct": 1
+    },
+    "20": {
+      "name": "20",
+      "rate_kbit": 500,
+      "rtt_ms": 400,
+      "loss_pct": 5
+    }
+  },
+  "scenarios": {
+    "stable_100": {
+      "description": "100% strength throughout",
+      "base": "100",
+      "steps": []
+    },
+    "stable_60": {
+      "description": "60% strength throughout",
+      "base": "60",
+      "steps": []
+    },
+    "stable_20": {
+      "description": "20% strength throughout",
+      "base": "20",
+      "steps": []
+    },
+    "fluctuating": {
+      "description": "strength changes mid-transfer 100 -> 60 -> 20 -> 60 -> 20 -> 100",
+      "base": "100",
+      "steps": [
+        [
+          0.15,
+          [
+            [
+              "profile",
+              "60"
+            ]
+          ]
+        ],
+        [
+          0.3,
+          [
+            [
+              "profile",
+              "20"
+            ]
+          ]
+        ],
+        [
+          0.5,
+          [
+            [
+              "profile",
+              "60"
+            ]
+          ]
+        ],
+        [
+          0.65,
+          [
+            [
+              "profile",
+              "20"
+            ]
+          ]
+        ],
+        [
+          0.8,
+          [
+            [
+              "profile",
+              "100"
+            ]
+          ]
+        ]
+      ]
+    },
+    "interruption": {
+      "description": "60% link; at 30% the connection is cut for 10 s (all sockets closed, new ones refused)",
+      "base": "60",
+      "steps": [
+        [
+          0.3,
+          [
+            [
+              "disable"
+            ],
+            [
+              "wait",
+              10
+            ],
+            [
+              "enable"
+            ]
+          ]
+        ]
+      ]
+    },
+    "network_switch": {
+      "description": "Wi-Fi-like 100% link; at 40% all connections drop for 3 s and the link comes back as a cellular-like 20% link (approximation: the client IP does not change)",
+      "base": "100",
+      "steps": [
+        [
+          0.4,
+          [
+            [
+              "disable"
+            ],
+            [
+              "wait",
+              3
+            ],
+            [
+              "profile",
+              "20"
+            ],
+            [
+              "enable"
+            ]
+          ]
+        ]
+      ]
+    },
+    "resets": {
+      "description": "60% link; at 25%, 50%, 75% every connection is reset (TCP RST) for 2 s",
+      "base": "60",
+      "steps": [
+        [
+          0.25,
+          [
+            [
+              "toxic",
+              "rst",
+              "reset_peer"
+            ],
+            [
+              "wait",
+              2
+            ],
+            [
+              "untoxic",
+              "rst"
+            ]
+          ]
+        ],
+        [
+          0.5,
+          [
+            [
+              "toxic",
+              "rst",
+              "reset_peer"
+            ],
+            [
+              "wait",
+              2
+            ],
+            [
+              "untoxic",
+              "rst"
+            ]
+          ]
+        ],
+        [
+          0.75,
+          [
+            [
+              "toxic",
+              "rst",
+              "reset_peer"
+            ],
+            [
+              "wait",
+              2
+            ],
+            [
+              "untoxic",
+              "rst"
+            ]
+          ]
+        ]
+      ]
+    },
+    "timeouts": {
+      "description": "60% link; at 30% and 60% data is silently dropped for 30 s (hung connection, longer than the client's 20 s stall timeout)",
+      "base": "60",
+      "steps": [
+        [
+          0.3,
+          [
+            [
+              "toxic",
+              "hang",
+              "timeout"
+            ],
+            [
+              "wait",
+              30
+            ],
+            [
+              "untoxic",
+              "hang"
+            ]
+          ]
+        ],
+        [
+          0.6,
+          [
+            [
+              "toxic",
+              "hang",
+              "timeout"
+            ],
+            [
+              "wait",
+              30
+            ],
+            [
+              "untoxic",
+              "hang"
+            ]
+          ]
+        ]
+      ]
+    },
+    "client_restart": {
+      "description": "60% link; at 40% the client process is killed (SIGKILL) and restarted 2 s later",
+      "base": "60",
+      "steps": [
+        [
+          0.4,
+          [
+            [
+              "kill_client"
+            ],
+            [
+              "wait",
+              2
+            ],
+            [
+              "start_client"
+            ]
+          ]
+        ]
+      ]
+    },
+    "server_restart": {
+      "description": "60% link; at 40% the server process is killed (SIGKILL) and restarted 3 s later",
+      "base": "60",
+      "steps": [
+        [
+          0.4,
+          [
+            [
+              "kill_server"
+            ],
+            [
+              "wait",
+              3
+            ],
+            [
+              "start_server"
+            ]
+          ]
+        ]
+      ]
+    }
+  }
+}

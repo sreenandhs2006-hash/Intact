@@ -1,0 +1,25 @@
+{"t": 1794079158.607, "event": "cmd", "cmd": "ip link del vi-cli", "rc": 1, "out": "", "err": "Cannot find device \"vi-cli\""}
+{"t": 1794079158.609, "event": "cmd", "cmd": "ip netns del vi-srv", "rc": 1, "out": "", "err": "Cannot remove namespace file \"/run/netns/vi-srv\": No such file or directory"}
+{"t": 1794079158.612, "event": "cmd", "cmd": "ip netns add vi-srv", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.621, "event": "cmd", "cmd": "ip link add vi-cli type veth peer name vi-srv0", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.646, "event": "cmd", "cmd": "ip link set vi-srv0 netns vi-srv", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.649, "event": "cmd", "cmd": "ip addr add 10.77.0.1/24 dev vi-cli", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.651, "event": "cmd", "cmd": "ip link set vi-cli up", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.655, "event": "cmd", "cmd": "ip netns exec vi-srv ip addr add 10.77.0.2/24 dev vi-srv0", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.659, "event": "cmd", "cmd": "ip netns exec vi-srv ip link set vi-srv0 up", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.663, "event": "cmd", "cmd": "ip netns exec vi-srv ip link set lo up", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.665, "event": "cmd", "cmd": "ethtool -K vi-cli tso off gso off gro off", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.669, "event": "cmd", "cmd": "ip netns exec vi-srv ethtool -K vi-srv0 tso off gso off gro off", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.674, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 10ms rate 20000kbit loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.679, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 10ms loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794079158.679, "event": "profile", "name": "100", "rate_kbit": 20000, "rtt_ms": 20, "loss_pct": 0}
+{"t": 1794079161.411, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 200ms rate 500kbit loss 5% limit 64", "rc": 0, "out": "", "err": ""}
+{"t": 1794079161.414, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 200ms loss 5% limit 64", "rc": 0, "out": "", "err": ""}
+{"t": 1794079161.414, "event": "profile", "name": "20", "rate_kbit": 500, "rtt_ms": 400, "loss_pct": 5}
+{"t": 1794079164.928, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 200ms rate 500kbit loss 5% limit 64", "rc": 0, "out": "", "err": ""}
+{"t": 1794079164.931, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 200ms loss 5% limit 64", "rc": 0, "out": "", "err": ""}
+{"t": 1794079164.931, "event": "profile", "name": "20", "rate_kbit": 500, "rtt_ms": 400, "loss_pct": 5}
+{"t": 1794079184.233, "event": "cmd", "cmd": "tc -s qdisc show dev vi-cli", "rc": 0, "out": "qdisc netem 8001: root refcnt 17 limit 64 delay 200ms loss 5% rate 500Kbit\n Sent 281712 bytes 242 pkt (dropped 15, overlimits 0 requeues 0) \n backlog 132b 2p requeues 0", "err": ""}
+{"t": 1794079184.236, "event": "cmd", "cmd": "ip netns exec vi-srv tc -s qdisc show dev vi-srv0", "rc": 0, "out": "qdisc netem 8002: root refcnt 17 limit 64 delay 200ms loss 5%\n Sent 12568 bytes 169 pkt (dropped 5, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0", "err": ""}
+{"t": 1794079184.264, "event": "cmd", "cmd": "ip link del vi-cli", "rc": 0, "out": "", "err": ""}
+{"t": 1794079184.266, "event": "cmd", "cmd": "ip netns del vi-srv", "rc": 0, "out": "", "err": ""}

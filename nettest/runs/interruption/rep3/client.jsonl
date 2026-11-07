@@ -1,0 +1,17 @@
+{"t": 1794080609.318, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080609.49, "event": "created", "upload_id": "1240d03a4fc241fda93c598649301ff8", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080610.124, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.634, "rate_Bps": 413403, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080611.094, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.969, "rate_Bps": 541026, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080612.063, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 0.968, "rate_Bps": 541360, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080612.227, "event": "retry", "what": "chunk", "error": "RemoteProtocolError: Server disconnected without sending a response.", "attempt": 1, "delay_s": 0.197, "next_chunk": 262144}
+{"t": 1794080612.425, "event": "retry", "what": "status", "error": "ConnectError: [Errno 111] Connection refused", "attempt": 2, "delay_s": 0.919, "next_chunk": 131072}
+{"t": 1794080613.346, "event": "retry", "what": "status", "error": "ConnectError: [Errno 111] Connection refused", "attempt": 3, "delay_s": 0.839, "next_chunk": 65536}
+{"t": 1794080614.186, "event": "retry", "what": "status", "error": "ConnectError: [Errno 111] Connection refused", "attempt": 4, "delay_s": 1.092, "next_chunk": 65536}
+{"t": 1794080615.279, "event": "retry", "what": "status", "error": "ConnectError: [Errno 111] Connection refused", "attempt": 5, "delay_s": 7.037, "next_chunk": 65536}
+{"t": 1794080622.789, "event": "chunk_ok", "offset": 1835008, "length": 65536, "secs": 0.305, "rate_Bps": 215146, "duplicate": false, "next_chunk": 131072}
+{"t": 1794080623.099, "event": "chunk_ok", "offset": 1900544, "length": 131072, "secs": 0.31, "rate_Bps": 422740, "duplicate": false, "next_chunk": 262144}
+{"t": 1794080623.628, "event": "chunk_ok", "offset": 2031616, "length": 262144, "secs": 0.529, "rate_Bps": 495728, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080624.63, "event": "chunk_ok", "offset": 2293760, "length": 524288, "secs": 1.001, "rate_Bps": 523533, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080627.074, "event": "chunk_ok", "offset": 2818048, "length": 524288, "secs": 2.443, "rate_Bps": 214591, "duplicate": false, "next_chunk": 429183}
+{"t": 1794080629.667, "event": "chunk_ok", "offset": 3342336, "length": 414524, "secs": 2.592, "rate_Bps": 159939, "duplicate": false, "next_chunk": 319879}
+{"t": 1794080629.757, "event": "result", "state": "COMPLETE", "upload_id": "1240d03a4fc241fda93c598649301ff8", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 20.444, "retries": 5, "resumed_bytes": 0, "bytes_sent": 3756860, "detail": "full-file SHA-256 verified"}

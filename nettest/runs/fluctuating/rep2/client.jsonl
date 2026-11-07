@@ -1,0 +1,17 @@
+{"t": 1794080127.097, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080127.15, "event": "created", "upload_id": "eaf6078b91934b2487017e86d5d1dd4f", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080127.315, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.165, "rate_Bps": 1589700, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080127.565, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.249, "rate_Bps": 2107260, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080127.844, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 0.278, "rate_Bps": 1884185, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080134.267, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 6.422, "rate_Bps": 81640, "duplicate": false, "next_chunk": 163281}
+{"t": 1794080137.661, "event": "chunk_ok", "offset": 1835008, "length": 163281, "secs": 3.394, "rate_Bps": 48105, "duplicate": false, "next_chunk": 96210}
+{"t": 1794080138.689, "event": "chunk_ok", "offset": 1998289, "length": 96210, "secs": 1.028, "rate_Bps": 93628, "duplicate": false, "next_chunk": 187257}
+{"t": 1794080139.308, "event": "chunk_ok", "offset": 2094499, "length": 187257, "secs": 0.619, "rate_Bps": 302725, "duplicate": false, "next_chunk": 374514}
+{"t": 1794080141.759, "event": "chunk_ok", "offset": 2281756, "length": 374514, "secs": 2.451, "rate_Bps": 152821, "duplicate": false, "next_chunk": 305643}
+{"t": 1794080153.48, "event": "chunk_ok", "offset": 2656270, "length": 305643, "secs": 11.721, "rate_Bps": 26077, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080157.947, "event": "chunk_ok", "offset": 2961913, "length": 65536, "secs": 4.467, "rate_Bps": 14672, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080158.407, "event": "chunk_ok", "offset": 3027449, "length": 65536, "secs": 0.459, "rate_Bps": 142654, "duplicate": false, "next_chunk": 131072}
+{"t": 1794080158.62, "event": "chunk_ok", "offset": 3092985, "length": 131072, "secs": 0.213, "rate_Bps": 616771, "duplicate": false, "next_chunk": 262144}
+{"t": 1794080158.901, "event": "chunk_ok", "offset": 3224057, "length": 262144, "secs": 0.28, "rate_Bps": 935929, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080159.119, "event": "chunk_ok", "offset": 3486201, "length": 270659, "secs": 0.218, "rate_Bps": 1244335, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080159.149, "event": "result", "state": "COMPLETE", "upload_id": "eaf6078b91934b2487017e86d5d1dd4f", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 32.056, "retries": 0, "resumed_bytes": 0, "bytes_sent": 3756860, "detail": "full-file SHA-256 verified"}

@@ -1,0 +1,18 @@
+{"t": 1794080784.379, "event": "toxi_enabled", "enabled": true}
+{"t": 1794080784.381, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 40ms rate 5000kbit loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794080784.384, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 40ms loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794080784.384, "event": "profile", "name": "60", "rate_kbit": 5000, "rtt_ms": 80, "loss_pct": 1}
+{"t": 1794080785.188, "event": "server_started", "pid": 10953}
+{"t": 1794080785.189, "event": "client_started", "n": 1, "pid": 10989}
+{"t": 1794080789.201, "event": "step_fired", "step": 0, "at": 0.4, "progress": 0.4884}
+{"t": 1794080789.201, "event": "action", "action": ["kill_client"]}
+{"t": 1794080789.205, "event": "action", "action": ["wait", 2]}
+{"t": 1794080791.205, "event": "action", "action": ["start_client"]}
+{"t": 1794080791.206, "event": "client_started", "n": 2, "pid": 11006}
+{"t": 1794080795.983, "event": "toxi_enabled", "enabled": true}
+{"t": 1794080795.985, "event": "cmd", "cmd": "tc -s qdisc show dev vi-cli", "rc": 0, "out": "qdisc netem 8005: root refcnt 17 limit 433 delay 40ms loss 1% rate 5Mbit\n Sent 116454480 bytes 79357 pkt (dropped 744, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0", "err": ""}
+{"t": 1794080795.99, "event": "cmd", "cmd": "ip netns exec vi-srv tc -s qdisc show dev vi-srv0", "rc": 0, "out": "qdisc netem 8006: root refcnt 17 limit 433 delay 40ms loss 1%\n Sent 3326299 bytes 43060 pkt (dropped 704, overlimits 0 requeues 0) \n backlog 66b 1p requeues 0", "err": ""}
+{"t": 1794080795.992, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 10ms rate 20000kbit loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794080795.995, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 10ms loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794080795.996, "event": "profile", "name": "100", "rate_kbit": 20000, "rtt_ms": 20, "loss_pct": 0}
+{"t": 1794080796.129, "event": "faults_checked", "faults": [{"action": "kill_client", "t": 1794080789.201, "landed_mid_transfer": true}]}

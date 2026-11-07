@@ -1,0 +1,18 @@
+{"t": 1794080797.039, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080797.211, "event": "created", "upload_id": "16e5fed48d8441c099b43090b68fe4d1", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080797.843, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.631, "rate_Bps": 415135, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080798.811, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.967, "rate_Bps": 542173, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080799.899, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 1.087, "rate_Bps": 482237, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080800.963, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 1.063, "rate_Bps": 493380, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080801.253, "event": "retry", "what": "chunk", "error": "RemoteProtocolError: Server disconnected without sending a response.", "attempt": 1, "delay_s": 0.351, "next_chunk": 262144}
+{"t": 1794080801.688, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 2, "delay_s": 0.472, "next_chunk": 131072}
+{"t": 1794080802.244, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 3, "delay_s": 0.451, "next_chunk": 65536}
+{"t": 1794080802.777, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 4, "delay_s": 0.71, "next_chunk": 65536}
+{"t": 1794080803.571, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 5, "delay_s": 4.109, "next_chunk": 65536}
+{"t": 1794080808.147, "event": "chunk_ok", "offset": 1835008, "length": 65536, "secs": 0.3, "rate_Bps": 218248, "duplicate": false, "next_chunk": 131072}
+{"t": 1794080808.456, "event": "chunk_ok", "offset": 1900544, "length": 131072, "secs": 0.308, "rate_Bps": 425012, "duplicate": false, "next_chunk": 262144}
+{"t": 1794080808.985, "event": "chunk_ok", "offset": 2031616, "length": 262144, "secs": 0.528, "rate_Bps": 496064, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080810.114, "event": "chunk_ok", "offset": 2293760, "length": 524288, "secs": 1.128, "rate_Bps": 464762, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080812.318, "event": "chunk_ok", "offset": 2818048, "length": 524288, "secs": 2.203, "rate_Bps": 237998, "duplicate": false, "next_chunk": 475996}
+{"t": 1794080814.58, "event": "chunk_ok", "offset": 3342336, "length": 414524, "secs": 2.262, "rate_Bps": 183284, "duplicate": false, "next_chunk": 366569}
+{"t": 1794080814.671, "event": "result", "state": "COMPLETE", "upload_id": "16e5fed48d8441c099b43090b68fe4d1", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 17.636, "retries": 5, "resumed_bytes": 0, "bytes_sent": 4281148, "detail": "full-file SHA-256 verified"}

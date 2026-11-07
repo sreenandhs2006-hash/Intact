@@ -1,0 +1,32 @@
+{
+  "scenario": "server_restart",
+  "rep": "rep5",
+  "netem": true,
+  "steps_total": 1,
+  "steps_fired": 1,
+  "timed_out": false,
+  "faults_total": 1,
+  "faults_mid_transfer": 1,
+  "harness_errors": [],
+  "success": true,
+  "final_state": "COMPLETE",
+  "hash_match": true,
+  "server_state": "COMPLETE",
+  "server_sha256_matches_client": true,
+  "duration_s": 17.193,
+  "client_invocations": 1,
+  "retries": 4,
+  "resyncs": 0,
+  "resumed_bytes": 0,
+  "chunks_ok": 10,
+  "duplicate_chunks_acked": 0,
+  "gave_up": false,
+  "size": 3756860,
+  "upload_id": "7903af6e87384dfdb9a91376279f3a16",
+  "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739",
+  "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739",
+  "server_events": [
+    "COMPLETE",
+    "CREATED"
+  ]
+}

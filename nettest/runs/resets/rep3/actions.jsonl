@@ -1,0 +1,31 @@
+{"t": 1794080693.907, "event": "toxi_enabled", "enabled": true}
+{"t": 1794080693.909, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 40ms rate 5000kbit loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794080693.912, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 40ms loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794080693.912, "event": "profile", "name": "60", "rate_kbit": 5000, "rtt_ms": 80, "loss_pct": 1}
+{"t": 1794080694.715, "event": "server_started", "pid": 10810}
+{"t": 1794080694.715, "event": "client_started", "n": 1, "pid": 10846}
+{"t": 1794080697.976, "event": "step_fired", "step": 0, "at": 0.25, "progress": 0.3489}
+{"t": 1794080697.976, "event": "action", "action": ["toxic", "rst", "reset_peer"]}
+{"t": 1794080697.978, "event": "toxi_add", "name": "rst", "type": "reset_peer", "stream": "upstream", "attributes": {"timeout": 0}}
+{"t": 1794080697.978, "event": "action", "action": ["wait", 2]}
+{"t": 1794080699.978, "event": "action", "action": ["untoxic", "rst"]}
+{"t": 1794080699.979, "event": "toxi_remove", "name": "rst"}
+{"t": 1794080700.983, "event": "step_fired", "step": 1, "at": 0.5, "progress": 0.5582}
+{"t": 1794080700.983, "event": "action", "action": ["toxic", "rst", "reset_peer"]}
+{"t": 1794080700.989, "event": "toxi_add", "name": "rst", "type": "reset_peer", "stream": "upstream", "attributes": {"timeout": 0}}
+{"t": 1794080700.989, "event": "action", "action": ["wait", 2]}
+{"t": 1794080702.99, "event": "action", "action": ["untoxic", "rst"]}
+{"t": 1794080702.991, "event": "toxi_remove", "name": "rst"}
+{"t": 1794080706.755, "event": "step_fired", "step": 2, "at": 0.75, "progress": 0.7501}
+{"t": 1794080706.756, "event": "action", "action": ["toxic", "rst", "reset_peer"]}
+{"t": 1794080706.757, "event": "toxi_add", "name": "rst", "type": "reset_peer", "stream": "upstream", "attributes": {"timeout": 0}}
+{"t": 1794080706.757, "event": "action", "action": ["wait", 2]}
+{"t": 1794080708.758, "event": "action", "action": ["untoxic", "rst"]}
+{"t": 1794080708.759, "event": "toxi_remove", "name": "rst"}
+{"t": 1794080712.777, "event": "toxi_enabled", "enabled": true}
+{"t": 1794080712.78, "event": "cmd", "cmd": "tc -s qdisc show dev vi-cli", "rc": 0, "out": "qdisc netem 8005: root refcnt 17 limit 433 delay 40ms loss 1% rate 5Mbit\n Sent 108027980 bytes 73630 pkt (dropped 720, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0", "err": ""}
+{"t": 1794080712.784, "event": "cmd", "cmd": "ip netns exec vi-srv tc -s qdisc show dev vi-srv0", "rc": 0, "out": "qdisc netem 8006: root refcnt 17 limit 433 delay 40ms loss 1%\n Sent 3105923 bytes 40111 pkt (dropped 672, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0", "err": ""}
+{"t": 1794080712.786, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 10ms rate 20000kbit loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794080712.789, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 10ms loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794080712.789, "event": "profile", "name": "100", "rate_kbit": 20000, "rtt_ms": 20, "loss_pct": 0}
+{"t": 1794080712.921, "event": "faults_checked", "faults": [{"action": "toxic", "t": 1794080697.976, "landed_mid_transfer": true}, {"action": "toxic", "t": 1794080700.983, "landed_mid_transfer": true}, {"action": "toxic", "t": 1794080706.755, "landed_mid_transfer": true}]}

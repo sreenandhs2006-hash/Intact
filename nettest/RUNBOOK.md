@@ -40,8 +40,9 @@ Each line should end with `COMPLETE hash_ok=True`. If not, stop and bring `nette
 ## 4. Full run (5 repetitions of 10 scenarios)
 
 ```bash
-sudo .venv/bin/python -m nettest.run run --reps 5 2>&1 | tee nettest/runs-console.log
+sudo .venv/bin/python -u -m nettest.run run --reps 5 2>&1 | tee nettest/runs-console.log
 ```
+`-u` makes Python print each result line at once; without it the output through `tee` is held back until the end.
 Interrupted (lid closed, Ctrl+C)? Run the same command again: finished runs are skipped.
 
 ## 5. Bring the evidence back

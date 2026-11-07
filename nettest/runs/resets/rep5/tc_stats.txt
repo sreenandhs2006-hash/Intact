@@ -1,0 +1,10 @@
+# client side (60 base)
+qdisc netem 8005: root refcnt 17 limit 433 delay 40ms loss 1% rate 5Mbit
+ Sent 187612979 bytes 127883 pkt (dropped 1308, overlimits 0 requeues 0) 
+ backlog 0b 0p requeues 0
+
+# server side
+qdisc netem 8006: root refcnt 17 limit 433 delay 40ms loss 1%
+ Sent 5373537 bytes 69483 pkt (dropped 1195, overlimits 0 requeues 0) 
+ backlog 0b 0p requeues 0
+

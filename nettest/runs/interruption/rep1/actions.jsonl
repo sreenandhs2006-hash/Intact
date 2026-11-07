@@ -1,0 +1,19 @@
+{"t": 1794079720.101, "event": "toxi_enabled", "enabled": true}
+{"t": 1794079720.104, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 40ms rate 5000kbit loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794079720.107, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 40ms loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794079720.107, "event": "profile", "name": "60", "rate_kbit": 5000, "rtt_ms": 80, "loss_pct": 1}
+{"t": 1794079720.918, "event": "server_started", "pid": 8831}
+{"t": 1794079720.918, "event": "client_started", "n": 1, "pid": 8867}
+{"t": 1794079723.928, "event": "step_fired", "step": 0, "at": 0.3, "progress": 0.3489}
+{"t": 1794079723.929, "event": "action", "action": ["disable"]}
+{"t": 1794079723.93, "event": "toxi_enabled", "enabled": false}
+{"t": 1794079723.93, "event": "action", "action": ["wait", 10]}
+{"t": 1794079733.931, "event": "action", "action": ["enable"]}
+{"t": 1794079733.933, "event": "toxi_enabled", "enabled": true}
+{"t": 1794079745.006, "event": "toxi_enabled", "enabled": true}
+{"t": 1794079745.009, "event": "cmd", "cmd": "tc -s qdisc show dev vi-cli", "rc": 0, "out": "qdisc netem 8005: root refcnt 17 limit 433 delay 40ms loss 1% rate 5Mbit\n Sent 19985147 bytes 13615 pkt (dropped 172, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0", "err": ""}
+{"t": 1794079745.013, "event": "cmd", "cmd": "ip netns exec vi-srv tc -s qdisc show dev vi-srv0", "rc": 0, "out": "qdisc netem 8006: root refcnt 17 limit 433 delay 40ms loss 1%\n Sent 585517 bytes 7547 pkt (dropped 172, overlimits 0 requeues 0) \n backlog 66b 1p requeues 0", "err": ""}
+{"t": 1794079745.015, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 10ms rate 20000kbit loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794079745.019, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 10ms loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794079745.019, "event": "profile", "name": "100", "rate_kbit": 20000, "rtt_ms": 20, "loss_pct": 0}
+{"t": 1794079745.152, "event": "faults_checked", "faults": [{"action": "disable", "t": 1794079723.929, "landed_mid_transfer": true}]}

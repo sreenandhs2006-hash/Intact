@@ -1,0 +1,51 @@
+{
+  "upload_id": "88773f57fd4646a1aef88ffe3b9bcf6d",
+  "filename": "video30s.mp4",
+  "size": 3756860,
+  "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739",
+  "state": "COMPLETE",
+  "received_bytes": 3756860,
+  "progress": 1.0,
+  "chunks_received": 12,
+  "duplicate_chunks": 0,
+  "rejected_chunks": 0,
+  "created_at": 1794081227.207656,
+  "last_activity_at": 1794081296.1727042,
+  "completed_at": 1794081296.1727042,
+  "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739",
+  "verified": true,
+  "detail": "full-file SHA-256 verified",
+  "analysis": "running",
+  "events": [
+    {
+      "ts": 1794081296.1727042,
+      "event": "COMPLETE",
+      "detail": "sha256=7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"
+    },
+    {
+      "ts": 1794081294.2759545,
+      "event": "RESUMED",
+      "detail": "offset=2818048"
+    },
+    {
+      "ts": 1794081293.97582,
+      "event": "STALLED",
+      "detail": "no chunk for 30.1s"
+    },
+    {
+      "ts": 1794081262.0129735,
+      "event": "RESUMED",
+      "detail": "offset=1835008"
+    },
+    {
+      "ts": 1794081261.7134867,
+      "event": "STALLED",
+      "detail": "no chunk for 30.6s"
+    },
+    {
+      "ts": 1794081227.207656,
+      "event": "CREATED",
+      "detail": "size=3756860"
+    }
+  ]
+}

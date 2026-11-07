@@ -1,0 +1,20 @@
+{"t": 1794079225.929, "event": "toxi_enabled", "enabled": true}
+{"t": 1794079225.933, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 40ms rate 5000kbit loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794079225.937, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 40ms loss 1% limit 433", "rc": 0, "out": "", "err": ""}
+{"t": 1794079225.938, "event": "profile", "name": "60", "rate_kbit": 5000, "rtt_ms": 80, "loss_pct": 1}
+{"t": 1794079226.742, "event": "server_started", "pid": 8069}
+{"t": 1794079226.743, "event": "client_started", "n": 1, "pid": 8105}
+{"t": 1794079236.263, "event": "step_fired", "step": 0, "at": 0.4, "progress": 0.488}
+{"t": 1794079236.264, "event": "action", "action": ["kill_server"]}
+{"t": 1794079236.279, "event": "action", "action": ["wait", 3]}
+{"t": 1794079239.28, "event": "action", "action": ["start_server"]}
+{"t": 1794079240.819, "event": "server_started", "pid": 8121}
+{"t": 1794079245.796, "event": "toxi_enabled", "enabled": true}
+{"t": 1794079245.799, "event": "cmd", "cmd": "tc -s qdisc show dev vi-cli", "rc": 0, "out": "qdisc netem 8003: root refcnt 17 limit 433 delay 40ms loss 1% rate 5Mbit\n Sent 11920855 bytes 8084 pkt (dropped 30, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0", "err": ""}
+{"t": 1794079245.803, "event": "cmd", "cmd": "ip netns exec vi-srv tc -s qdisc show dev vi-srv0", "rc": 0, "out": "qdisc netem 8004: root refcnt 17 limit 433 delay 40ms loss 1%\n Sent 308865 bytes 4198 pkt (dropped 23, overlimits 0 requeues 0) \n backlog 66b 1p requeues 0", "err": ""}
+{"t": 1794079245.806, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 10ms rate 20000kbit loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794079245.81, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 10ms loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794079245.81, "event": "profile", "name": "100", "rate_kbit": 20000, "rtt_ms": 20, "loss_pct": 0}
+{"t": 1794079245.944, "event": "faults_checked", "faults": [{"action": "kill_server", "t": 1794079236.264, "landed_mid_transfer": true}]}
+{"t": 1794079245.966, "event": "cmd", "cmd": "ip link del vi-cli", "rc": 0, "out": "", "err": ""}
+{"t": 1794079245.969, "event": "cmd", "cmd": "ip netns del vi-srv", "rc": 0, "out": "", "err": ""}

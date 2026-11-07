@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 .pytest_cache/
 *.jsonl
+!nettest/**/*.jsonl
 data/
 .claude/
 nettest/bin/
