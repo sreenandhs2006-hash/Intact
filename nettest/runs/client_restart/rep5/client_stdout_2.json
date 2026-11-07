@@ -1,0 +1,13 @@
+{
+  "state": "COMPLETE",
+  "upload_id": "7708b58f83274973907d1bf4b9008cf8",
+  "size": 3756860,
+  "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739",
+  "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739",
+  "hash_match": true,
+  "duration_s": 3.064,
+  "retries": 0,
+  "resumed_bytes": 2359296,
+  "bytes_sent": 1397564,
+  "detail": "full-file SHA-256 verified"
+}
