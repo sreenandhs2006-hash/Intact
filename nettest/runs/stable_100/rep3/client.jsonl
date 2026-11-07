@@ -1,0 +1,11 @@
+{"t": 1794080395.554, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080395.605, "event": "created", "upload_id": "7d6dc3b30b51406285052deae25a114d", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080395.769, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.164, "rate_Bps": 1601696, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080396.018, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.248, "rate_Bps": 2111825, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080396.268, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 0.249, "rate_Bps": 2103984, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080396.517, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 0.248, "rate_Bps": 2110123, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080396.768, "event": "chunk_ok", "offset": 1835008, "length": 524288, "secs": 0.25, "rate_Bps": 2095926, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080397.018, "event": "chunk_ok", "offset": 2359296, "length": 524288, "secs": 0.249, "rate_Bps": 2102871, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080397.27, "event": "chunk_ok", "offset": 2883584, "length": 524288, "secs": 0.251, "rate_Bps": 2087946, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080397.446, "event": "chunk_ok", "offset": 3407872, "length": 348988, "secs": 0.175, "rate_Bps": 1995666, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080397.476, "event": "result", "state": "COMPLETE", "upload_id": "7d6dc3b30b51406285052deae25a114d", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 1.926, "retries": 0, "resumed_bytes": 0, "bytes_sent": 3756860, "detail": "full-file SHA-256 verified"}

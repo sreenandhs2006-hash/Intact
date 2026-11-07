@@ -1,0 +1,24 @@
+{"t": 1794080694.816, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080694.989, "event": "created", "upload_id": "70de8b4cd8e240d8af4314370544cf6a", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080695.621, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.631, "rate_Bps": 415242, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080696.623, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 1.001, "rate_Bps": 523694, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080697.947, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 1.323, "rate_Bps": 396315, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080699.872, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 1.925, "rate_Bps": 272404, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080699.874, "event": "retry", "what": "chunk", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 1, "delay_s": 0.188, "next_chunk": 262144}
+{"t": 1794080700.857, "event": "chunk_ok", "offset": 1835008, "length": 262144, "secs": 0.628, "rate_Bps": 417179, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080701.96, "event": "chunk_ok", "offset": 2097152, "length": 524288, "secs": 1.102, "rate_Bps": 475554, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080701.962, "event": "retry", "what": "chunk", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 1, "delay_s": 0.492, "next_chunk": 262144}
+{"t": 1794080702.537, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 2, "delay_s": 0.253, "next_chunk": 131072}
+{"t": 1794080702.873, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 3, "delay_s": 0.008, "next_chunk": 65536}
+{"t": 1794080702.963, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 4, "delay_s": 3.01, "next_chunk": 65536}
+{"t": 1794080706.442, "event": "chunk_ok", "offset": 2621440, "length": 65536, "secs": 0.302, "rate_Bps": 217213, "duplicate": false, "next_chunk": 131072}
+{"t": 1794080706.751, "event": "chunk_ok", "offset": 2686976, "length": 131072, "secs": 0.309, "rate_Bps": 424633, "duplicate": false, "next_chunk": 262144}
+{"t": 1794080707.341, "event": "chunk_ok", "offset": 2818048, "length": 262144, "secs": 0.59, "rate_Bps": 444517, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080707.342, "event": "retry", "what": "chunk", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 1, "delay_s": 0.207, "next_chunk": 262144}
+{"t": 1794080707.632, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 2, "delay_s": 0.174, "next_chunk": 131072}
+{"t": 1794080707.89, "event": "retry", "what": "status", "error": "ReadError: [Errno 104] Connection reset by peer", "attempt": 3, "delay_s": 1.669, "next_chunk": 65536}
+{"t": 1794080711.064, "event": "chunk_ok", "offset": 3080192, "length": 65536, "secs": 0.303, "rate_Bps": 216288, "duplicate": false, "next_chunk": 131072}
+{"t": 1794080711.375, "event": "chunk_ok", "offset": 3145728, "length": 131072, "secs": 0.311, "rate_Bps": 421834, "duplicate": false, "next_chunk": 262144}
+{"t": 1794080711.905, "event": "chunk_ok", "offset": 3276800, "length": 262144, "secs": 0.529, "rate_Bps": 495163, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080712.427, "event": "chunk_ok", "offset": 3538944, "length": 217916, "secs": 0.522, "rate_Bps": 417571, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080712.519, "event": "result", "state": "COMPLETE", "upload_id": "70de8b4cd8e240d8af4314370544cf6a", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 17.707, "retries": 8, "resumed_bytes": 0, "bytes_sent": 5329724, "detail": "full-file SHA-256 verified"}

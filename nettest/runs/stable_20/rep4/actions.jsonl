@@ -1,0 +1,13 @@
+{"t": 1794080838.336, "event": "toxi_enabled", "enabled": true}
+{"t": 1794080838.338, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 200ms rate 500kbit loss 5% limit 64", "rc": 0, "out": "", "err": ""}
+{"t": 1794080838.341, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 200ms loss 5% limit 64", "rc": 0, "out": "", "err": ""}
+{"t": 1794080838.341, "event": "profile", "name": "20", "rate_kbit": 500, "rtt_ms": 400, "loss_pct": 5}
+{"t": 1794080840.185, "event": "server_started", "pid": 11275}
+{"t": 1794080840.185, "event": "client_started", "n": 1, "pid": 11311}
+{"t": 1794081057.761, "event": "toxi_enabled", "enabled": true}
+{"t": 1794081057.764, "event": "cmd", "cmd": "tc -s qdisc show dev vi-cli", "rc": 0, "out": "qdisc netem 8005: root refcnt 17 limit 64 delay 200ms loss 5% rate 500Kbit\n Sent 132357467 bytes 90204 pkt (dropped 901, overlimits 0 requeues 0) \n backlog 132b 2p requeues 0", "err": ""}
+{"t": 1794081057.768, "event": "cmd", "cmd": "ip netns exec vi-srv tc -s qdisc show dev vi-srv0", "rc": 0, "out": "qdisc netem 8006: root refcnt 17 limit 64 delay 200ms loss 5%\n Sent 3802667 bytes 49169 pkt (dropped 837, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0", "err": ""}
+{"t": 1794081057.771, "event": "cmd", "cmd": "tc qdisc replace dev vi-cli root netem delay 10ms rate 20000kbit loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794081057.774, "event": "cmd", "cmd": "ip netns exec vi-srv tc qdisc replace dev vi-srv0 root netem delay 10ms loss 0% limit 1683", "rc": 0, "out": "", "err": ""}
+{"t": 1794081057.774, "event": "profile", "name": "100", "rate_kbit": 20000, "rtt_ms": 20, "loss_pct": 0}
+{"t": 1794081057.982, "event": "faults_checked", "faults": []}

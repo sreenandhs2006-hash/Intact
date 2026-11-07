@@ -1,0 +1,13 @@
+{"t": 1794079904.549, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794079904.723, "event": "created", "upload_id": "88b7260e795d4704a766c39b264ebc26", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794079905.354, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.631, "rate_Bps": 415432, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079906.325, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.97, "rate_Bps": 540384, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079907.464, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 1.138, "rate_Bps": 460891, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079908.825, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 1.361, "rate_Bps": 385309, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079911.07, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794079911.237, "event": "resume", "upload_id": "88b7260e795d4704a766c39b264ebc26", "received_bytes": 2359296, "state": "UPLOADING"}
+{"t": 1794079911.905, "event": "chunk_ok", "offset": 2359296, "length": 262144, "secs": 0.667, "rate_Bps": 392913, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079912.966, "event": "chunk_ok", "offset": 2621440, "length": 524288, "secs": 1.06, "rate_Bps": 494401, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079914.15, "event": "chunk_ok", "offset": 3145728, "length": 524288, "secs": 1.183, "rate_Bps": 443319, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079914.431, "event": "chunk_ok", "offset": 3670016, "length": 86844, "secs": 0.281, "rate_Bps": 309150, "duplicate": false, "next_chunk": 524288}
+{"t": 1794079914.523, "event": "result", "state": "COMPLETE", "upload_id": "88b7260e795d4704a766c39b264ebc26", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 3.457, "retries": 0, "resumed_bytes": 2359296, "bytes_sent": 1397564, "detail": "full-file SHA-256 verified"}

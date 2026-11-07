@@ -1,0 +1,13 @@
+{"t": 1794081297.544, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794081297.718, "event": "created", "upload_id": "cb52bc691ecc4645ae22101f16827ca9", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794081298.402, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.684, "rate_Bps": 383531, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081299.398, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.996, "rate_Bps": 526576, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081300.367, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 0.968, "rate_Bps": 541863, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081301.396, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 1.028, "rate_Bps": 509999, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081303.567, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794081303.733, "event": "resume", "upload_id": "cb52bc691ecc4645ae22101f16827ca9", "received_bytes": 2359296, "state": "UPLOADING"}
+{"t": 1794081304.399, "event": "chunk_ok", "offset": 2359296, "length": 262144, "secs": 0.666, "rate_Bps": 393868, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081305.712, "event": "chunk_ok", "offset": 2621440, "length": 524288, "secs": 1.312, "rate_Bps": 399656, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081307.555, "event": "chunk_ok", "offset": 3145728, "length": 524288, "secs": 1.843, "rate_Bps": 284510, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081308.015, "event": "chunk_ok", "offset": 3670016, "length": 86844, "secs": 0.459, "rate_Bps": 189082, "duplicate": false, "next_chunk": 378165}
+{"t": 1794081308.106, "event": "result", "state": "COMPLETE", "upload_id": "cb52bc691ecc4645ae22101f16827ca9", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 4.544, "retries": 0, "resumed_bytes": 2359296, "bytes_sent": 1397564, "detail": "full-file SHA-256 verified"}

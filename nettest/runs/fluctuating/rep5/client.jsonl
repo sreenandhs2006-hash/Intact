@@ -1,0 +1,16 @@
+{"t": 1794081527.051, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794081527.103, "event": "created", "upload_id": "a7a8028668764cf28d8021434fc19085", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794081527.267, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.164, "rate_Bps": 1601586, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081527.518, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.25, "rate_Bps": 2100288, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081527.797, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 0.278, "rate_Bps": 1882599, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081534.075, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 6.277, "rate_Bps": 83524, "duplicate": false, "next_chunk": 167048}
+{"t": 1794081537.343, "event": "chunk_ok", "offset": 1835008, "length": 167048, "secs": 3.268, "rate_Bps": 51124, "duplicate": false, "next_chunk": 102248}
+{"t": 1794081538.282, "event": "chunk_ok", "offset": 2002056, "length": 102248, "secs": 0.939, "rate_Bps": 108885, "duplicate": false, "next_chunk": 204496}
+{"t": 1794081539.094, "event": "chunk_ok", "offset": 2104304, "length": 204496, "secs": 0.812, "rate_Bps": 251944, "duplicate": false, "next_chunk": 408992}
+{"t": 1794081540.568, "event": "chunk_ok", "offset": 2308800, "length": 408992, "secs": 1.473, "rate_Bps": 277738, "duplicate": false, "next_chunk": 524288}
+{"t": 1794081560.59, "event": "retry", "what": "chunk", "error": "ReadTimeout: timed out", "attempt": 1, "delay_s": 0.316, "next_chunk": 262144}
+{"t": 1794081568.121, "event": "chunk_ok", "offset": 3242080, "length": 262144, "secs": 6.402, "rate_Bps": 40948, "duplicate": false, "next_chunk": 81896}
+{"t": 1794081568.651, "event": "chunk_ok", "offset": 3504224, "length": 81896, "secs": 0.529, "rate_Bps": 154793, "duplicate": false, "next_chunk": 163792}
+{"t": 1794081568.882, "event": "chunk_ok", "offset": 3586120, "length": 163792, "secs": 0.231, "rate_Bps": 708328, "duplicate": false, "next_chunk": 327584}
+{"t": 1794081568.911, "event": "chunk_ok", "offset": 3749912, "length": 6948, "secs": 0.029, "rate_Bps": 241080, "duplicate": false, "next_chunk": 482160}
+{"t": 1794081568.942, "event": "result", "state": "COMPLETE", "upload_id": "a7a8028668764cf28d8021434fc19085", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 41.895, "retries": 1, "resumed_bytes": 0, "bytes_sent": 3756860, "detail": "full-file SHA-256 verified"}

@@ -1,0 +1,31 @@
+{"t": 1794080630.817, "event": "start", "path": "/home/pai/nihileent/nihilent/nettest/video30s.mp4", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080630.868, "event": "created", "upload_id": "d565d160fc8341f78df48e344fd2da40", "size": 3756860, "sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739"}
+{"t": 1794080631.033, "event": "chunk_ok", "offset": 0, "length": 262144, "secs": 0.164, "rate_Bps": 1598125, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080631.281, "event": "chunk_ok", "offset": 262144, "length": 524288, "secs": 0.248, "rate_Bps": 2116635, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080631.529, "event": "chunk_ok", "offset": 786432, "length": 524288, "secs": 0.247, "rate_Bps": 2121133, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080631.778, "event": "chunk_ok", "offset": 1310720, "length": 524288, "secs": 0.248, "rate_Bps": 2114776, "duplicate": false, "next_chunk": 524288}
+{"t": 1794080631.978, "event": "retry", "what": "chunk", "error": "RemoteProtocolError: Server disconnected without sending a response.", "attempt": 1, "delay_s": 0.384, "next_chunk": 262144}
+{"t": 1794080632.363, "event": "retry", "what": "status", "error": "ConnectError: [Errno 111] Connection refused", "attempt": 2, "delay_s": 0.997, "next_chunk": 131072}
+{"t": 1794080633.361, "event": "retry", "what": "status", "error": "ConnectError: [Errno 111] Connection refused", "attempt": 3, "delay_s": 0.528, "next_chunk": 65536}
+{"t": 1794080633.89, "event": "retry", "what": "status", "error": "ConnectError: [Errno 111] Connection refused", "attempt": 4, "delay_s": 2.521, "next_chunk": 65536}
+{"t": 1794080640.612, "event": "chunk_ok", "offset": 2359296, "length": 65536, "secs": 3.39, "rate_Bps": 19331, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080642.172, "event": "chunk_ok", "offset": 2424832, "length": 65536, "secs": 1.559, "rate_Bps": 42026, "duplicate": false, "next_chunk": 84053}
+{"t": 1794080644.496, "event": "chunk_ok", "offset": 2490368, "length": 84053, "secs": 2.324, "rate_Bps": 36168, "duplicate": false, "next_chunk": 72336}
+{"t": 1794080647.002, "event": "chunk_ok", "offset": 2574421, "length": 72336, "secs": 2.505, "rate_Bps": 28873, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080651.917, "event": "chunk_ok", "offset": 2646757, "length": 65536, "secs": 4.914, "rate_Bps": 13335, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080657.767, "event": "chunk_ok", "offset": 2712293, "length": 65536, "secs": 5.85, "rate_Bps": 11201, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080660.51, "event": "chunk_ok", "offset": 2777829, "length": 65536, "secs": 2.743, "rate_Bps": 23894, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080662.196, "event": "chunk_ok", "offset": 2843365, "length": 65536, "secs": 1.686, "rate_Bps": 38877, "duplicate": false, "next_chunk": 77754}
+{"t": 1794080663.948, "event": "chunk_ok", "offset": 2908901, "length": 77754, "secs": 1.751, "rate_Bps": 44398, "duplicate": false, "next_chunk": 88797}
+{"t": 1794080665.85, "event": "chunk_ok", "offset": 2986655, "length": 88797, "secs": 1.902, "rate_Bps": 46685, "duplicate": false, "next_chunk": 93370}
+{"t": 1794080667.828, "event": "chunk_ok", "offset": 3075452, "length": 93370, "secs": 1.978, "rate_Bps": 47211, "duplicate": false, "next_chunk": 94423}
+{"t": 1794080669.911, "event": "chunk_ok", "offset": 3168822, "length": 94423, "secs": 2.082, "rate_Bps": 45350, "duplicate": false, "next_chunk": 90700}
+{"t": 1794080672.586, "event": "chunk_ok", "offset": 3263245, "length": 90700, "secs": 2.675, "rate_Bps": 33911, "duplicate": false, "next_chunk": 67823}
+{"t": 1794080675.611, "event": "chunk_ok", "offset": 3353945, "length": 67823, "secs": 3.026, "rate_Bps": 22415, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080678.361, "event": "chunk_ok", "offset": 3421768, "length": 65536, "secs": 2.75, "rate_Bps": 23835, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080684.048, "event": "chunk_ok", "offset": 3487304, "length": 65536, "secs": 5.687, "rate_Bps": 11524, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080688.0, "event": "chunk_ok", "offset": 3552840, "length": 65536, "secs": 3.951, "rate_Bps": 16586, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080690.27, "event": "chunk_ok", "offset": 3618376, "length": 65536, "secs": 2.27, "rate_Bps": 28869, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080692.628, "event": "chunk_ok", "offset": 3683912, "length": 65536, "secs": 2.357, "rate_Bps": 27800, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080693.168, "event": "chunk_ok", "offset": 3749448, "length": 7412, "secs": 0.54, "rate_Bps": 13716, "duplicate": false, "next_chunk": 65536}
+{"t": 1794080693.585, "event": "result", "state": "COMPLETE", "upload_id": "d565d160fc8341f78df48e344fd2da40", "size": 3756860, "client_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "server_sha256": "7cb25b131bd2531aa22e8a295ba26628e0d39f93d98abb8ef27b379071b74739", "hash_match": true, "duration_s": 62.772, "retries": 4, "resumed_bytes": 0, "bytes_sent": 3756860, "detail": "full-file SHA-256 verified"}
