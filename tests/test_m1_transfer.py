@@ -10,6 +10,10 @@ import pytest
 
 from client.uploader import KB, Uploader, sha256_file
 
+# One reused client, as the real uploader does: a new httpx client per request loads the TLS certificate
+# bundle each time (0.3-1 s on a throttled laptop), which alone can exceed the 1 s / 3 s state limits below.
+http = httpx.Client(timeout=30)
+
 
 def h(b):
     return hashlib.sha256(b).hexdigest()
@@ -26,14 +30,14 @@ def make_uploader(server, tmp_path, **kw):
 
 
 def create(server, data, sha=None):
-    r = httpx.post(f"{server.url}/uploads", json={"filename": "x.bin", "size": len(data),
+    r = http.post(f"{server.url}/uploads", json={"filename": "x.bin", "size": len(data),
                                                    "sha256": sha or h(data)})
     assert r.status_code == 201
     return r.json()["upload_id"]
 
 
 def put(server, uid, offset, data, sha=None):
-    return httpx.put(f"{server.url}/uploads/{uid}/chunks", params={"offset": offset},
+    return http.put(f"{server.url}/uploads/{uid}/chunks", params={"offset": offset},
                      content=data, headers={"X-Chunk-SHA256": sha or h(data)})
 
 
@@ -61,7 +65,7 @@ def test_damaged_chunk_is_rejected_and_not_stored(server):
     uid = create(server, data)
     r = put(server, uid, 0, data, sha=h(b"something else"))
     assert r.status_code == 422
-    s = httpx.get(f"{server.url}/uploads/{uid}").json()
+    s = http.get(f"{server.url}/uploads/{uid}").json()
     assert s["received_bytes"] == 0 and s["rejected_chunks"] == 1
 
 
@@ -93,16 +97,16 @@ def test_finalize_refuses_incomplete_upload(server):
     data = b"abc" * 1000
     uid = create(server, data)
     put(server, uid, 0, data[:1000])
-    r = httpx.post(f"{server.url}/uploads/{uid}/finalize")
+    r = http.post(f"{server.url}/uploads/{uid}/finalize")
     assert r.status_code == 409 and r.json()["error"] == "incomplete"
-    assert httpx.get(f"{server.url}/uploads/{uid}").json()["state"] == "UPLOADING"
+    assert http.get(f"{server.url}/uploads/{uid}").json()["state"] == "UPLOADING"
 
 
 def test_wrong_full_hash_is_rejected_never_complete(server):
     data = b"abc" * 1000
     uid = create(server, data, sha=h(b"not this file"))
     assert put(server, uid, 0, data).status_code == 200
-    r = httpx.post(f"{server.url}/uploads/{uid}/finalize").json()
+    r = http.post(f"{server.url}/uploads/{uid}/finalize").json()
     assert r["state"] == "REJECTED" and r["verified"] is False
     assert put(server, uid, 0, data).status_code == 409  # terminal: no more chunks
 
@@ -135,12 +139,12 @@ def test_stalled_then_resumed_then_failed(make_server):
     uid = create(server, data)
     put(server, uid, 0, data[:1000])
     time.sleep(1.3)
-    assert httpx.get(f"{server.url}/uploads/{uid}").json()["state"] == "STALLED"
+    assert http.get(f"{server.url}/uploads/{uid}").json()["state"] == "STALLED"
     assert put(server, uid, 1000, data[1000:2000]).json()["state"] == "UPLOADING"
-    events = [e["event"] for e in httpx.get(f"{server.url}/uploads/{uid}/events").json()]
+    events = [e["event"] for e in http.get(f"{server.url}/uploads/{uid}/events").json()]
     assert "STALLED" in events and "RESUMED" in events
     time.sleep(3.3)
-    assert httpx.get(f"{server.url}/uploads/{uid}").json()["state"] == "FAILED"
+    assert http.get(f"{server.url}/uploads/{uid}").json()["state"] == "FAILED"
     assert put(server, uid, 2000, data[2000:]).status_code == 409
 
 
