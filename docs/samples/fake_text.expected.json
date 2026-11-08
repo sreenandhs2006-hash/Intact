@@ -1,0 +1,9 @@
+{
+  "name": "fake_text",
+  "file": "fake_text.mp4",
+  "seed": 6,
+  "duration_s": 30,
+  "description": "text file named .mp4",
+  "validation": "INVALID",
+  "anomalies": []
+}

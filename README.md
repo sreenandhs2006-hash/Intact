@@ -1,112 +1,149 @@
 # Reliable Video Upload & Frame Integrity Detection
 
-Confluentia 2026 (IIT BHU) · nSEPIA technical challenge. Full README arrives in M6; this covers what is built so far.
+Confluentia 2026 (IIT BHU) · Nihilent nSEPIA Technical Challenge · solo submission by Sreenandh S.
 
-## Status
+A client sends a 30-second video to a backend over a network that swings between 20% and 100% strength. The
+backend accepts the video **only when every byte has arrived and the whole-file SHA-256 matches**, then decodes
+it, analyses it at 30 FPS and writes an integrity report that says where frames are missing, duplicated or
+damaged, and **what evidence supports each conclusion**: transfer, capture or encoding.
 
-| Milestone | State |
+## Results at a glance
+
+All numbers come from real runs; the evidence files are in the repository.
+
+| What | Result | Evidence |
+|---|---|---|
+| Uploads under emulated bad networks (netem + Toxiproxy, real Linux laptop): stable 20/60/100%, fluctuating, 10 s outage, network switch, TCP resets, 30 s hangs, client crash, server crash | **50/50 COMPLETE, SHA-256 verified in every run**, 0 harness errors | [nettest/EVIDENCE.md](nettest/EVIDENCE.md) |
+| Damaged, partial or altered uploads | never accepted: damaged chunk rejected, incomplete upload cannot finalize, file changed mid-upload → `REJECTED` | `tests/test_m1_transfer.py` (16 tests) |
+| Frame anomaly detector on 120 known-fault videos (held out, code frozen) | recall **0.933**, precision **0.995**, validation 100%, 0 false positives on clean videos | [testset/results/HELDOUT.md](testset/results/HELDOUT.md) |
+| Altered, truncated and invalid videos | truncation located (`VALID_WITH_ERRORS`), fake files `INVALID`, flipped bytes located as corrupted frames | [docs/samples/](docs/samples/README.md), HELDOUT.md |
+| Browser recording with per-frame capture log (Chrome webcam, iPhone Safari, headless) | uploads COMPLETE; the log tells **capture** from **encoding** drops (e.g. a 3.3 s camera gap = capture) | [evidence/m5/README.md](evidence/m5/README.md) |
+| Automated tests | **80 passed** (`python -m pytest -q`) | `tests/` |
+
+## How each requirement of the brief is met
+
+| Brief | How |
 |---|---|
-| M1 Reliable transfer | done |
-| M2 Integrity analysis | done |
-| M3 Known-fault test set | done: held-out recall 0.933, precision 0.995 ([results](testset/results/HELDOUT.md)) |
-| M4 Network tests | done: 50/50 uploads COMPLETE and hash-verified under netem + Toxiproxy on a Linux laptop ([evidence](nettest/EVIDENCE.md)) |
-| M5 Browser capture | done: real webcam, iPhone Safari and headless-Chrome runs in [evidence/m5](evidence/m5/README.md) |
-| M6 Submission | – |
+| Handle low bandwidth, latency, loss, disconnections, timeouts, switching | Resumable offset-based chunks, per-chunk SHA-256, retry with capped exponential backoff and jitter, 20 s stall timeout, chunk size adapts to the measured speed (64 KB–8 MB) |
+| Recognise stalled, failed, partial transfers | Server states `UPLOADING → STALLED → FAILED`; `finalize` refuses an incomplete file; every state change is logged with a reason |
+| Declare success only when intact; report final status | `finalize` re-reads the file from disk; only a matching SHA-256 gives `COMPLETE`, otherwise `REJECTED` |
+| Proceed only after integrity checks | Analysis can open a file only through `uploads.verified_file()`, which refuses anything not `COMPLETE` with a matching hash |
+| Validate and decode; record errors explicitly | ffprobe validates container and stream; PyAV decodes every frame and records every decoder message per packet; the ffmpeg CLI decodes again as an independent check |
+| Extract frames at 30 FPS with timestamps and indices | Detection runs on the original timestamps; a 30 FPS timeline (slot → source frame) is then built and conversion duplicates are labelled as artefacts, not defects |
+| Identify and localise anomalies | Missing frames, duplicated frames, possible skipped frames, irregular timing, timestamp errors, corrupted frames, truncation, each with time range, frame indices, evidence and confidence |
+| Integrity report | JSON + HTML: transfer status, validation, anomalies, likely cause per anomaly, tool versions and limitations |
+| Distinguish transfer from capture/encoding issues | A verified hash rules out transfer. Without more evidence the report says "cannot determine" (never "no drops"). The browser client adds a per-frame capture log that separates capture from encoding |
 
-## Setup
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Client
+        PY["Python client<br/>client/uploader.py"]
+        BR["Browser client /capture<br/>MediaRecorder + frame log"]
+    end
+    subgraph Backend["Backend (FastAPI)"]
+        API["Upload API<br/>server/app.py"]
+        UP["Upload state machine<br/>server/uploads.py"]
+        DB[("SQLite<br/>sessions, chunks, events")]
+        FS[("Disk<br/>.part file, fsync")]
+        GATE{"COMPLETE and<br/>SHA-256 match?"}
+        AN["Analysis<br/>analysis/analyze.py"]
+        REP["Report<br/>JSON + HTML"]
+    end
+    PY -- "PUT chunk + SHA-256 at offset" --> API
+    BR -- "same protocol + capture log" --> API
+    API --> UP
+    UP --> DB
+    UP --> FS
+    UP -- finalize --> GATE
+    GATE -- "no: REJECTED" --> REP
+    GATE -- yes --> AN
+    AN -- "ffprobe → decode → detect → 30 FPS timeline → capture log" --> REP
+```
+
+1. **Create a session.** The client declares the file size and SHA-256 (`POST /uploads`).
+2. **Send chunks.** Each chunk goes to a byte offset with its own SHA-256 (`PUT /uploads/{id}/chunks?offset=`). The
+   server stores only a contiguous, verified prefix and fsyncs before recording it. A re-sent identical chunk
+   changes nothing.
+3. **Recover from any failure the same way.** Whether the network drops, a timeout fires, or the client or server
+   crashes, the client asks the server how many bytes it holds and continues from there.
+4. **Finalize.** The server re-hashes the whole file. A match gives `COMPLETE`, anything else `REJECTED`.
+5. **Analyse.** This starts automatically, and only for `COMPLETE` uploads. Analysis order: ffprobe validation,
+   full decode, anomaly detection on original timestamps, then the 30 FPS timeline, then (if present) the capture
+   log, then the report.
+
+Why each choice was made: [docs/DESIGN.md](docs/DESIGN.md).
+
+## Quick start
+
+Needs Python 3.12 or 3.13 and FFmpeg (ffmpeg + ffprobe on PATH; tested with 9.0.2). Install FFmpeg with
+`winget install Gyan.FFmpeg` on Windows or `sudo apt install ffmpeg` on Ubuntu.
 
 ```bash
 python -m venv .venv
-.venv/Scripts/activate        # Windows (Git Bash); on Linux: source .venv/bin/activate
+.venv/Scripts/activate            # Windows (Git Bash); Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
+python -m pytest -q               # 80 tests, ~4 min (the browser tests need Chrome or Edge; skipped otherwise)
 ```
 
-## Run
+## Run it
 
 ```bash
-uvicorn server.app:app --port 8000          # status page: http://127.0.0.1:8000/
-python -m client.uploader path/to/video.mp4 --log upload.jsonl
-python -m analysis.analyze path/to/video.mp4 --out reports/   # analyse a local file
+uvicorn server.app:app --port 8000
 ```
+Status page: http://127.0.0.1:8000/. Server data goes to `~/.nihilent-vi/data` (override with `VI_DATA_DIR`).
 
-Browser capture: open http://127.0.0.1:8000/capture in Chrome/Edge, pick Camera, press *Record 30 s and upload*.
-Scripted (headless, Chrome's fake camera): `python -m client.browser_run --source camera --out evidence/m5/run1`.
-
-After an upload reaches COMPLETE the server analyses it automatically; the status page links the
-HTML/JSON report (`/uploads/{id}/report.html`). FFmpeg/ffprobe must be on PATH.
-
-Server data goes to `~/.nihilent-vi/data` (override with `VI_DATA_DIR`).
-
-## Test everything
-
+**Upload a video with the Python client** (resumes automatically if interrupted or re-run):
 ```bash
-python -m pytest -q
+python -m client.uploader path/to/video.mp4 --server http://127.0.0.1:8000 --log upload.jsonl
+```
+It prints the final status as JSON (`state`, `client_sha256`, `server_sha256`, `hash_match`, retries, resumed
+bytes). The server then analyses the file; the status page links the report (`/uploads/{id}/report.html`, JSON at
+`/uploads/{id}/report`).
+
+**Record in the browser:** open http://127.0.0.1:8000/capture in Chrome or Edge, pick *Camera*, press *Record 30 s
+and upload*. A phone needs HTTPS (camera access requires a secure context); see
+[evidence/m5/README.md](evidence/m5/README.md) for the iPhone setup used.
+
+**Analyse a local file** (no upload; transfer then counts as unverified):
+```bash
+python -m analysis.analyze path/to/video.mp4 --out reports/
 ```
 
-## Known-fault test set and detector score
-
+**Make known-fault videos and score the detector:**
 ```bash
 python -m testset.generate --out ~/.nihilent-vi/testset/seed2 --seed 2     # 24 videos + expected results
 python -m testset.score --set ~/.nihilent-vi/testset/seed2 --out testset/results/seed2-heldout
-python -m testset.summary testset/results/seed*-heldout --out testset/results/HELDOUT.md
 ```
 
-## M1 design in one paragraph
+**Network tests** (Linux, root, about 2 h): follow [nettest/RUNBOOK.md](nettest/RUNBOOK.md).
 
-The client creates a session declaring the file's size and SHA-256, then sends chunks
-sequentially, each addressed by byte offset and carrying its own SHA-256. The server
-rejects damaged chunks, treats a re-sent identical chunk as a no-op, and only extends a
-contiguous verified prefix (`received_bytes`), fsyncing the bytes before recording them
-in SQLite. Resuming after any crash is "ask the server for `received_bytes` and continue".
-`finalize` re-reads the whole file from disk; only a matching SHA-256 yields `COMPLETE`,
-anything else is `REJECTED`. Idle sessions become `STALLED` (resumable) and later `FAILED`
-(terminal). Analysis code can only open a file through `uploads.verified_file()`, which
-refuses anything that is not `COMPLETE`.
+## Sample integrity reports
 
-## M2 design in one paragraph
+[docs/samples/](docs/samples/README.md) holds three 30 s known-fault videos uploaded through the system end to end
+(duplicated + missing frames, truncated file, fake file), each next to what the generator says is in it. The
+browser runs in [evidence/m5/](evidence/m5/README.md) show reports with a capture log; the webcam run, for
+example, attributes a 3.3 s gap to the camera.
 
-ffprobe validates the container and stream; PyAV decodes every frame single-threaded, capturing every
-FFmpeg message per packet; the ffmpeg CLI decodes again as an independent check. Detection runs on the
-ORIGINAL timestamps first: gaps (interval > 1.5x the median interval), repeated or backwards timestamps,
-irregular intervals (VFR). Content checks on 160x90 grayscale thumbnails add duplicated frames (identical
-picture inside motion) and possible skipped frames (motion jump with regular timestamps, low confidence).
-Only then is a 30 FPS timeline built ("slot k shows the latest frame with pts <= k/30"); slots that repeat
-a frame are labelled conversion duplicates, or gap-fill when they cover a source gap - artefacts, not defects.
-Each anomaly has evidence, confidence, a likely cause with candidates and what is ruled out (transfer is
-ruled out only when the SHA-256 was verified). Regular timestamps never produce "no drops": the report
-says "cannot determine" without a capture log.
+## Limitations
 
-## M3 design in one paragraph
+What the system cannot do, and what was not tested, is listed in [docs/LIMITATIONS.md](docs/LIMITATIONS.md). The
+most important: a byte-perfect transfer cannot prove the recording has no dropped frames. Without a capture log the
+report says *cannot determine* rather than *no drops*.
 
-`testset/generate.py` builds 24 videos per seed: controls (clean synthetic, clean Mandelbrot zoom, flat static,
-noisy static, 25 fps source), removed frames with and without re-timing, duplicated frames, mixed faults,
-whole-file and burst VFR, flipped bytes, a zeroed block, truncation with and without a usable index, and three
-fake files. Ground truth comes from the FFmpeg recipe (frame indices) or from ffprobe's packet table of the clean
-source (byte position -> packet -> time), never from the detector; each video gets a `.expected.json`.
-`testset/score.py` matches detections to expected events by identical type within ±200 ms and reports precision,
-recall, timestamp error, count error, false positives (also on control videos only) and validation accuracy.
-Seed 1 was the development set: its untouched baseline is in `testset/results/seed1-baseline` (recall 0.957,
-precision 0.722). Fixes were rules, not threshold changes, and two generator ground-truth errors were found and
-verified on raw FFmpeg output. The code was then frozen and seeds 2-6 (seed 6 at 30 s) scored once:
-recall 0.933, precision 0.995, 0 false positives on controls, validation 100%. Every miss is listed in
-`testset/results/HELDOUT.md`; the classes are low-motion content (detector abstains below `MOTION_MIN`), VFR jitter
-just under the 25% threshold, and byte flips that decode silently (only a hash can catch those).
+## Repository layout
 
-## M5 design in one paragraph
+| Path | Content |
+|---|---|
+| `server/` | FastAPI app, upload state machine (SQLite + fsync'd files), analysis jobs, browser pages (`static/`) |
+| `client/` | Python resumable uploader; headless-browser runner |
+| `analysis/` | ffprobe validation, decoding, detection, 30 FPS timeline, capture-log evaluation, HTML report |
+| `testset/` | known-fault video generator, scorer, results |
+| `nettest/` | netem/Toxiproxy harness, runbook, results of the 50 runs |
+| `evidence/m5/` | browser recording runs (reports + raw capture logs) |
+| `docs/` | design notes, limitations, demo script, sample reports |
+| `tests/` | pytest suite for every milestone |
 
-`/capture` records 30 s with MediaRecorder while `requestVideoFrameCallback` on the live preview logs every frame
-that reaches the page (`captureTime` when the browser provides it, else `presentationTime`, plus the
-`presentedFrames` counter and page visibility). The recording is kept in IndexedDB until the upload is COMPLETE,
-so a reload or crash can resume. `static/uploader.js` is a port of the Python client (same chunk hashes, backoff
-with jitter, adaptive chunks, resume by file hash); before finalize it posts the log, which the server accepts
-only if its SHA-256 matches and it names the video's SHA-256. `analysis/capture.py` aligns page clock and file
-timestamps by searching the offset at which file frames and logged frames coincide (robust to frames lost on one
-side). The offset counts as reliable only if the data pins it: clearly more frames match than one frame later
-(camera jitter makes the pattern unique), or a long gap present in both file and log lines up at both edges. A
-perfectly regular source with no shared gap is ambiguous and the log is not used; the recorder's start time is
-not trusted for this, because in real runs it was 1-2 frames off. Then per file anomaly it asks one question: did frames reach the browser then? A file gap with no logged frame
-inside is **capture**; a file gap the page did receive frames during is **encoding** (the recording pipeline); a
-moment the log cannot judge (hidden page, gap shorter than the log's time resolution, unreliable alignment) stays
-**undetermined**. The log is evidence about delivery to the page, not about what MediaRecorder encoded, and it is
-written by the client: its integrity is checked, its authenticity cannot be. Each report lists exactly what the log
-can and cannot prove (`capture_evidence.can_prove / cannot_prove`).
+Pinned dependencies: `requirements.txt`. Every report records the versions of Python, the OS, FFmpeg, PyAV,
+OpenCV and NumPy that produced it.

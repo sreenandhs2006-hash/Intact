@@ -1,0 +1,20 @@
+{
+  "name": "mixed_dup_gap",
+  "file": "mixed_dup_gap.mp4",
+  "seed": 6,
+  "duration_s": 30,
+  "description": "testsrc: frame 47 repeated 2x, then frames 356-361 removed keeping timestamps",
+  "validation": "VALID",
+  "anomalies": [
+    {
+      "type": "duplicated_frame",
+      "time_s": 1.5666666666666667,
+      "count": 2
+    },
+    {
+      "type": "missing_frames",
+      "time_s": 12.066666666666666,
+      "count": 6
+    }
+  ]
+}

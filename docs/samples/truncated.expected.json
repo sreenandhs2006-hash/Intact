@@ -1,0 +1,15 @@
+{
+  "name": "truncated",
+  "file": "truncated.mp4",
+  "seed": 6,
+  "duration_s": 30,
+  "description": "file cut to 1513688 of 2936429 bytes (faststart: header intact)",
+  "validation": "VALID_WITH_ERRORS",
+  "anomalies": [
+    {
+      "type": "truncation",
+      "time_s": 15.333333,
+      "count": 439
+    }
+  ]
+}

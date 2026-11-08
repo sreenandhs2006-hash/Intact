@@ -1,0 +1,118 @@
+{
+  "report_version": 1,
+  "generated_at": "2026-11-09T00:08:47+0530",
+  "analysis_seconds": 0.25,
+  "tool_versions": {
+    "python": "3.13.3",
+    "os": "Windows-11-10.0.26300-SP0",
+    "ffmpeg": "ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+    "ffprobe": "ffprobe version 9.0.2-full_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers",
+    "pyav": "19.0.2",
+    "pyav_libavcodec": "63.1.102",
+    "pyav_libavformat": "63.1.102",
+    "opencv": "5.0.0",
+    "numpy": "2.5.4"
+  },
+  "input": {
+    "file": "fake_text.mp4",
+    "size_bytes": 42000,
+    "sha256": "96bab0d5810c413e2991a0fc498ac77fbc50192427e21fd7a372a61ac1f0b416"
+  },
+  "transfer": {
+    "state": "COMPLETE",
+    "verified": true,
+    "sha256": "96bab0d5810c413e2991a0fc498ac77fbc50192427e21fd7a372a61ac1f0b416",
+    "server_sha256": "96bab0d5810c413e2991a0fc498ac77fbc50192427e21fd7a372a61ac1f0b416",
+    "size": 42000,
+    "received_bytes": 42000,
+    "chunks_received": 1,
+    "duplicate_chunks": 0,
+    "rejected_chunks": 0,
+    "completed_at": 1794163127.3818002,
+    "detail": "full-file SHA-256 verified",
+    "events": [
+      {
+        "ts": 1794163127.3818002,
+        "event": "COMPLETE",
+        "detail": "sha256=96bab0d5810c413e2991a0fc498ac77fbc50192427e21fd7a372a61ac1f0b416"
+      },
+      {
+        "ts": 1794163127.321257,
+        "event": "CREATED",
+        "detail": "size=42000"
+      }
+    ],
+    "capture_log_sha256": null
+  },
+  "transfer_verified": true,
+  "validation": {
+    "status": "INVALID",
+    "ffprobe": {
+      "ok": false,
+      "returncode": 1,
+      "errors": [
+        "C:\\Users\\Admin\\.nihilent-vi\\m6-samples\\data\\files\\b96d8838d96644b58c1769237faf2b81.bin: Invalid data found when processing input"
+      ],
+      "format": null,
+      "stream_types": [],
+      "video": null
+    },
+    "decode": {
+      "opened": false,
+      "packets": 0,
+      "frames_decoded": 0,
+      "corrupt_packets": [],
+      "errors": [
+        {
+          "kind": "open_failed",
+          "message": "[Errno 1094995529] Invalid data found when processing input: 'C:\\\\Users\\\\Admin\\\\.nihilent-vi\\\\m6-samples\\\\data\\\\files\\\\b96d8838d96644b58c1769237faf2b81.bin'"
+        }
+      ],
+      "error_count": 1
+    },
+    "ffmpeg_cli_decode": {
+      "returncode": null,
+      "error_lines": 0,
+      "errors": []
+    }
+  },
+  "source_timing": {
+    "frames_skipped_as_damaged": 0,
+    "note": "Computed from original timestamps, before any 30 FPS conversion."
+  },
+  "timeline_30fps": {
+    "target_fps": 30,
+    "slots": [],
+    "slot_count": 0,
+    "conversion_duplicates": 0,
+    "conversion_omissions": 0,
+    "gap_fill_slots": 0,
+    "omitted_source_frames": []
+  },
+  "capture_evidence": {
+    "present": false,
+    "note": "No capture log: capture and encoding drops cannot be told apart."
+  },
+  "anomalies": [],
+  "summary": {
+    "transfer": "verified (SHA-256 match)",
+    "validation": "INVALID",
+    "anomaly_counts": {},
+    "anomalies_total": 0,
+    "dropped_frames_in_original_recording": "cannot determine: the file could not be decoded",
+    "conversion_artefacts": {
+      "conversion_duplicates": 0,
+      "conversion_omissions": 0,
+      "gap_fill_slots": 0
+    }
+  },
+  "limitations": [
+    "A byte-perfect transfer proves only that the backend holds the same bytes the client had. It cannot prove the original recording has no dropped frames.",
+    "Frames dropped before encoding, with timestamps re-generated at a constant rate, leave no timestamp gap. Only content cues (motion spikes) hint at them, and those are low confidence.",
+    "Without a capture log or reference recording, capture drops and encoder drops cannot be told apart; such anomalies are reported with likely cause 'undetermined'. With a browser capture log, see capture_evidence.can_prove / cannot_prove for what it settles.",
+    "Content checks use fixed thresholds on 160x90 grayscale thumbnails. Static scenes, slow motion, fades and scene cuts can cause misses or false alarms. Thresholds are measured in the M3 test set.",
+    "Only the first video stream is analysed; audio is ignored.",
+    "Decoder error messages are mapped to frames via packet timestamps; with B-frames the visibly damaged frame can differ from the reported one, and damage can propagate until the next keyframe."
+  ],
+  "frames": []
+}
