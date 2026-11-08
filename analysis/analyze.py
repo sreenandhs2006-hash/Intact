@@ -200,7 +200,79 @@ def summarize(r):
         "dropped_frames_in_original_recording": drops,
         "conversion_artefacts": {k: r["timeline_30fps"].get(k) for k in
                                  ("conversion_duplicates", "conversion_omissions", "gap_fill_slots")},
+        "verdict": verdict(r),
     }
+
+
+def fmt_clock(t):
+    """Seconds -> m:ss.s, as people read video times."""
+    return "?" if t is None else f"{int(t // 60)}:{t % 60:04.1f}"
+
+
+# anomaly type -> plain words, most important first. Counted types give a frame count; the others
+# (low confidence or stretches) give the number of places, since a frame count would overstate them.
+PLAIN = {
+    "truncation": "file cut short",
+    "missing_frames": "frames missing",
+    "corrupted_frame": "damaged frames",
+    "duplicated_frame": "duplicated frames",
+    "duplicate_timestamp": "repeated timestamps",
+    "non_monotonic_timestamp": "timestamps going backwards",
+    "missing_timestamp": "frames without a timestamp",
+    "possible_skipped_frames": "possible skipped frames (low confidence)",
+    "irregular_timing": "irregular frame timing",
+}
+COUNTED = {"missing_frames": "estimated_missing", "duplicated_frame": "count"}
+
+
+def verdict(r):
+    """Three plain-language lines for the top of a report: upload, video, frames. Each is
+    {label, text, level} with level ok / warn / bad. Wording never claims more than the report does:
+    'no anomalies in the file' is not 'no drops in the recording'."""
+    tr, status = r["transfer"], r["validation"]["status"]
+    if r["transfer_verified"]:
+        upload = ("ok", "Verified: the server's copy is byte-identical to the sender's (SHA-256 match)")
+    elif tr.get("state") == "NOT_APPLICABLE":
+        upload = ("warn", "Not checked: local file, not uploaded")
+    else:
+        upload = ("bad", f"Not verified ({tr.get('state')})")
+    video = {"VALID": ("ok", "Valid video, decodes without errors"),
+             "VALID_WITH_ERRORS": ("warn", "Plays, but with decoding errors"),
+             "INVALID": ("bad", "Not a usable video: it could not be decoded")}.get(status, ("warn", status))
+    an = r["anomalies"]
+    if status == "INVALID":
+        frames = ("bad", "Not analysed: the file could not be decoded")
+    elif not an:
+        ce = r.get("capture_evidence") or {}
+        tail = ("" if ce.get("usable") else
+                " Frames dropped before encoding cannot be excluded without a capture log.")
+        frames = ("ok", "No frame anomalies found in the file." + tail)
+    else:
+        parts = []
+        types = sorted({a["type"] for a in an}, key=lambda t: list(PLAIN).index(t) if t in PLAIN else 99)
+        for typ in types:
+            group = [a for a in an if a["type"] == typ]
+            causes = {}
+            for a in group:
+                causes[a.get("likely_cause", "undetermined")] = causes.get(a.get("likely_cause", "undetermined"), 0) + 1
+            why = ", ".join(f"{c} in {n}" if len(causes) > 1 else c for c, n in sorted(causes.items()))
+            where = (" at " + ", ".join(fmt_clock(a["time_start_s"]) for a in group)) if len(group) <= 3 else ""
+            if typ == "truncation":
+                a = group[0]
+                lost = f", ~{a['estimated_missing']} frames lost" if a.get("estimated_missing") else ""
+                parts.append(f"file cut short from {fmt_clock(a['time_start_s'])}{lost}")
+                continue
+            if typ in COUNTED:
+                n = sum(a.get(COUNTED[typ]) or 1 for a in group)
+                words = PLAIN[typ].replace("frames", "frame", 1) if n == 1 else PLAIN[typ]
+                head = f"{n} {words}" + ("" if where else f" in {len(group)} places")
+            else:
+                head = f"{PLAIN.get(typ, typ)}" + (f" in {len(group)} places" if not where else "")
+            parts.append(f"{head}{where} (cause: {why})")
+        bad = any(a["type"] in ("missing_frames", "corrupted_frame", "truncation") for a in an)
+        frames = ("bad" if bad else "warn", "; ".join(parts))
+    return [{"label": label, "level": lvl, "text": text}
+            for label, (lvl, text) in (("Upload", upload), ("Video", video), ("Frames", frames))]
 
 
 def _drops_with_log(gaps, ce):

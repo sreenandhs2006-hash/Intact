@@ -16,10 +16,28 @@ th{font-size:12px;color:var(--muted);font-weight:600}
 .scroll{overflow-x:auto}code{font-size:12px;word-break:break-all}
 svg text{fill:var(--muted);font-size:10px}
 li{margin:4px 0}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline;font-size:15px}
+.verdict .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.verdict .txt::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:currentColor}
+.verdict .txt span{color:var(--text)}
+.tl{margin:8px 0 4px}.lane{margin:6px 0}
+.tl .bar{position:relative;height:22px;border-radius:4px;background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.tl .bar a{position:absolute;top:0;bottom:0;min-width:3px;border-radius:2px}
+.tl .bar a:hover,.tl .bar a:focus{outline:2px solid var(--text);z-index:1}
+.tl .ticks{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.tl .ticks span{position:absolute;transform:translateX(-50%)}.tl .ticks span:first-child{transform:none}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+@media (max-width:600px){.verdict{grid-template-columns:1fr}.verdict .lbl{margin-top:6px}}
 </style></head>
 <body><main>
 <h1>Video integrity report</h1>
-<div class="muted">truncated.mp4 · 1,513,688 bytes · generated 2026-11-09T00:08:46+0530</div>
+<div class="muted">truncated.mp4 · 1,513,688 bytes · generated 2026-11-09T02:06:10+0530</div>
+
+<div class='card verdict'><div class='lbl'>Upload</div><div class='txt ok'><span>Verified: the server&#x27;s copy is byte-identical to the sender&#x27;s (SHA-256 match)</span></div><div class='lbl'>Video</div><div class='txt warn'><span>Plays, but with decoding errors</span></div><div class='lbl'>Frames</div><div class='txt bad'><span>file cut short from 0:15.3, ~438 frames lost</span></div></div>
+
+<div class="card"><b>Where in the video</b><div class='tl' role='img' aria-label='anomalies on the video timeline'><div class='lane'><div class='k'>frame problems</div><div class='bar'><a href='#A1' title='A1 truncation 15.33-30.00 s, cause: undetermined' style='left:51.11%;width:48.89%;background:var(--bad)'></a></div></div><div class='lane'><div class='k'>lower confidence</div><div class='bar'></div></div><div class='ticks'><span style='left:0.00%'>0:00</span><span style='left:16.67%'>0:05</span><span style='left:33.33%'>0:10</span><span style='left:50.00%'>0:15</span><span style='left:66.67%'>0:20</span><span style='left:83.33%'>0:25</span><span style='left:100.00%'>0:30</span></div></div><div class='legend'><span><i style='background:var(--bad)'></i>file cut short</span><span>· click a marker for its details</span></div></div>
 
 <div class="grid" style="margin-top:14px">
  <div class="card"><div class="k">Transfer</div><div class="v ok">verified (SHA-256 match)</div></div>
@@ -33,7 +51,7 @@ li{margin:4px 0}
 <div class="card"><b>Dropped frames in the original recording:</b> cannot determine: no timestamp gaps were found in the file, but frames dropped before encoding with re-generated timestamps would leave no gap. A capture log or reference recording is required to prove the recording is complete.</div>
 
 <h2>Anomalies</h2>
-<div class="card scroll"><table><tr><th>ID</th><th>Type</th><th>Location</th><th>Evidence</th><th>Confidence</th><th>Likely cause</th></tr><tr><td>A1</td><td>truncation</td><td>15.333s – 30.000s<div class='k'>frames 460–</div></td><td>header declares 900 frames, file contains 462 packets; header duration 30.000s, decoded frames span 15.500s</td><td class='bad'>high</td><td><b>undetermined</b><div class='k'>candidates: capture, encoding; ruled out: transfer</div><div class='k'>The file ends before its header says it should: recording stopped abruptly or the file was cut or not finalised. Transfer is ruled out: the backend&#x27;s SHA-256 matches the client&#x27;s file.</div></td></tr></table></div>
+<div class="card scroll"><table><tr><th>ID</th><th>Type</th><th>Location</th><th>Evidence</th><th>Confidence</th><th>Likely cause</th></tr><tr id='A1'><td>A1</td><td>truncation</td><td>15.333s – 30.000s<div class='k'>frames 460–</div></td><td>header declares 900 frames, file contains 462 packets; header duration 30.000s, decoded frames span 15.500s</td><td class='bad'>high</td><td><b>undetermined</b><div class='k'>candidates: capture, encoding; ruled out: transfer</div><div class='k'>The file ends before its header says it should: recording stopped abruptly or the file was cut or not finalised. Transfer is ruled out: the backend&#x27;s SHA-256 matches the client&#x27;s file.</div></td></tr></table></div>
 
 <h2>Capture evidence (browser frame log)</h2>
 <div class='card muted'>No capture log: capture and encoding drops cannot be told apart.</div>
@@ -64,7 +82,7 @@ li{margin:4px 0}
  640×360 · declared frames 900 · declared duration 30.0s</p>
  <p class="k">ffprobe errors</p><ul><li class="muted">none</li></ul>
  <p class="k">PyAV decoder errors (first 50 of 7)</p><ul><li><code></code> demux_message: Packet corrupt (stream = 0, dts = 235008).</li><li><code></code> demux_message: Invalid NAL unit size (5287 &gt; 3752).</li><li><code></code> demux_message: missing picture in access unit with size 3756</li><li><code>15.466666666666667</code> decode_exception: [Errno 1094995529] Invalid data found when processing input: &#x27;avcodec_send_packet()&#x27;; last error log: [h264] Error splitting the input into NAL units.</li><li><code>15.466666666666667</code> decoder_message: Invalid NAL unit size (5287 &gt; 3752).</li><li><code>15.466666666666667</code> decoder_message: Error splitting the input into NAL units.</li><li><code></code> demux_message: stream 0, offset 0x171ed7: partial file</li></ul>
- <p class="k">Independent ffmpeg CLI decode (6 error lines)</p><ul><li><code>[h264 @ 00000150fc8fe300] Invalid NAL unit size (5287 &gt; 3752).</code></li><li><code>[h264 @ 00000150fc8fe300] missing picture in access unit with size 3756</code></li><li><code>[in#0/mov,mp4,m4a,3gp,3g2,mj2 @ 00000150fa951b80] stream 0, offset 0x171ed7: partial file</code></li><li><code>[h264 @ 00000150fa9f5400] Invalid NAL unit size (5287 &gt; 3752).</code></li><li><code>[h264 @ 00000150fa9f5400] Error splitting the input into NAL units.</code></li><li><code>[vist#0:0/h264 @ 00000150fa9e6100] [dec:h264 @ 00000150faa2edc0] Decoding error: Invalid data found when processing input</code></li></ul>
+ <p class="k">Independent ffmpeg CLI decode (6 error lines)</p><ul><li><code>[h264 @ 00000241eefce480] Invalid NAL unit size (5287 &gt; 3752).</code></li><li><code>[h264 @ 00000241eefce480] missing picture in access unit with size 3756</code></li><li><code>[in#0/mov,mp4,m4a,3gp,3g2,mj2 @ 00000241ed0e0dc0] stream 0, offset 0x171ed7: partial file</code></li><li><code>[h264 @ 00000241ef01fbc0] Invalid NAL unit size (5287 &gt; 3752).</code></li><li><code>[h264 @ 00000241ef01fbc0] Error splitting the input into NAL units.</code></li><li><code>[vist#0:0/h264 @ 00000241ed1bed40] [dec:h264 @ 00000241ed18b480] Decoding error: Invalid data found when processing input</code></li></ul>
 </div>
 
 <h2>Transfer</h2>
@@ -78,16 +96,16 @@ li{margin:4px 0}
   &quot;chunks_received&quot;: 3,
   &quot;duplicate_chunks&quot;: 0,
   &quot;rejected_chunks&quot;: 0,
-  &quot;completed_at&quot;: 1794163125.3810406,
+  &quot;completed_at&quot;: 1794170169.5923014,
   &quot;detail&quot;: &quot;full-file SHA-256 verified&quot;,
   &quot;events&quot;: [
     {
-      &quot;ts&quot;: 1794163125.3810406,
+      &quot;ts&quot;: 1794170169.5923014,
       &quot;event&quot;: &quot;COMPLETE&quot;,
       &quot;detail&quot;: &quot;sha256=8a669b37e1132ce23e72b7d436701dafe75fe857d4fa068a26ef71af656486e9&quot;
     },
     {
-      &quot;ts&quot;: 1794163125.211452,
+      &quot;ts&quot;: 1794170169.4448576,
       &quot;event&quot;: &quot;CREATED&quot;,
       &quot;detail&quot;: &quot;size=1513688&quot;
     }
@@ -100,5 +118,5 @@ li{margin:4px 0}
 
 <h2>Tool versions</h2>
 <div class="card scroll"><table><tr><td>python</td><td><code>3.13.3</code></td></tr><tr><td>os</td><td><code>Windows-11-10.0.26300-SP0</code></td></tr><tr><td>ffmpeg</td><td><code>ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers</code></td></tr><tr><td>ffprobe</td><td><code>ffprobe version 9.0.2-full_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers</code></td></tr><tr><td>pyav</td><td><code>19.0.2</code></td></tr><tr><td>pyav_libavcodec</td><td><code>63.1.102</code></td></tr><tr><td>pyav_libavformat</td><td><code>63.1.102</code></td></tr><tr><td>opencv</td><td><code>5.0.0</code></td></tr><tr><td>numpy</td><td><code>2.5.4</code></td></tr></table>
-<p class="k">Analysis took 1.51s.</p></div>
+<p class="k">Analysis took 0.84s.</p></div>
 </main></body></html>

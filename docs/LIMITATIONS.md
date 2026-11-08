@@ -15,7 +15,10 @@ What the system cannot do, and what was not tested. Each point is stated as foun
 - **The capture log can fail to settle a case.** It judges nothing when:
   - the page was hidden;
   - a gap is shorter than the log's time resolution (`presentationTime` is rounded to ~17 ms);
-  - the alignment is ambiguous (a perfectly regular source with no shared gap).
+  - the alignment is ambiguous (a perfectly regular source with no shared gap);
+  - the page displays frames late because the browser is busy. Without camera timestamps the log holds display
+    times, which then lag behind capture. Seen once in an embedded browser view: the analysis judged the log
+    unreliable (mean distance 9.1 ms) and left the stall undetermined.
 
 ## Detector limits (measured on 120 held-out videos)
 

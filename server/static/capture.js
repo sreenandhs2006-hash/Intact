@@ -35,6 +35,12 @@ function log(kind, text) {
   $('events').prepend(row);
 }
 function setState(text, cls = '') { $('state').textContent = text; $('state').className = 'state ' + cls; }
+// one plain-language sentence for the person using the page (the technical log stays below)
+function say(text, cls = '') { $('status').textContent = text; $('status').className = 'status ' + cls; }
+const mb = b => (b / 1048576).toFixed(1);
+let uploading = false;
+addEventListener('offline', () => { if (uploading) say('You are offline. The upload will continue by itself when the connection is back; your recording is safe in this browser.', 'warn'); });
+addEventListener('online', () => { if (uploading) say('Back online, continuing the upload…', 'info'); });
 
 // ---------------- sources ----------------
 async function cameraSource() {
@@ -79,7 +85,12 @@ async function record() {
   const kind = $('source').value;
   let src;
   try { src = kind === 'camera' ? await cameraSource() : testPatternSource($('stall').checked); }
-  catch (e) { setState('NO CAMERA', 'bad'); log('error', `${e.name}: ${e.message}`); $('record').disabled = false; return; }
+  catch (e) {
+    setState('NO CAMERA', 'bad'); log('error', `${e.name}: ${e.message}`); $('record').disabled = false;
+    say(e.name === 'NotAllowedError' ? 'Camera access was blocked. Allow the camera for this site and try again.'
+        : `The camera could not be opened (${e.name}). Close other apps using it, or choose "Test pattern".`, 'bad');
+    return;
+  }
 
   const video = $('preview');
   video.srcObject = src.stream; await video.play();
@@ -115,23 +126,42 @@ async function record() {
   capLog.recorder.timeslice_ms = 1000;
   rec.ondataavailable = e => { if (e.data.size) parts.push(e.data); };
   const done = new Promise(res => { rec.onstop = res; });
-  rec.onstart = () => { capLog.recorder.started_ms = performance.now(); };
+  // The 30 s count from the recorder's 'start' event, not from start(): browsers need 1.5-3.8 s to start
+  // the encoder (measured), and counting from start() gave files with only ~27 s of recorded video.
+  // The page logs frames from start() on, so frames lost during start-up still show up as evidence.
+  // If 'start' never fires (seen on no browser so far) the count begins after 5 s anyway.
+  let t30 = null;
+  const begin30 = why => {
+    if (t30 !== null) return;
+    t30 = performance.now();
+    capLog.recorder.count_started_ms = t30;
+    capLog.recorder.count_started_by = why;
+    setTimeout(() => { capLog.recorder.stop_called_ms = performance.now(); recording = false; rec.stop(); }, RECORD_MS);
+  };
+  rec.onstart = () => { capLog.recorder.started_ms = performance.now(); begin30('start event'); };
   recording = true;
   capLog.recorder.start_called_ms = performance.now();
   src.markStart?.(capLog.recorder.start_called_ms);
   rec.start(capLog.recorder.timeslice_ms);
-  // 30 s from start(): the recording covers frames from start() on, even while the encoder starts up
-  setTimeout(() => { capLog.recorder.stop_called_ms = performance.now(); recording = false; rec.stop(); }, RECORD_MS);
-  setState('RECORDING', 'info');
+  setTimeout(() => begin30('5 s fallback, no start event'), 5000);
+  setState('STARTING', 'info');
+  say('Starting the recorder… keep still, recording begins in a moment.');
   const tick = setInterval(() => {
-    const s = (performance.now() - capLog.recorder.start_called_ms) / 1000;
-    $('timer').textContent = `${Math.min(s, 30).toFixed(1)} / 30 s · ${capLog.frames.length} frames logged`;
+    if (t30 === null) { $('timer').textContent = 'starting the recorder…'; return; }
+    setState('RECORDING', 'info');
+    const s = Math.min((performance.now() - t30) / 1000, 30);
+    $('timer').textContent = `${s.toFixed(1)} / 30 s · ${capLog.frames.length} frames logged`;
+    $('ring').style.setProperty('--p', `${(s / 30 * 100).toFixed(1)}%`);
+    say(`Recording… ${Math.ceil(30 - s)} s left. Keep this tab open and in front.`);
   }, 200);
 
+  $('ring').hidden = false;
   await done;
   stopped = true;
   capLog.recorder.stopped_ms = performance.now();
   clearInterval(tick);
+  $('ring').hidden = true;
+  $('timer').textContent = `Recorded 30 s · ${capLog.frames.length} frames logged`;
   document.removeEventListener('visibilitychange', onVis);
   src.stop();
   video.srcObject = null;
@@ -163,16 +193,37 @@ function offerDownloads(p) {
 async function upload(p) {
   $('record').disabled = true; $('resume').hidden = true; $('discard').hidden = true;
   setState('UPLOADING', 'info');
+  say('Uploading… you can keep this page open; a weak or lost connection is handled automatically.', 'info');
+  uploading = true;
+  let bestChunk = 0;
   const up = new Uploader({ onEvent: e => {
     if (e.event === 'chunk_ok') {
-      $('bar').style.width = `${(100 * e.received_bytes / e.size).toFixed(1)}%`;
-      $('progress').textContent = `${(e.received_bytes / 1048576).toFixed(2)} / ${(e.size / 1048576).toFixed(2)} MB · next chunk ${(e.next_chunk / 1024).toFixed(0)} KB`;
-    } else if (e.event !== 'result') {
-      log(e.event, JSON.stringify(Object.fromEntries(Object.entries(e).filter(([k]) => k !== 't' && k !== 'event'))));
-      if (e.event === 'retry') setState('RETRYING', 'warn');
+      const pct = 100 * e.received_bytes / e.size;
+      $('bar').style.width = `${pct.toFixed(1)}%`;
+      $('progress').textContent = `${mb(e.received_bytes)} / ${mb(e.size)} MB · ${(e.rate_Bps / 1024).toFixed(0)} KB/s · next piece ${(e.next_chunk / 1024).toFixed(0)} KB`;
+      bestChunk = Math.max(bestChunk, e.length);
+      const weak = e.next_chunk < bestChunk;
+      setState('UPLOADING', 'info');
+      say(`Uploading ${pct.toFixed(0)}%` + (weak ? ' · weak connection, sending smaller pieces' : ''), weak ? 'warn' : 'info');
+      return;
+    }
+    if (e.event === 'result') return;
+    log(e.event, JSON.stringify(Object.fromEntries(Object.entries(e).filter(([k]) => k !== 't' && k !== 'event'))));
+    if (e.event === 'retry') {
+      setState('RECONNECTING', 'warn');
+      const why = /timeout/i.test(e.error) ? 'no response for 20 s' : /HTTP/.test(e.error) ? `server said ${e.error.match(/HTTP \d+/)}` : 'connection lost';
+      say(`Connection problem (${why}). Trying again in ${e.delay_s.toFixed(1)} s (attempt ${e.attempt}). Your recording is safe in this browser.`, 'warn');
+    } else if (e.event === 'resume') {
+      say(`Resuming: the server already has ${mb(e.received_bytes)} MB, continuing from there.`, 'info');
+    } else if (e.event === 'resync') {
+      say('Continuing from where the server says it stopped…', 'info');
+    } else if (e.event === 'give_up') {
+      say('Could not reach the server after many tries.', 'bad');
     }
   } });
   const attachLog = async (uploadId, u) => {
+    setState('VERIFYING', 'info');
+    say('All data sent. The server is checking the whole file (SHA-256)…', 'info');
     const logSha = await sha256Hex(new TextEncoder().encode(p.logText));
     const r = await u.request('capture_log', `/uploads/${uploadId}/capture-log`, {
       method: 'POST', body: p.logText, headers: { 'Content-Type': 'application/json', 'X-Content-SHA256': logSha } });
@@ -181,13 +232,21 @@ async function upload(p) {
     else log('warn', `capture log not stored: HTTP ${r.status} ${body.error || ''} - the report will have no capture evidence`);
   };
   const res = await up.upload(p.blob, p.filename, { sha: p.sha, beforeFinalize: attachLog });
+  uploading = false;
   log('result', JSON.stringify(res));
   if (res.state === 'COMPLETE' && res.hash_match) {
     setState('COMPLETE', 'ok');
+    $('bar').style.width = '100%';
+    say(`Upload verified ✓ The server's copy is identical to this recording (SHA-256 match)` +
+        (res.retries ? `, after ${res.retries} retr${res.retries === 1 ? 'y' : 'ies'}` : '') + '. Analysing the video…', 'ok');
     await clearPending();
     await showReport(res.upload_id);
+  } else if (res.state === 'REJECTED') {
+    setState('REJECTED', 'bad');
+    say('Rejected: the file on the server did not match this recording, so it was not accepted. Record again.', 'bad');
   } else {
     setState(res.state, 'bad');
+    say('Upload paused: the server could not be reached. Your recording is kept in this browser; press "Resume upload" when the connection is back.', 'bad');
     if (res.state === 'FAILED') { $('resume').hidden = false; $('discard').hidden = false; }
   }
   $('record').disabled = false;
@@ -200,11 +259,13 @@ async function showReport(id) {
     if (r.status === 200) {
       const rep = await r.json();
       const s = rep.summary, ce = rep.capture_evidence || {};
-      $('report').innerHTML = `<p><b>${esc(s.validation)}</b> · transfer ${esc(s.transfer)} · ${s.anomalies_total} anomalies
-        ${esc(Object.entries(s.anomaly_counts).map(([k, n]) => `${k}: ${n}`).join(', '))}</p>
-        <p>${esc(s.dropped_frames_in_original_recording)}</p>
+      const lines = (s.verdict || []).map(v =>
+        `<div class="lbl">${esc(v.label)}</div><div class="txt ${esc(v.level)}"><span>${esc(v.text)}</span></div>`).join('');
+      $('report').innerHTML = `<div class="verdict">${lines}</div>
+        <p class="meta">${esc(s.dropped_frames_in_original_recording)}</p>
         <p class="meta">capture log: ${ce.present ? `time base ${esc(ce.time_base)}, coverage ${((ce.coverage || 0) * 100).toFixed(1)}%, ${esc(ce.records_in_recording)} records` : 'none'}</p>
-        <p><a href="/uploads/${id}/report.html" target="_blank">Open full report</a> · <a href="/uploads/${id}/report" target="_blank">JSON</a></p>`;
+        <p><a class="btn" href="/uploads/${id}/report.html" target="_blank">Open the full report</a> <a href="/uploads/${id}/report" target="_blank">JSON</a></p>`;
+      say('Upload verified ✓ and analysed. The report is below.', 'ok');
       return;
     }
     if (r.status !== 202 && r.status !== 404) { $('report').textContent = `Analysis failed (HTTP ${r.status})`; return; }
@@ -231,6 +292,7 @@ loadPending().then(p => {
   if (!p) return;
   pendingRec = p;
   log('ui', `unfinished recording in this browser: ${p.filename} (${(p.blob.size / 1048576).toFixed(2)} MB)`);
+  say(`An earlier recording (${mb(p.blob.size)} MB) was not fully uploaded. Press "Resume upload" to finish it.`, 'warn');
   offerDownloads(p);
   $('resume').hidden = false; $('discard').hidden = false;
 });

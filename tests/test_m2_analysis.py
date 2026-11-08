@@ -58,6 +58,18 @@ def test_byte_perfect_clean_file_still_says_cannot_determine(report):
     assert drops.startswith("cannot determine")
 
 
+def test_plain_verdict_never_claims_a_clean_recording(report):
+    # local file: upload not checked; clean file: "no anomalies in the file" but drops before
+    # encoding explicitly not excluded; a gap: counted, located and its cause stated
+    up, video, frames = report("clean")["summary"]["verdict"]
+    assert up["level"] == "warn" and "not uploaded" in up["text"]
+    assert video["level"] == "ok" and frames["level"] == "ok"
+    assert "cannot be excluded" in frames["text"]
+    frames = report("gap")["summary"]["verdict"][2]
+    assert frames["level"] == "bad" and frames["text"].startswith("5 frames missing at 0:02.0 (cause: undetermined)")  # gap starts 1.967 s
+    assert report("fake")["summary"]["verdict"][1]["level"] == "bad"
+
+
 # ---------------- source defects ----------------
 
 def test_timestamp_gap_is_located_and_counted(report):

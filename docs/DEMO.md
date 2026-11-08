@@ -26,19 +26,23 @@ Show the architecture diagram in `README.md`.
 
 ## 2. Record and upload in the browser (90 s)
 
-1. Open http://127.0.0.1:8000/capture.
+1. Open http://127.0.0.1:8000/capture **in Chrome or Edge** (a normal browser window, not an embedded preview: an
+   embedded, busy view displays frames late and the log can then not be aligned).
 2. Choose **Test pattern (no camera needed)**, tick **simulate a 0.5 s source stall at 10 s**, then press
    **Record 30 s and upload**.
-3. While it records, explain:
-   > "The page records with MediaRecorder and logs every frame that reaches the browser. Then it uploads in
-   > chunks: each chunk has its own SHA-256, and the server re-hashes the whole file before accepting it."
-4. When the report appears, point at:
-   - **VALID**, *transfer verified (SHA-256 match)*;
-   - the missing frames at about 10 s, attributed to **capture**: the log shows no frame reached the page then;
-   - the missing frames at the start, attributed to **encoding**: frames reached the page, but MediaRecorder was
-     still starting and did not record them.
-5. Open the full report and scroll to **Capture evidence (browser frame log)** → *What this log can prove* /
-   *What it cannot prove*.
+3. While it records, point at the status line (*Starting the recorder…* → *Recording… 23 s left*) and explain:
+   > "The page records with MediaRecorder and logs every frame that reaches the browser. The 30 seconds count from
+   > the moment the recorder really starts. Then it uploads in pieces: each has its own SHA-256, and the server
+   > re-hashes the whole file before accepting it."
+4. When the result appears, read the three lines:
+   - **Upload:** verified, byte-identical (SHA-256 match);
+   - **Video:** valid;
+   - **Frames:** about 15 missing frames where the stall was, attributed to **capture**, because the log shows no
+     frame reached the page then. The stall is 10 s after recording was *requested*, so in the file it sits at
+     8–10 s, depending on when Chrome started the file clock. If the line says *undetermined* instead, the log
+     could not be aligned reliably, and the report says so rather than guessing: a good moment to show that rule.
+5. Open the full report. Show **Where in the video** (click a marker, and the table jumps to that anomaly). Then
+   scroll to **Capture evidence (browser frame log)** → *What this log can prove* / *What it cannot prove*.
    > "The report says exactly what this log can and cannot prove. For example, it is written by the client, so its
    > authenticity cannot be verified."
 

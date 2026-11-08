@@ -16,10 +16,28 @@ th{font-size:12px;color:var(--muted);font-weight:600}
 .scroll{overflow-x:auto}code{font-size:12px;word-break:break-all}
 svg text{fill:var(--muted);font-size:10px}
 li{margin:4px 0}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline;font-size:15px}
+.verdict .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.verdict .txt::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:currentColor}
+.verdict .txt span{color:var(--text)}
+.tl{margin:8px 0 4px}.lane{margin:6px 0}
+.tl .bar{position:relative;height:22px;border-radius:4px;background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.tl .bar a{position:absolute;top:0;bottom:0;min-width:3px;border-radius:2px}
+.tl .bar a:hover,.tl .bar a:focus{outline:2px solid var(--text);z-index:1}
+.tl .ticks{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.tl .ticks span{position:absolute;transform:translateX(-50%)}.tl .ticks span:first-child{transform:none}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+@media (max-width:600px){.verdict{grid-template-columns:1fr}.verdict .lbl{margin-top:6px}}
 </style></head>
 <body><main>
 <h1>Video integrity report</h1>
-<div class="muted">fake_text.mp4 · 42,000 bytes · generated 2026-11-09T00:08:47+0530</div>
+<div class="muted">fake_text.mp4 · 42,000 bytes · generated 2026-11-09T02:06:12+0530</div>
+
+<div class='card verdict'><div class='lbl'>Upload</div><div class='txt ok'><span>Verified: the server&#x27;s copy is byte-identical to the sender&#x27;s (SHA-256 match)</span></div><div class='lbl'>Video</div><div class='txt bad'><span>Not a usable video: it could not be decoded</span></div><div class='lbl'>Frames</div><div class='txt bad'><span>Not analysed: the file could not be decoded</span></div></div>
+
+<div class="card"><b>Where in the video</b></div>
 
 <div class="grid" style="margin-top:14px">
  <div class="card"><div class="k">Transfer</div><div class="v ok">verified (SHA-256 match)</div></div>
@@ -62,8 +80,8 @@ li{margin:4px 0}
 <div class="card">
  <p>Container <code></code> · codec <code></code>
  × · declared frames  · declared duration s</p>
- <p class="k">ffprobe errors</p><ul><li><code>C:\Users\Admin\.nihilent-vi\m6-samples\data\files\b96d8838d96644b58c1769237faf2b81.bin: Invalid data found when processing input</code></li></ul>
- <p class="k">PyAV decoder errors (first 50 of 1)</p><ul><li><code></code> open_failed: [Errno 1094995529] Invalid data found when processing input: &#x27;C:\\Users\\Admin\\.nihilent-vi\\m6-samples\\data\\files\\b96d8838d96644b58c1769237faf2b81.bin&#x27;</li></ul>
+ <p class="k">ffprobe errors</p><ul><li><code>C:\Users\Admin\.nihilent-vi\m6-samples\data\files\3e20183cff9c40b6b604613036a7c90a.bin: Invalid data found when processing input</code></li></ul>
+ <p class="k">PyAV decoder errors (first 50 of 1)</p><ul><li><code></code> open_failed: [Errno 1094995529] Invalid data found when processing input: &#x27;C:\\Users\\Admin\\.nihilent-vi\\m6-samples\\data\\files\\3e20183cff9c40b6b604613036a7c90a.bin&#x27;</li></ul>
  <p class="k">Independent ffmpeg CLI decode (0 error lines)</p><ul><li class="muted">none</li></ul>
 </div>
 
@@ -78,16 +96,16 @@ li{margin:4px 0}
   &quot;chunks_received&quot;: 1,
   &quot;duplicate_chunks&quot;: 0,
   &quot;rejected_chunks&quot;: 0,
-  &quot;completed_at&quot;: 1794163127.3818002,
+  &quot;completed_at&quot;: 1794170172.6676135,
   &quot;detail&quot;: &quot;full-file SHA-256 verified&quot;,
   &quot;events&quot;: [
     {
-      &quot;ts&quot;: 1794163127.3818002,
+      &quot;ts&quot;: 1794170172.6676135,
       &quot;event&quot;: &quot;COMPLETE&quot;,
       &quot;detail&quot;: &quot;sha256=96bab0d5810c413e2991a0fc498ac77fbc50192427e21fd7a372a61ac1f0b416&quot;
     },
     {
-      &quot;ts&quot;: 1794163127.321257,
+      &quot;ts&quot;: 1794170172.5975947,
       &quot;event&quot;: &quot;CREATED&quot;,
       &quot;detail&quot;: &quot;size=42000&quot;
     }
@@ -100,5 +118,5 @@ li{margin:4px 0}
 
 <h2>Tool versions</h2>
 <div class="card scroll"><table><tr><td>python</td><td><code>3.13.3</code></td></tr><tr><td>os</td><td><code>Windows-11-10.0.26300-SP0</code></td></tr><tr><td>ffmpeg</td><td><code>ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers</code></td></tr><tr><td>ffprobe</td><td><code>ffprobe version 9.0.2-full_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers</code></td></tr><tr><td>pyav</td><td><code>19.0.2</code></td></tr><tr><td>pyav_libavcodec</td><td><code>63.1.102</code></td></tr><tr><td>pyav_libavformat</td><td><code>63.1.102</code></td></tr><tr><td>opencv</td><td><code>5.0.0</code></td></tr><tr><td>numpy</td><td><code>2.5.4</code></td></tr></table>
-<p class="k">Analysis took 0.25s.</p></div>
+<p class="k">Analysis took 0.21s.</p></div>
 </main></body></html>

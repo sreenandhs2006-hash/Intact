@@ -19,6 +19,20 @@ th{font-size:12px;color:var(--muted);font-weight:600}
 .scroll{overflow-x:auto}code{font-size:12px;word-break:break-all}
 svg text{fill:var(--muted);font-size:10px}
 li{margin:4px 0}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline;font-size:15px}
+.verdict .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.verdict .txt::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:currentColor}
+.verdict .txt span{color:var(--text)}
+.tl{margin:8px 0 4px}.lane{margin:6px 0}
+.tl .bar{position:relative;height:22px;border-radius:4px;background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.tl .bar a{position:absolute;top:0;bottom:0;min-width:3px;border-radius:2px}
+.tl .bar a:hover,.tl .bar a:focus{outline:2px solid var(--text);z-index:1}
+.tl .ticks{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.tl .ticks span{position:absolute;transform:translateX(-50%)}.tl .ticks span:first-child{transform:none}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+@media (max-width:600px){.verdict{grid-template-columns:1fr}.verdict .lbl{margin-top:6px}}
 """
 
 STATUS_CLASS = {"VALID": "ok", "VALID_WITH_ERRORS": "warn", "INVALID": "bad"}
@@ -71,6 +85,58 @@ def timeline_strip(tl):
             "red: slot filling a source timestamp gap</p>")
 
 
+LANES = [  # (lane title, {type: (colour, legend)})
+    ("frame problems", {"missing_frames": ("var(--bad)", "missing frames"),
+                        "truncation": ("var(--bad)", "file cut short"),
+                        "corrupted_frame": ("#8e3bb8", "damaged frame"),
+                        "duplicated_frame": ("var(--warn)", "duplicated frame"),
+                        "duplicate_timestamp": ("var(--warn)", "timestamp error"),
+                        "non_monotonic_timestamp": ("var(--warn)", "timestamp error"),
+                        "missing_timestamp": ("var(--warn)", "timestamp error")}),
+    ("lower confidence", {"possible_skipped_frames": ("var(--art)", "possible skipped frames"),
+                          "irregular_timing": ("var(--info)", "irregular timing")}),
+]
+
+
+def verdict_block(s):
+    rows = "".join(f"<div class='lbl'>{e(v['label'])}</div><div class='txt {e(v['level'])}'><span>{e(v['text'])}</span></div>"
+                   for v in s.get("verdict") or [])
+    return f"<div class='card verdict'>{rows}</div>" if rows else ""
+
+
+def anomaly_timeline(r):
+    """One bar per lane across the whole video; each anomaly is a marker linking to its table row."""
+    an = [a for a in r["anomalies"] if a.get("time_start_s") is not None]
+    st = r["source_timing"]
+    vid = r["validation"]["ffprobe"].get("video") or {}
+    dur = max([st.get("last_pts_s") or 0, vid.get("declared_duration_s") or 0]
+              + [a.get("time_end_s") or a["time_start_s"] for a in an])
+    if not dur:
+        return ""
+    pct = lambda t: 100 * min(max(t, 0), dur) / dur
+    out, used = [], {}
+    for title, kinds in LANES:
+        marks = []
+        for a in an:
+            if a["type"] not in kinds:
+                continue
+            colour, legend = kinds[a["type"]]
+            used[legend] = colour
+            t1 = a.get("time_end_s") or a["time_start_s"]
+            tip = f"{a['id']} {a['type']} {a['time_start_s']:.2f}-{t1:.2f} s, cause: {a.get('likely_cause')}"
+            marks.append(f"<a href='#{e(a['id'])}' title='{e(tip)}' style='left:{pct(a['time_start_s']):.2f}%;"
+                         f"width:{pct(t1) - pct(a['time_start_s']):.2f}%;background:{colour}'></a>")
+        out.append(f"<div class='lane'><div class='k'>{e(title)}</div><div class='bar'>{''.join(marks)}</div></div>")
+    step = 5 if dur <= 60 else 10 if dur <= 180 else 30
+    ticks = "".join(f"<span style='left:{pct(t):.2f}%'>{int(t // 60)}:{int(t % 60):02d}</span>"
+                    for t in range(0, int(dur) + 1, step))
+    legend = "".join(f"<span><i style='background:{c}'></i>{e(k)}</span>" for k, c in used.items()) \
+        or "<span>no anomalies</span>"
+    return (f"<div class='tl' role='img' aria-label='anomalies on the video timeline'>{''.join(out)}"
+            f"<div class='ticks'>{ticks}</div></div>"
+            f"<div class='legend'>{legend}<span>· click a marker for its details</span></div>")
+
+
 def capture_section(ce):
     if not ce or not ce.get("present"):
         return f"<div class='card muted'>{e((ce or {}).get('note', 'No capture log.'))}</div>"
@@ -104,7 +170,7 @@ def render(r):
     tl = r["timeline_30fps"]
     tv = r["tool_versions"]
     rows = "".join(
-        f"<tr><td>{e(a['id'])}</td><td>{e(a['type'])}</td><td>{fmt_t(a['time_start_s'])} – {fmt_t(a['time_end_s'])}"
+        f"<tr id='{e(a['id'])}'><td>{e(a['id'])}</td><td>{e(a['type'])}</td><td>{fmt_t(a['time_start_s'])} – {fmt_t(a['time_end_s'])}"
         f"<div class='k'>frames {e(a['frame_index_start'])}–{e(a['frame_index_end'])}</div></td>"
         f"<td>{e(a['evidence'])}</td><td class='{CONF_CLASS.get(a['confidence'],'')}'>{e(a['confidence'])}</td>"
         f"<td><b>{e(a['likely_cause'])}</b><div class='k'>candidates: {e(', '.join(a['other_candidates']) or '–')};"
@@ -123,6 +189,10 @@ def render(r):
 <body><main>
 <h1>Video integrity report</h1>
 <div class="muted">{e(r['input']['file'])} · {r['input']['size_bytes']:,} bytes · generated {e(r['generated_at'])}</div>
+
+{verdict_block(s)}
+
+<div class="card"><b>Where in the video</b>{anomaly_timeline(r)}</div>
 
 <div class="grid" style="margin-top:14px">
  <div class="card"><div class="k">Transfer</div><div class="v {'ok' if r['transfer_verified'] else 'warn'}">{e(s['transfer'])}</div></div>
