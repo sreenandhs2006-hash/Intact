@@ -18,7 +18,7 @@ All numbers come from real runs; the evidence files are in the repository.
 | Frame anomaly detector on 120 known-fault videos (held out, code frozen) | recall **0.933**, precision **0.995**, validation 100%, 0 false positives on clean videos | [testset/results/HELDOUT.md](testset/results/HELDOUT.md) |
 | Altered, truncated and invalid videos | truncation located (`VALID_WITH_ERRORS`), fake files `INVALID`, flipped bytes located as corrupted frames | [docs/samples/](docs/samples/README.md), HELDOUT.md |
 | Browser recording with per-frame capture log (Chrome webcam, iPhone Safari, headless) | uploads COMPLETE; the log tells **capture** from **encoding** drops (e.g. a 3.3 s camera gap = capture) | [evidence/m5/README.md](evidence/m5/README.md) |
-| Automated tests | **80 passed** (`python -m pytest -q`) | `tests/` |
+| Automated tests | **81 passed** (`python -m pytest -q`; on a fresh clone 80 passed + 1 skipped, the Toxiproxy test, as Toxiproxy is not in git) | `tests/` |
 
 ## How each requirement of the brief is met
 
@@ -84,7 +84,7 @@ Needs Python 3.12 or 3.13 and FFmpeg (ffmpeg + ffprobe on PATH; tested with 9.0.
 python -m venv .venv
 .venv/Scripts/activate            # Windows (Git Bash); Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-python -m pytest -q               # 80 tests, ~4 min (the browser tests need Chrome or Edge; skipped otherwise)
+python -m pytest -q               # 81 tests, ~4-6 min. Browser tests need Chrome/Edge, one also nettest/bin/toxiproxy-server; skipped otherwise. Timing-sensitive: run on mains power
 ```
 
 ## Run it

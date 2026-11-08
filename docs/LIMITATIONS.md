@@ -52,3 +52,11 @@ What the system cannot do, and what was not tested. Each point is stated as foun
 - More than one webcam run, and more than one machine for the network tests.
 - Files larger than one 30 s recording over the 20% link. No security hardening: no authentication, plain HTTP on
   localhost, size limits only.
+
+## Test suite
+
+- The browser tests drive a real headless Chrome and are timing-sensitive. On a throttled laptop (battery saver)
+  the canvas test source cannot hold 30 fps and the stall test fails; run the suite on mains power.
+- On 2026-11-09 one full run (81 tests, mains power) had a single failure that passed on immediate re-run; which
+  test it was was not recorded. The next full run passed 81/81, and the suspected test (browser upload through
+  Toxiproxy with a server crash) passed 3 of 3 on its own. Treat the browser tests as possibly flaky.

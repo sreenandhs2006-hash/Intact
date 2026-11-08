@@ -97,7 +97,7 @@ Open [docs/LIMITATIONS.md](LIMITATIONS.md):
 
 Finish with the tests:
 ```bash
-python -m pytest -q        # 80 passed
+python -m pytest -q        # 81 passed
 ```
 
 ---
