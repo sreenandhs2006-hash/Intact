@@ -54,6 +54,16 @@ What else the runs show, stated as found:
   offset 581.5 ms, the same as computed by hand from the stall edges). Otherwise the alignment is unreliable and
   the log judges nothing. The five runs above are unaffected (all decided by frame pattern). That run's timestamps
   are kept as a regression test (`tests/data/headless-stall-regular.json`).
+- **Refined again (2026-11-09).** Further headless runs showed two more things:
+  1. Chrome sometimes starts the file clock near the recorder's `start` event (about 2 s after `start()`) instead
+     of near `start()`, with the same browser version. The search window now covers both.
+  2. With `presentationTime` the stall's edges are rounded to the display refresh, so they can sit ~10 ms off the
+     best fit. The shared gap now picks *which* frame lines up, and the fit over all frames gives the exact offset.
+
+  Second regression fixture: `tests/data/headless-stall-regular-2.json`. Re-analysing the five stored runs with the
+  final code gives the same likely cause for every anomaly. One sub-verdict differs (fake-camera, a 46 ms
+  possible skipped frame at 23.95 s: "irregular delivery" → "regular delivery", cause still undetermined) because
+  the offset moved 0.3 ms. The stored reports are kept exactly as produced.
 - The two webcam "encoding" frames rest on the `presentedFrames` counter alone (callback missed, exact time
   unknown); the report shows `log_frames_inside_gap: 0, presented_inside_gap: 1` for both.
 

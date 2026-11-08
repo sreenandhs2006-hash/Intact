@@ -187,22 +187,43 @@ def align(file_pts, log_ms, guess_ms, nominal_ms, search_ms=3000):
                            if 0 <= i < len(log_ms)), default=cap) <= nominal_ms / 4)
     m_best = matched(offset)
     m_rival = matched(rival_o) if rival_o is not None else 0
-    # Gap anchors: a long gap (>= 3 frames) present in both file and log, whose start AND end line up
-    # within a quarter frame at this offset. One frame later both edges are a whole frame off, so a
-    # shared gap pins the offset even when the timing is otherwise perfectly regular.
+    # Gap anchors: a long gap (>= 3 frames) present in both file and log (same length within half a frame).
+    # The gap says WHICH frame lines up; the fit over all frames says exactly where. With perfectly regular
+    # timing several best-fit offsets lie one frame (33 ms) apart; the anchor picks the one within half a
+    # frame of the offset the gap implies. Gap edges alone are coarse (presentationTime is rounded to the
+    # ~17 ms display refresh), which is why the exact value still comes from the fit.
     def gaps(ts):
         return [(a, b) for a, b in zip(ts, ts[1:]) if b - a >= 3 * nominal_ms]
     file_ms = [f * 1000 for f in file_pts]
-    anchors = sum(1 for fa, fb in gaps(file_ms) for la, lb in gaps(log_ms)
-                  if abs(fa + offset - la) <= nominal_ms / 4 and abs(fb + offset - lb) <= nominal_ms / 4)
+    near_best = [o for o, c in fine.items() if c <= best_f + 0.05]
+    implied = [((la - fa) + (lb - fb)) / 2 for fa, fb in gaps(file_ms) for la, lb in gaps(log_ms)
+               if abs((la - fa) - (lb - fb)) < nominal_ms / 2]
+    implied = [i for i in implied if min(abs(i - o) for o in near_best) < nominal_ms / 2]
+    anchors = len(implied)
+    by_pattern = m_best - m_rival >= 3
+    if anchors and not by_pattern:
+        target = sum(implied) / anchors
+        offset = min(near_best, key=lambda o: abs(o - target))
+        m_best = matched(offset)
     # Only the data may pin the offset. The start-time guess is NOT trusted to decide: in real runs it was
     # 29-64 ms (1-2 frames) off, so with perfectly regular timing it would pick the wrong frame.
-    decided_by = "frame pattern" if m_best - m_rival >= 3 else "gap edges" if anchors else None
+    decided_by = "frame pattern" if by_pattern else "gap edges" if anchors else None
     return {"method": "time_search", "offset_ms": round(offset, 1), "guess_ms": round(guess_ms, 1),
             "mean_distance_ms": round(fine[offset], 2), "frames_matched": m_best, "file_frames": len(file_pts),
             "frames_matched_next_best": m_rival, "gap_anchors": anchors,
             "reliable": fine[offset] < nominal_ms / 4 and decided_by is not None,
             "decided_by": decided_by or "ambiguous (regular timing, no shared gap)"}
+
+
+def search_window(rec, file_pts, first_log_ms):
+    """Offsets to search: (guess, center, half-width) in ms. guess = first file frame at start().
+    Chrome starts the file clock either near start() or near the recorder's 'start' event (1.5-3.8 s
+    later in our runs; both seen with the same browser version), so the window covers that whole span
+    plus 3 s either side."""
+    called = rec.get("start_called_ms")
+    guess = (called if called is not None else first_log_ms) - min(file_pts) * 1000
+    startup = max(0.0, (rec.get("started_ms") or 0) - (called or 0)) if called is not None else 0.0
+    return guess, guess + startup / 2, 3000 + startup / 2
 
 
 def _overlaps(a0, a1, b0, b1):
@@ -317,8 +338,9 @@ def evaluate(log, frames, anomalies):
         summary["usable"], summary["reason"] = False, "file has no frame timestamps to align with"
         return summary
     rec = log.get("recorder") or {}
-    guess = (rec.get("start_called_ms") or idx["pts"][0][0]) - min(file_pts) * 1000
-    alignment = align(sorted(file_pts), [t for t, _ in idx["pts"]], guess, idx["nominal"])
+    guess, center, half = search_window(rec, file_pts, idx["pts"][0][0])
+    alignment = align(sorted(file_pts), [t for t, _ in idx["pts"]], center, idx["nominal"], search_ms=half)
+    alignment["guess_ms"] = round(guess, 1)
     offset = alignment["offset_ms"]
     to_log_ms = lambda t: t * 1000 + offset
     # with a reliable alignment, match within about one frame; otherwise nothing is matched anyway

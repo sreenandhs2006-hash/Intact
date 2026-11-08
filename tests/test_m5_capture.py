@@ -99,6 +99,19 @@ def test_alignment_real_regular_run_is_pinned_by_the_shared_stall():
     assert abs(a["offset_ms"] - 582) < 3
 
 
+def test_alignment_real_run_with_late_file_clock_and_rounded_gap_edges():
+    # Second real run: the file clock starts near the recorder's 'start' event (1.9 s after start()), and
+    # presentationTime rounds the stall's edges to the display refresh, so they sit ~10 ms off the best fit.
+    # The stall must still pick the frame; the fit gives the exact offset (gap edges imply 2406-2409 ms).
+    fx = json.loads((Path(__file__).parent / "data" / "headless-stall-regular-2.json").read_text(encoding="utf-8"))
+    rec = {"start_called_ms": fx["start_called_ms"], "started_ms": fx["started_ms"]}
+    guess, center, half = capture.search_window(rec, fx["file_pts_s"], fx["log_ms"][0])
+    assert center - half <= guess - 3000 and center + half >= guess + (fx["started_ms"] - fx["start_called_ms"]) + 3000
+    a = capture.align(fx["file_pts_s"], fx["log_ms"], center, fx["nominal_ms"], search_ms=half)
+    assert a["reliable"] and a["decided_by"] == "gap edges" and a["gap_anchors"] == 1
+    assert abs(a["offset_ms"] - 2407) < fx["nominal_ms"] / 2 and a["mean_distance_ms"] < 2
+
+
 def test_gap_in_file_and_log_is_capture():
     anomalies = [gap_anomaly(60, 64)]
     ce = capture.evaluate(make_log(drop=range(60, 65)), file_frames(drop=range(60, 65)), anomalies)
@@ -260,9 +273,16 @@ def test_browser_end_to_end_with_simulated_stall(server, capsys):
     assert browser_run.main(["--server", server.url, "--source", "test", "--stall", "--timeout", "150"]) == 0
     uid = httpx.get(f"{server.url}/uploads").json()[0]["upload_id"]
     rep = httpx.get(f"{server.url}/uploads/{uid}/report").json()
-    assert rep["transfer_verified"] and rep["capture_evidence"]["usable"]
-    assert rep["capture_evidence"]["alignment"]["reliable"]
-    near = [a for a in rep["anomalies"] if a["type"] == "missing_frames" and 9.8 <= a["time_start_s"] <= 10.3]
+    ce = rep["capture_evidence"]
+    assert rep["transfer_verified"] and ce["usable"] and ce["alignment"]["reliable"]
+    # The page stops drawing at page time start() + 10 s for 0.5 s. Where that lands in the FILE depends on
+    # where Chrome starts the file clock (near start() or near the recorder's 'start' event, ~2 s later), so
+    # find the stall in the log and map it through the analysis's own offset.
+    log = httpx.get(f"{server.url}/uploads/{uid}/capture-log").json()
+    injected = log["recorder"]["start_called_ms"] + 10000
+    gap = next(g for g in ce["delivery_gaps"] if abs(g["t0_ms"] - injected) < 150 and g["interval_ms"] >= 400)
+    t0 = (gap["t0_ms"] - ce["alignment"]["offset_ms"]) / 1000
+    near = [a for a in rep["anomalies"] if a["type"] == "missing_frames" and abs(a["time_start_s"] - t0) < 0.1]
     stall = max(near, key=lambda a: a["estimated_missing"])  # small 1-frame gaps can sit nearby
     assert stall["estimated_missing"] >= 12
     assert stall["likely_cause"] == "capture" and stall["capture_evidence"]["verdict"] == "delivery_gap"
