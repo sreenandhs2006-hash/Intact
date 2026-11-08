@@ -1,7 +1,7 @@
 {
   "report_version": 1,
-  "generated_at": "2026-11-09T02:06:05+0530",
-  "analysis_seconds": 1.8,
+  "generated_at": "2026-11-09T02:18:22+0530",
+  "analysis_seconds": 3.34,
   "tool_versions": {
     "python": "3.13.3",
     "os": "Windows-11-10.0.26300-SP0",
@@ -28,16 +28,16 @@
     "chunks_received": 4,
     "duplicate_chunks": 0,
     "rejected_chunks": 0,
-    "completed_at": 1794170164.1798387,
+    "completed_at": 1794170899.0087798,
     "detail": "full-file SHA-256 verified",
     "events": [
       {
-        "ts": 1794170164.1798387,
+        "ts": 1794170899.0087798,
         "event": "COMPLETE",
         "detail": "sha256=6fd18e22138d7b03cd1029507207ee264a081bf6037e04492f1f1377cdd4afe2"
       },
       {
-        "ts": 1794170163.9457476,
+        "ts": 1794170898.6834466,
         "event": "CREATED",
         "detail": "size=2916219"
       }

@@ -4,54 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Browser Capture</title>
+<link rel="stylesheet" href="/static/theme.css">
 <style>
-  :root { --bg:#f7f7f5; --card:#fff; --text:#1d1d1b; --muted:#6b6b66; --line:#e3e3de;
-          --ok:#1f7a3d; --warn:#a86400; --bad:#b3261e; --info:#1f5fa8; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#161615; --card:#201f1d; --text:#ecebe6; --muted:#a3a29b; --line:#34332f;
-            --ok:#5cc47f; --warn:#e0a446; --bad:#f07b72; --info:#7fb0ec; }
-  }
-  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, sans-serif; }
-  main { max-width:760px; margin:0 auto; padding:20px 16px 40px; }
-  h1 { font-size:22px; margin:0 0 4px; }
-  .sub, .meta { color:var(--muted); }
-  .meta { font-size:12px; font-variant-numeric:tabular-nums; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:12px 0; }
-  .row { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; }
-  button, select { font:inherit; padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); }
-  button.primary { background:var(--info); color:var(--card); border-color:var(--info); font-weight:600; font-size:17px; padding:12px 22px; }
-  button:disabled { opacity:.5; }
-  .state { font-weight:700; font-size:12px; letter-spacing:.04em; padding:2px 8px; border-radius:99px; border:1px solid currentColor; }
-  .ok { color:var(--ok); } .warn { color:var(--warn); } .bad { color:var(--bad); } .info { color:var(--info); }
-  .status { font-size:17px; font-weight:500; margin:2px 0 0; min-height:1.45em; }
-  .stage { position:relative; }
-  video { width:100%; max-height:420px; background:#000; border-radius:8px; display:block; }
-  .ring { position:absolute; top:10px; right:10px; width:46px; height:46px; border-radius:50%;
-          background:conic-gradient(var(--bad) var(--p, 0%), rgba(255,255,255,.25) 0); }
+  .stage { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#000; }
+  video { width:100%; max-height:420px; background:#000; display:block; }
+  .ring { position:absolute; top:12px; right:12px; width:40px; height:40px; border-radius:50%;
+          background:conic-gradient(var(--strong) var(--p, 0%), rgba(255,255,255,.14) 0); }
   .ring[hidden] { display:none; }
-  .ring::after { content:""; position:absolute; inset:6px; border-radius:50%; background:rgba(0,0,0,.55); }
-  .bar { height:10px; background:var(--line); border-radius:5px; overflow:hidden; margin:12px 0 6px; }
-  .bar > div { height:100%; width:0; background:var(--info); transition:width .3s; }
-  .verdict { display:grid; grid-template-columns:auto 1fr; gap:6px 12px; align-items:baseline; margin:6px 0; }
-  .verdict .lbl { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
-  .verdict .txt::before { content:""; display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; background:currentColor; }
-  .verdict .txt span { color:var(--text); }
-  a.btn { display:inline-block; padding:8px 14px; border-radius:8px; background:var(--info); color:var(--card); text-decoration:none; margin-right:10px; }
-  details summary { cursor:pointer; font-weight:600; }
-  table { border-collapse:collapse; width:100%; font-size:12px; }
-  td { padding:2px 8px 2px 0; border-top:1px solid var(--line); vertical-align:top; word-break:break-all; }
-  #downloads a { margin-right:12px; }
-  @media (max-width:600px) {
-    button.primary { width:100%; }
-    .verdict { grid-template-columns:1fr; } .verdict .lbl { margin-top:6px; }
-  }
+  .ring::after { content:""; position:absolute; inset:3px; border-radius:50%; background:rgba(0,0,0,.72); }
+  #timer, #progress { font-family:var(--mono); }
+  #downloads a { margin-right:14px; font-size:12px; }
+  .opts { margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
 </style>
 </head>
 <body>
+<canvas id="ambient-canvas" aria-hidden="true"></canvas>
 <main>
+  <div class="label">Video integrity · capture</div>
   <h1>Record a 30-second video</h1>
-  <div class="sub">The video is uploaded in small verified pieces, so a weak or dropped connection does not lose it. The
-    server accepts it only if every byte matches, then checks every frame. <a href="/">All uploads</a></div>
+  <div class="sub">Uploaded in small verified pieces, so a weak or dropped connection does not lose it. The server accepts
+    it only if every byte matches, then checks every frame. <a href="/">All uploads</a></div>
 
   <div class="card">
     <div class="row">
@@ -61,7 +33,7 @@
       <span id="state" class="state">READY</span>
     </div>
     <p id="status" class="status">Press the button, allow the camera, and hold still for 30 seconds.</p>
-    <div class="row meta" style="margin-top:8px">
+    <div class="row meta opts">
       <label>Source <select id="source">
         <option value="camera">Camera</option>
         <option value="test">Test pattern (no camera needed)</option>
@@ -72,21 +44,22 @@
 
   <div class="card">
     <div class="stage"><video id="preview" muted playsinline></video><div id="ring" class="ring" aria-hidden="true" hidden></div></div>
-    <div class="meta" id="timer" style="margin-top:6px"></div>
+    <div class="meta" id="timer" style="margin-top:10px"></div>
     <div class="bar"><div id="bar"></div></div>
     <div class="meta" id="progress"></div>
-    <div id="downloads" class="meta"></div>
+    <div id="downloads" class="meta" style="margin-top:6px"></div>
   </div>
 
-  <div class="card"><b>Result</b><div id="report" class="meta">Appears here after the upload.</div></div>
+  <div class="card"><div class="label">Result</div><div id="report" class="meta" style="margin-top:6px">Appears here after the upload.</div></div>
 
   <details class="card">
     <summary>Technical log</summary>
-    <div class="meta" style="margin:6px 0">requestVideoFrameCallback: <span id="rvfc"></span> · keep this tab visible while
-      recording (frame callbacks pause in hidden tabs)</div>
+    <div class="meta" style="margin:8px 0">requestVideoFrameCallback: <span id="rvfc" class="mono"></span> · keep this tab
+      visible while recording (frame callbacks pause in hidden tabs)</div>
     <table id="events"></table>
   </details>
 </main>
+<script src="/static/ambient.js"></script>
 <script type="module" src="/static/capture.js"></script>
 </body>
 </html>

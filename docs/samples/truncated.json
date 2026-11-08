@@ -1,7 +1,7 @@
 {
   "report_version": 1,
-  "generated_at": "2026-11-09T02:06:10+0530",
-  "analysis_seconds": 0.84,
+  "generated_at": "2026-11-09T02:18:26+0530",
+  "analysis_seconds": 1.53,
   "tool_versions": {
     "python": "3.13.3",
     "os": "Windows-11-10.0.26300-SP0",
@@ -28,16 +28,16 @@
     "chunks_received": 3,
     "duplicate_chunks": 0,
     "rejected_chunks": 0,
-    "completed_at": 1794170169.5923014,
+    "completed_at": 1794170905.1943953,
     "detail": "full-file SHA-256 verified",
     "events": [
       {
-        "ts": 1794170169.5923014,
+        "ts": 1794170905.1943953,
         "event": "COMPLETE",
         "detail": "sha256=8a669b37e1132ce23e72b7d436701dafe75fe857d4fa068a26ef71af656486e9"
       },
       {
-        "ts": 1794170169.4448576,
+        "ts": 1794170904.945139,
         "event": "CREATED",
         "detail": "size=1513688"
       }
@@ -139,12 +139,12 @@
       "returncode": 0,
       "error_lines": 6,
       "errors": [
-        "[h264 @ 00000241eefce480] Invalid NAL unit size (5287 > 3752).",
-        "[h264 @ 00000241eefce480] missing picture in access unit with size 3756",
-        "[in#0/mov,mp4,m4a,3gp,3g2,mj2 @ 00000241ed0e0dc0] stream 0, offset 0x171ed7: partial file",
-        "[h264 @ 00000241ef01fbc0] Invalid NAL unit size (5287 > 3752).",
-        "[h264 @ 00000241ef01fbc0] Error splitting the input into NAL units.",
-        "[vist#0:0/h264 @ 00000241ed1bed40] [dec:h264 @ 00000241ed18b480] Decoding error: Invalid data found when processing input"
+        "[h264 @ 0000022aa0fff100] Invalid NAL unit size (5287 > 3752).",
+        "[h264 @ 0000022aa0fff100] missing picture in access unit with size 3756",
+        "[in#0/mov,mp4,m4a,3gp,3g2,mj2 @ 0000022a9f0f1840] stream 0, offset 0x171ed7: partial file",
+        "[h264 @ 0000022aa0f671c0] Invalid NAL unit size (5287 > 3752).",
+        "[h264 @ 0000022aa0f671c0] Error splitting the input into NAL units.",
+        "[vist#0:0/h264 @ 0000022a9f19ebc0] [dec:h264 @ 0000022a9f0faa00] Decoding error: Invalid data found when processing input"
       ]
     }
   },

@@ -1,57 +1,68 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Integrity Report</title><style>
-:root{--bg:#f7f7f5;--card:#fff;--text:#1d1d1b;--muted:#6b6b66;--line:#e3e3de;
---ok:#1f7a3d;--warn:#a86400;--bad:#b3261e;--info:#1f5fa8;--art:#8a8a84}
-@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#201f1d;--text:#ecebe6;--muted:#a3a29b;
---line:#34332f;--ok:#5cc47f;--warn:#e0a446;--bad:#f07b72;--info:#7fb0ec;--art:#77766f}}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,sans-serif}
-main{max-width:1000px;margin:0 auto;padding:24px 16px}
-h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:28px 0 8px}
-.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:10px 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.k{font-size:12px;color:var(--muted)}.v{font-size:18px;font-weight:600}
+:root{color-scheme:dark;--bg:#09090b;--card:rgba(18,18,20,.72);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.15);
+--text:#ededed;--strong:#fff;--muted:#a1a1aa;--label:#8e8e96;--hair:#52525b;
+--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--info:#e4e4e7;--art:#71717a;
+--sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:"JetBrains Mono",SFMono-Regular,Consolas,monospace}
+*{box-sizing:border-box}html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+main{max-width:1000px;margin:0 auto;padding:32px 16px 56px}
+h1{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--strong);margin:0 0 6px}
+h2{font-size:12px;font-weight:600;color:var(--label);text-transform:uppercase;letter-spacing:.08em;margin:32px 0 8px}
+a{color:var(--strong);text-underline-offset:3px;text-decoration-color:var(--hair)}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.k{font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.08em}.v{font-size:18px;font-weight:600;color:var(--strong)}
 .ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
-table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
-th{font-size:12px;color:var(--muted);font-weight:600}
-.scroll{overflow-x:auto}code{font-size:12px;word-break:break-all}
-svg text{fill:var(--muted);font-size:10px}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:11px;color:var(--label);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.scroll{overflow-x:auto}
+code,pre{font-family:var(--mono);font-size:12px}
+code{display:inline-block;max-width:100%;padding:1px 7px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.04);word-break:break-all;user-select:all}
+code:hover{border-color:var(--line2);background:rgba(255,255,255,.08)}
+pre{margin:0;color:var(--muted);white-space:pre-wrap;word-break:break-all}
+svg text{fill:var(--label);font-size:10px;font-family:var(--mono)}
 li{margin:4px 0}
-.verdict{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline;font-size:15px}
-.verdict .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.verdict .txt::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:currentColor}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:baseline;font-size:15px}
+.verdict .lbl{font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.08em}
+.verdict .txt::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:10px;vertical-align:2px;background:currentColor}
 .verdict .txt span{color:var(--text)}
-.tl{margin:8px 0 4px}.lane{margin:6px 0}
-.tl .bar{position:relative;height:22px;border-radius:4px;background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.tl{margin:10px 0 4px}.lane{margin:8px 0}
+.tl .bar{position:relative;height:22px;border-radius:4px;border:1px solid var(--line);background-color:rgba(255,255,255,.03)}
 .tl .bar a{position:absolute;top:0;bottom:0;min-width:3px;border-radius:2px}
-.tl .bar a:hover,.tl .bar a:focus{outline:2px solid var(--text);z-index:1}
-.tl .ticks{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.tl .bar a:hover,.tl .bar a:focus{outline:2px solid var(--strong);z-index:1}
+.tl .ticks{position:relative;height:16px;font:11px var(--mono);color:var(--label)}
 .tl .ticks span{position:absolute;transform:translateX(-50%)}.tl .ticks span:first-child{transform:none}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+tr:target{background:rgba(255,255,255,.06)}tr:target td:first-child{box-shadow:inset 2px 0 var(--strong)}
 @media (max-width:600px){.verdict{grid-template-columns:1fr}.verdict .lbl{margin-top:6px}}
+@media print{:root{--bg:#fff;--card:#fff;--line:#ddd;--line2:#bbb;--text:#111;--strong:#000;--muted:#444;--label:#555;
+--ok:#1f7a3d;--warn:#8a5a00;--bad:#b3261e;--info:#333;--art:#888}.card{break-inside:avoid}}
 </style></head>
 <body><main>
 <h1>Video integrity report</h1>
-<div class="muted">mixed_dup_gap.mp4 · 2,916,219 bytes · generated 2026-11-09T02:06:05+0530</div>
+<div class="muted">mixed_dup_gap.mp4 · <code>2,916,219 bytes</code> · generated <code>2026-11-09T02:18:22+0530</code></div>
+<div class="muted" style="margin-top:6px">SHA-256 <code>6fd18e22138d7b03cd1029507207ee264a081bf6037e04492f1f1377cdd4afe2</code></div>
 
 <div class='card verdict'><div class='lbl'>Upload</div><div class='txt ok'><span>Verified: the server&#x27;s copy is byte-identical to the sender&#x27;s (SHA-256 match)</span></div><div class='lbl'>Video</div><div class='txt ok'><span>Valid video, decodes without errors</span></div><div class='lbl'>Frames</div><div class='txt bad'><span>6 frames missing at 0:11.8 (cause: undetermined); 2 duplicated frames at 0:01.6 (cause: undetermined)</span></div></div>
 
-<div class="card"><b>Where in the video</b><div class='tl' role='img' aria-label='anomalies on the video timeline'><div class='lane'><div class='k'>frame problems</div><div class='bar'><a href='#A1' title='A1 duplicated_frame 1.57-1.60 s, cause: undetermined' style='left:5.22%;width:0.11%;background:var(--warn)'></a><a href='#A2' title='A2 missing_frames 11.83-12.07 s, cause: undetermined' style='left:39.44%;width:0.78%;background:var(--bad)'></a></div></div><div class='lane'><div class='k'>lower confidence</div><div class='bar'></div></div><div class='ticks'><span style='left:0.00%'>0:00</span><span style='left:16.67%'>0:05</span><span style='left:33.33%'>0:10</span><span style='left:50.00%'>0:15</span><span style='left:66.67%'>0:20</span><span style='left:83.33%'>0:25</span><span style='left:100.00%'>0:30</span></div></div><div class='legend'><span><i style='background:var(--warn)'></i>duplicated frame</span><span><i style='background:var(--bad)'></i>missing frames</span><span>· click a marker for its details</span></div></div>
+<div class="card"><b>Where in the video</b><div class='tl' role='img' aria-label='anomalies on the video timeline'><div class='lane'><div class='k'>frame problems</div><div class='bar' style='background-image:repeating-linear-gradient(to right,rgba(255,255,255,.07) 0 1px,transparent 1px 3.3333%)'><a href='#A1' title='A1 duplicated_frame 1.57-1.60 s, cause: undetermined' style='left:5.22%;width:0.11%;background:var(--warn)'></a><a href='#A2' title='A2 missing_frames 11.83-12.07 s, cause: undetermined' style='left:39.44%;width:0.78%;background:var(--bad)'></a></div></div><div class='lane'><div class='k'>lower confidence</div><div class='bar' style='background-image:repeating-linear-gradient(to right,rgba(255,255,255,.07) 0 1px,transparent 1px 3.3333%)'></div></div><div class='ticks'><span style='left:0.00%'>0:00</span><span style='left:16.67%'>0:05</span><span style='left:33.33%'>0:10</span><span style='left:50.00%'>0:15</span><span style='left:66.67%'>0:20</span><span style='left:83.33%'>0:25</span><span style='left:100.00%'>0:30</span></div></div><div class='legend'><span><i style='background:var(--warn)'></i>duplicated frame</span><span><i style='background:var(--bad)'></i>missing frames</span><span>· click a marker for its details</span></div></div>
 
 <div class="grid" style="margin-top:14px">
  <div class="card"><div class="k">Transfer</div><div class="v ok">verified (SHA-256 match)</div></div>
  <div class="card"><div class="k">Validation</div><div class="v ok">VALID</div></div>
  <div class="card"><div class="k">Anomalies</div><div class="v">2</div>
-   <div class="k">duplicated_frame: 1, missing_frames: 1</div></div>
+   <div class="muted" style="font-size:12px">duplicated_frame: 1, missing_frames: 1</div></div>
  <div class="card"><div class="k">Frames decoded</div><div class="v">894</div>
-   <div class="k">packets 894 · decode errors 0</div></div>
+   <div class="muted" style="font-size:12px">packets 894 · decode errors 0</div></div>
 </div>
 
 <div class="card"><b>Dropped frames in the original recording:</b> frames missing from the file timeline: ~6 in 1 gap(s). Whether they were lost during capture or encoding cannot be determined: there is no capture log.</div>
 
 <h2>Anomalies</h2>
-<div class="card scroll"><table><tr><th>ID</th><th>Type</th><th>Location</th><th>Evidence</th><th>Confidence</th><th>Likely cause</th></tr><tr id='A1'><td>A1</td><td>duplicated_frame</td><td>1.567s – 1.600s<div class='k'>frames 47–48</div></td><td>2 frame(s) identical to frame 46 (diff &lt;= 0.5) while local motion is 2.00</td><td class='warn'>medium</td><td><b>undetermined</b><div class='k'>candidates: capture, encoding; ruled out: transfer</div><div class='k'>An identical picture inside motion: a repeated capture buffer, or an upstream frame-rate conversion that duplicated a frame. Transfer is ruled out: the backend&#x27;s SHA-256 matches the client&#x27;s file.</div></td></tr><tr id='A2'><td>A2</td><td>missing_frames</td><td>11.833s – 12.067s<div class='k'>frames 355–356</div></td><td>interval 233.33 ms = 7.00x nominal 33.33 ms; ~6 frame slot(s) empty between 11.8333s and 12.0667s with no packet in the container</td><td class='bad'>high</td><td><b>undetermined</b><div class='k'>candidates: capture, encoding; ruled out: transfer</div><div class='k'>The file&#x27;s own timestamps show empty frame slots. The capture pipeline may have dropped them or the encoder/editor may have discarded them; a capture log is needed to tell which. Transfer is ruled out: the backend&#x27;s SHA-256 matches the client&#x27;s file.</div></td></tr></table></div>
+<div class="card scroll"><table><tr><th>ID</th><th>Type</th><th>Location</th><th>Evidence</th><th>Confidence</th><th>Likely cause</th></tr><tr id='A1'><td>A1</td><td>duplicated_frame</td><td><code>1.567s – 1.600s</code><div class='k' style='margin-top:4px'>frames <code>47–48</code></div></td><td>2 frame(s) identical to frame 46 (diff &lt;= 0.5) while local motion is 2.00</td><td class='warn'>medium</td><td><b>undetermined</b><div class='k'>candidates: capture, encoding; ruled out: transfer</div><div class='k'>An identical picture inside motion: a repeated capture buffer, or an upstream frame-rate conversion that duplicated a frame. Transfer is ruled out: the backend&#x27;s SHA-256 matches the client&#x27;s file.</div></td></tr><tr id='A2'><td>A2</td><td>missing_frames</td><td><code>11.833s – 12.067s</code><div class='k' style='margin-top:4px'>frames <code>355–356</code></div></td><td>interval 233.33 ms = 7.00x nominal 33.33 ms; ~6 frame slot(s) empty between 11.8333s and 12.0667s with no packet in the container</td><td class='bad'>high</td><td><b>undetermined</b><div class='k'>candidates: capture, encoding; ruled out: transfer</div><div class='k'>The file&#x27;s own timestamps show empty frame slots. The capture pipeline may have dropped them or the encoder/editor may have discarded them; a capture log is needed to tell which. Transfer is ruled out: the backend&#x27;s SHA-256 matches the client&#x27;s file.</div></td></tr></table></div>
 
 <h2>Capture evidence (browser frame log)</h2>
 <div class='card muted'>No capture log: capture and encoding drops cannot be told apart.</div>
@@ -96,16 +107,16 @@ tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
   &quot;chunks_received&quot;: 4,
   &quot;duplicate_chunks&quot;: 0,
   &quot;rejected_chunks&quot;: 0,
-  &quot;completed_at&quot;: 1794170164.1798387,
+  &quot;completed_at&quot;: 1794170899.0087798,
   &quot;detail&quot;: &quot;full-file SHA-256 verified&quot;,
   &quot;events&quot;: [
     {
-      &quot;ts&quot;: 1794170164.1798387,
+      &quot;ts&quot;: 1794170899.0087798,
       &quot;event&quot;: &quot;COMPLETE&quot;,
       &quot;detail&quot;: &quot;sha256=6fd18e22138d7b03cd1029507207ee264a081bf6037e04492f1f1377cdd4afe2&quot;
     },
     {
-      &quot;ts&quot;: 1794170163.9457476,
+      &quot;ts&quot;: 1794170898.6834466,
       &quot;event&quot;: &quot;CREATED&quot;,
       &quot;detail&quot;: &quot;size=2916219&quot;
     }
@@ -118,5 +129,5 @@ tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
 
 <h2>Tool versions</h2>
 <div class="card scroll"><table><tr><td>python</td><td><code>3.13.3</code></td></tr><tr><td>os</td><td><code>Windows-11-10.0.26300-SP0</code></td></tr><tr><td>ffmpeg</td><td><code>ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers</code></td></tr><tr><td>ffprobe</td><td><code>ffprobe version 9.0.2-full_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers</code></td></tr><tr><td>pyav</td><td><code>19.0.2</code></td></tr><tr><td>pyav_libavcodec</td><td><code>63.1.102</code></td></tr><tr><td>pyav_libavformat</td><td><code>63.1.102</code></td></tr><tr><td>opencv</td><td><code>5.0.0</code></td></tr><tr><td>numpy</td><td><code>2.5.4</code></td></tr></table>
-<p class="k">Analysis took 1.8s.</p></div>
+<p class="k">Analysis took 3.34s.</p></div>
 </main></body></html>

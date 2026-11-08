@@ -80,13 +80,19 @@ function pickMime() {
 }
 
 // ---------------- record ----------------
+// The ambient background animation is paused from Record until the result is shown, so it never
+// competes with the frames whose timing is being logged.
+const calm = () => window.ambient?.pause();
+const lively = () => window.ambient?.resume();
+
 async function record() {
   $('record').disabled = true;
+  calm();
   const kind = $('source').value;
   let src;
   try { src = kind === 'camera' ? await cameraSource() : testPatternSource($('stall').checked); }
   catch (e) {
-    setState('NO CAMERA', 'bad'); log('error', `${e.name}: ${e.message}`); $('record').disabled = false;
+    setState('NO CAMERA', 'bad'); log('error', `${e.name}: ${e.message}`); $('record').disabled = false; lively();
     say(e.name === 'NotAllowedError' ? 'Camera access was blocked. Allow the camera for this site and try again.'
         : `The camera could not be opened (${e.name}). Close other apps using it, or choose "Test pattern".`, 'bad');
     return;
@@ -192,6 +198,7 @@ function offerDownloads(p) {
 // ---------------- upload (same protocol as the Python client) ----------------
 async function upload(p) {
   $('record').disabled = true; $('resume').hidden = true; $('discard').hidden = true;
+  calm();
   setState('UPLOADING', 'info');
   say('Uploading… you can keep this page open; a weak or lost connection is handled automatically.', 'info');
   uploading = true;
@@ -250,6 +257,7 @@ async function upload(p) {
     if (res.state === 'FAILED') { $('resume').hidden = false; $('discard').hidden = false; }
   }
   $('record').disabled = false;
+  lively();
 }
 
 async function showReport(id) {
@@ -275,7 +283,7 @@ async function showReport(id) {
 
 // ---------------- start-up: offer to resume an unfinished upload ----------------
 let pendingRec = null;
-$('record').onclick = () => record().catch(e => { log('error', String(e)); setState('ERROR', 'bad'); $('record').disabled = false; });
+$('record').onclick = () => record().catch(e => { log('error', String(e)); setState('ERROR', 'bad'); $('record').disabled = false; lively(); });
 $('resume').onclick = () => upload(pendingRec).catch(e => log('error', String(e)));
 $('discard').onclick = async () => { await clearPending(); $('resume').hidden = true; $('discard').hidden = true; log('ui', 'unfinished recording discarded'); };
 $('source').onchange = () => { $('stallrow').hidden = $('source').value !== 'test'; };

@@ -4,40 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Upload Status</title>
+<link rel="stylesheet" href="/static/theme.css">
 <style>
-  :root { --bg:#f7f7f5; --card:#fff; --text:#1d1d1b; --muted:#6b6b66; --line:#e3e3de;
-          --ok:#1f7a3d; --warn:#a86400; --bad:#b3261e; --info:#1f5fa8; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#161615; --card:#201f1d; --text:#ecebe6; --muted:#a3a29b; --line:#34332f;
-            --ok:#5cc47f; --warn:#e0a446; --bad:#f07b72; --info:#7fb0ec; }
-  }
-  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui, sans-serif; }
-  main { max-width:960px; margin:0 auto; padding:24px 16px; }
-  h1 { font-size:20px; margin:0 0 4px; }
-  .sub { color:var(--muted); margin-bottom:20px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:12px; }
-  .row { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; }
-  .name { font-weight:600; word-break:break-all; }
-  .state { font-weight:700; font-size:12px; letter-spacing:.04em; padding:2px 8px; border-radius:99px; border:1px solid currentColor; }
-  .UPLOADING { color:var(--info); } .STALLED { color:var(--warn); }
-  .FAILED, .REJECTED { color:var(--bad); } .COMPLETE { color:var(--ok); }
-  .bar { height:8px; background:var(--line); border-radius:4px; overflow:hidden; margin:10px 0 6px; }
-  .bar > div { height:100%; background:currentColor; }
-  .meta { color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; }
-  code { font-size:12px; word-break:break-all; }
-  details { margin-top:8px; } summary { cursor:pointer; color:var(--muted); font-size:12px; }
-  table { border-collapse:collapse; width:100%; font-size:12px; margin-top:6px; }
-  td { padding:2px 8px 2px 0; border-top:1px solid var(--line); vertical-align:top; }
+  .name { font-weight:600; color:var(--strong); word-break:break-all; }
+  .hashes { display:grid; grid-template-columns:auto 1fr; gap:4px 10px; align-items:center; margin-top:10px; }
   .empty { color:var(--muted); }
+  .card .meta + .meta { margin-top:4px; }
 </style>
 </head>
 <body>
+<canvas id="ambient-canvas" aria-hidden="true"></canvas>
 <main>
+  <div class="label">Video integrity · uploads</div>
   <h1>Upload status</h1>
   <div class="sub">Refreshes every second. COMPLETE is shown only after the server verified the full-file SHA-256.
     <a href="/capture">Record in the browser</a></div>
   <div id="list" class="empty">Loading…</div>
 </main>
+<script src="/static/ambient.js"></script>
 <script>
 const fmtBytes = b => b >= 1048576 ? (b/1048576).toFixed(2)+' MB' : b >= 1024 ? (b/1024).toFixed(1)+' KB' : b+' B';
 const fmtTime = t => t ? new Date(t*1000).toLocaleTimeString() : '–';
@@ -56,13 +40,13 @@ async function refresh() {
       }
       return `<div class="card">
         <div class="row"><span class="name">${esc(u.filename)}</span><span class="state ${u.state}">${u.state}</span>
-          <span class="meta">${fmtBytes(u.received_bytes)} / ${fmtBytes(u.size)} · ${(u.progress*100).toFixed(1)}%</span></div>
+          <span class="meta mono">${fmtBytes(u.received_bytes)} / ${fmtBytes(u.size)} · ${(u.progress*100).toFixed(1)}%</span></div>
         <div class="bar ${u.state}"><div style="width:${u.progress*100}%"></div></div>
-        <div class="meta">chunks ${u.chunks_received} · duplicates ${u.duplicate_chunks} · rejected ${u.rejected_chunks}
-          · last activity ${fmtTime(u.last_activity_at)}${u.detail ? ' · ' + esc(u.detail) : ''}</div>
-        <div class="meta">declared SHA-256 <code>${esc(u.sha256)}</code></div>
-        ${u.server_sha256 ? `<div class="meta">server SHA-256 <code>${esc(u.server_sha256)}</code></div>` : ''}
-        <div class="meta">integrity analysis: ${u.analysis === 'done'
+        <div class="meta">chunks <code>${u.chunks_received}</code> · duplicates <code>${u.duplicate_chunks}</code> · rejected <code>${u.rejected_chunks}</code>
+          · last activity <code>${fmtTime(u.last_activity_at)}</code>${u.detail ? ' · ' + esc(u.detail) : ''}</div>
+        <div class="hashes meta"><span class="label">declared SHA-256</span><code>${esc(u.sha256)}</code>
+        ${u.server_sha256 ? `<span class="label">server SHA-256</span><code>${esc(u.server_sha256)}</code>` : ''}</div>
+        <div class="meta" style="margin-top:10px">integrity analysis: ${u.analysis === 'done'
           ? `<a href="/uploads/${u.upload_id}/report.html" target="_blank">report</a> · <a href="/uploads/${u.upload_id}/report" target="_blank">JSON</a>`
           : esc(u.state === 'COMPLETE' ? u.analysis : 'waits for COMPLETE (verified) upload')}</div>
         <details data-id="${u.upload_id}" ${open.has(u.upload_id) ? 'open' : ''}><summary>events</summary>${ev}</details>

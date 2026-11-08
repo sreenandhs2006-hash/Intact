@@ -1,39 +1,50 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Integrity Report</title><style>
-:root{--bg:#f7f7f5;--card:#fff;--text:#1d1d1b;--muted:#6b6b66;--line:#e3e3de;
---ok:#1f7a3d;--warn:#a86400;--bad:#b3261e;--info:#1f5fa8;--art:#8a8a84}
-@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#201f1d;--text:#ecebe6;--muted:#a3a29b;
---line:#34332f;--ok:#5cc47f;--warn:#e0a446;--bad:#f07b72;--info:#7fb0ec;--art:#77766f}}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,sans-serif}
-main{max-width:1000px;margin:0 auto;padding:24px 16px}
-h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:28px 0 8px}
-.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:10px 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.k{font-size:12px;color:var(--muted)}.v{font-size:18px;font-weight:600}
+:root{color-scheme:dark;--bg:#09090b;--card:rgba(18,18,20,.72);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.15);
+--text:#ededed;--strong:#fff;--muted:#a1a1aa;--label:#8e8e96;--hair:#52525b;
+--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--info:#e4e4e7;--art:#71717a;
+--sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:"JetBrains Mono",SFMono-Regular,Consolas,monospace}
+*{box-sizing:border-box}html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+main{max-width:1000px;margin:0 auto;padding:32px 16px 56px}
+h1{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--strong);margin:0 0 6px}
+h2{font-size:12px;font-weight:600;color:var(--label);text-transform:uppercase;letter-spacing:.08em;margin:32px 0 8px}
+a{color:var(--strong);text-underline-offset:3px;text-decoration-color:var(--hair)}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.k{font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.08em}.v{font-size:18px;font-weight:600;color:var(--strong)}
 .ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
-table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
-th{font-size:12px;color:var(--muted);font-weight:600}
-.scroll{overflow-x:auto}code{font-size:12px;word-break:break-all}
-svg text{fill:var(--muted);font-size:10px}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:11px;color:var(--label);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.scroll{overflow-x:auto}
+code,pre{font-family:var(--mono);font-size:12px}
+code{display:inline-block;max-width:100%;padding:1px 7px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.04);word-break:break-all;user-select:all}
+code:hover{border-color:var(--line2);background:rgba(255,255,255,.08)}
+pre{margin:0;color:var(--muted);white-space:pre-wrap;word-break:break-all}
+svg text{fill:var(--label);font-size:10px;font-family:var(--mono)}
 li{margin:4px 0}
-.verdict{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline;font-size:15px}
-.verdict .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.verdict .txt::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:currentColor}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:baseline;font-size:15px}
+.verdict .lbl{font-size:11px;color:var(--label);text-transform:uppercase;letter-spacing:.08em}
+.verdict .txt::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:10px;vertical-align:2px;background:currentColor}
 .verdict .txt span{color:var(--text)}
-.tl{margin:8px 0 4px}.lane{margin:6px 0}
-.tl .bar{position:relative;height:22px;border-radius:4px;background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.tl{margin:10px 0 4px}.lane{margin:8px 0}
+.tl .bar{position:relative;height:22px;border-radius:4px;border:1px solid var(--line);background-color:rgba(255,255,255,.03)}
 .tl .bar a{position:absolute;top:0;bottom:0;min-width:3px;border-radius:2px}
-.tl .bar a:hover,.tl .bar a:focus{outline:2px solid var(--text);z-index:1}
-.tl .ticks{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.tl .bar a:hover,.tl .bar a:focus{outline:2px solid var(--strong);z-index:1}
+.tl .ticks{position:relative;height:16px;font:11px var(--mono);color:var(--label)}
 .tl .ticks span{position:absolute;transform:translateX(-50%)}.tl .ticks span:first-child{transform:none}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+tr:target{background:rgba(255,255,255,.06)}tr:target td:first-child{box-shadow:inset 2px 0 var(--strong)}
 @media (max-width:600px){.verdict{grid-template-columns:1fr}.verdict .lbl{margin-top:6px}}
+@media print{:root{--bg:#fff;--card:#fff;--line:#ddd;--line2:#bbb;--text:#111;--strong:#000;--muted:#444;--label:#555;
+--ok:#1f7a3d;--warn:#8a5a00;--bad:#b3261e;--info:#333;--art:#888}.card{break-inside:avoid}}
 </style></head>
 <body><main>
 <h1>Video integrity report</h1>
-<div class="muted">fake_text.mp4 · 42,000 bytes · generated 2026-11-09T02:06:12+0530</div>
+<div class="muted">fake_text.mp4 · <code>42,000 bytes</code> · generated <code>2026-11-09T02:18:29+0530</code></div>
+<div class="muted" style="margin-top:6px">SHA-256 <code>96bab0d5810c413e2991a0fc498ac77fbc50192427e21fd7a372a61ac1f0b416</code></div>
 
 <div class='card verdict'><div class='lbl'>Upload</div><div class='txt ok'><span>Verified: the server&#x27;s copy is byte-identical to the sender&#x27;s (SHA-256 match)</span></div><div class='lbl'>Video</div><div class='txt bad'><span>Not a usable video: it could not be decoded</span></div><div class='lbl'>Frames</div><div class='txt bad'><span>Not analysed: the file could not be decoded</span></div></div>
 
@@ -43,9 +54,9 @@ tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
  <div class="card"><div class="k">Transfer</div><div class="v ok">verified (SHA-256 match)</div></div>
  <div class="card"><div class="k">Validation</div><div class="v bad">INVALID</div></div>
  <div class="card"><div class="k">Anomalies</div><div class="v">0</div>
-   <div class="k">none</div></div>
+   <div class="muted" style="font-size:12px">none</div></div>
  <div class="card"><div class="k">Frames decoded</div><div class="v">0</div>
-   <div class="k">packets 0 · decode errors 1</div></div>
+   <div class="muted" style="font-size:12px">packets 0 · decode errors 1</div></div>
 </div>
 
 <div class="card"><b>Dropped frames in the original recording:</b> cannot determine: the file could not be decoded</div>
@@ -80,8 +91,8 @@ tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
 <div class="card">
  <p>Container <code></code> · codec <code></code>
  × · declared frames  · declared duration s</p>
- <p class="k">ffprobe errors</p><ul><li><code>C:\Users\Admin\.nihilent-vi\m6-samples\data\files\3e20183cff9c40b6b604613036a7c90a.bin: Invalid data found when processing input</code></li></ul>
- <p class="k">PyAV decoder errors (first 50 of 1)</p><ul><li><code></code> open_failed: [Errno 1094995529] Invalid data found when processing input: &#x27;C:\\Users\\Admin\\.nihilent-vi\\m6-samples\\data\\files\\3e20183cff9c40b6b604613036a7c90a.bin&#x27;</li></ul>
+ <p class="k">ffprobe errors</p><ul><li><code>C:\Users\Admin\.nihilent-vi\m6-samples\data\files\871604c42eb34760917e0c50224a24d5.bin: Invalid data found when processing input</code></li></ul>
+ <p class="k">PyAV decoder errors (first 50 of 1)</p><ul><li><code></code> open_failed: [Errno 1094995529] Invalid data found when processing input: &#x27;C:\\Users\\Admin\\.nihilent-vi\\m6-samples\\data\\files\\871604c42eb34760917e0c50224a24d5.bin&#x27;</li></ul>
  <p class="k">Independent ffmpeg CLI decode (0 error lines)</p><ul><li class="muted">none</li></ul>
 </div>
 
@@ -96,16 +107,16 @@ tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
   &quot;chunks_received&quot;: 1,
   &quot;duplicate_chunks&quot;: 0,
   &quot;rejected_chunks&quot;: 0,
-  &quot;completed_at&quot;: 1794170172.6676135,
+  &quot;completed_at&quot;: 1794170909.3313546,
   &quot;detail&quot;: &quot;full-file SHA-256 verified&quot;,
   &quot;events&quot;: [
     {
-      &quot;ts&quot;: 1794170172.6676135,
+      &quot;ts&quot;: 1794170909.3313546,
       &quot;event&quot;: &quot;COMPLETE&quot;,
       &quot;detail&quot;: &quot;sha256=96bab0d5810c413e2991a0fc498ac77fbc50192427e21fd7a372a61ac1f0b416&quot;
     },
     {
-      &quot;ts&quot;: 1794170172.5975947,
+      &quot;ts&quot;: 1794170909.263559,
       &quot;event&quot;: &quot;CREATED&quot;,
       &quot;detail&quot;: &quot;size=42000&quot;
     }
@@ -118,5 +129,5 @@ tr:target{background:color-mix(in srgb,var(--warn) 14%,transparent)}
 
 <h2>Tool versions</h2>
 <div class="card scroll"><table><tr><td>python</td><td><code>3.13.3</code></td></tr><tr><td>os</td><td><code>Windows-11-10.0.26300-SP0</code></td></tr><tr><td>ffmpeg</td><td><code>ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers</code></td></tr><tr><td>ffprobe</td><td><code>ffprobe version 9.0.2-full_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers</code></td></tr><tr><td>pyav</td><td><code>19.0.2</code></td></tr><tr><td>pyav_libavcodec</td><td><code>63.1.102</code></td></tr><tr><td>pyav_libavformat</td><td><code>63.1.102</code></td></tr><tr><td>opencv</td><td><code>5.0.0</code></td></tr><tr><td>numpy</td><td><code>2.5.4</code></td></tr></table>
-<p class="k">Analysis took 0.21s.</p></div>
+<p class="k">Analysis took 0.26s.</p></div>
 </main></body></html>
