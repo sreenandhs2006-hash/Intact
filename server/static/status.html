@@ -4,33 +4,76 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Upload Status</title>
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="/static/theme.css">
 <style>
-  .name { font-weight:600; color:var(--strong); word-break:break-all; }
-  .hashes { display:grid; grid-template-columns:auto 1fr; gap:4px 10px; align-items:center; margin-top:10px; }
-  .empty { color:var(--muted); }
-  .card .meta + .meta { margin-top:4px; }
+  .head { padding:64px 0 40px; }
+  .head h1 { font-size:clamp(28px,4.4vw,40px); letter-spacing:-0.03em; margin-bottom:12px; }
+  .totals { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:32px; }
+  .totals .card { margin:0; padding:20px 22px; }
+  .totals .n { font:600 32px/1 var(--sans); letter-spacing:-0.03em; color:var(--strong); margin-top:10px; font-variant-numeric:tabular-nums; }
+  #list { padding-bottom:72px; }
+  .up { padding:24px 26px; margin:0 0 20px; }
+  .up .top { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; }
+  .name { font-weight:600; font-size:15px; color:var(--strong); word-break:break-all; }
+  .up .size { margin-left:auto; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0; }
+  .stats div { border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .stats b { display:block; margin-top:6px; font:500 15px var(--mono); color:var(--strong); font-weight:500; }
+  .hashes { display:grid; grid-template-columns:auto 1fr; gap:8px 14px; align-items:center; padding:14px 16px;
+            border-radius:10px; background:rgba(255,255,255,0.025); border:1px solid var(--line); }
+  .match { grid-column:1/-1; font-size:12px; }
+  .foot2 { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin-top:20px; }
+  .foot2 details { margin-left:auto; }
+  .foot2 details[open] { flex-basis:100%; margin-left:0; }
+  .empty { color:var(--muted); padding:40px 0; }
+  @media (max-width:700px) {
+    .totals, .stats { grid-template-columns:repeat(2,1fr); }
+    .hashes { grid-template-columns:1fr; } .up .size { margin-left:0; }
+    .up { padding:20px; }
+  }
 </style>
 </head>
 <body>
 <canvas id="ambient-canvas" aria-hidden="true"></canvas>
-<main>
-  <div class="label">Video integrity · uploads</div>
-  <h1>Upload status</h1>
-  <div class="sub">Refreshes every second. COMPLETE is shown only after the server verified the full-file SHA-256.
-    <a href="/capture">Record in the browser</a></div>
+
+<header class="topbar"><div class="in">
+  <a class="brand" href="/capture"><span class="mark"></span><span class="txt">Video integrity</span></a>
+  <nav><a href="/capture#record-sec">Record</a><a href="/" class="on">Uploads</a><a href="/capture#how">How it works</a></nav>
+</div></header>
+
+<main class="wrap" style="max-width:1040px;padding:0 16px">
+  <div class="head">
+    <div class="eyebrow reveal">Live · refreshes every second</div>
+    <h1 class="reveal d1">Uploads</h1>
+    <p class="lead reveal d2" style="margin:0">COMPLETE is shown only after the server verified the full-file SHA-256.
+      <a href="/capture">Record a new video</a></p>
+    <div class="totals reveal d3">
+      <div class="card"><div class="label">Uploads</div><div class="n" id="t-all">–</div></div>
+      <div class="card"><div class="label">Verified</div><div class="n" id="t-ok">–</div></div>
+      <div class="card"><div class="label">In progress</div><div class="n" id="t-run">–</div></div>
+      <div class="card"><div class="label">Failed / rejected</div><div class="n" id="t-bad">–</div></div>
+    </div>
+  </div>
   <div id="list" class="empty">Loading…</div>
 </main>
+
 <script src="/static/ambient.js"></script>
+<script src="/static/ui.js"></script>
 <script>
 const fmtBytes = b => b >= 1048576 ? (b/1048576).toFixed(2)+' MB' : b >= 1024 ? (b/1024).toFixed(1)+' KB' : b+' B';
 const fmtTime = t => t ? new Date(t*1000).toLocaleTimeString() : '–';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const open = new Set();
+const setText = (id, v) => { document.getElementById(id).textContent = v; };
 
 async function refresh() {
   try {
     const ups = await (await fetch('/uploads')).json();
+    setText('t-all', ups.length);
+    setText('t-ok', ups.filter(u => u.state === 'COMPLETE').length);
+    setText('t-run', ups.filter(u => u.state === 'UPLOADING' || u.state === 'STALLED').length);
+    setText('t-bad', ups.filter(u => u.state === 'FAILED' || u.state === 'REJECTED').length);
     if (!ups.length) { document.getElementById('list').innerHTML = '<div class="empty">No uploads yet.</div>'; return; }
     const parts = await Promise.all(ups.map(async u => {
       let ev = '';
@@ -38,20 +81,28 @@ async function refresh() {
         const events = await (await fetch(`/uploads/${u.upload_id}/events`)).json();
         ev = '<table>' + events.map(e => `<tr><td>${fmtTime(e.ts)}</td><td>${esc(e.event)}</td><td>${esc(e.detail)}</td></tr>`).join('') + '</table>';
       }
-      return `<div class="card">
-        <div class="row"><span class="name">${esc(u.filename)}</span><span class="state ${u.state}">${u.state}</span>
-          <span class="meta mono">${fmtBytes(u.received_bytes)} / ${fmtBytes(u.size)} · ${(u.progress*100).toFixed(1)}%</span></div>
+      const same = u.server_sha256 && u.server_sha256 === u.sha256;
+      return `<div class="card up">
+        <div class="top"><span class="name">${esc(u.filename)}</span><span class="state ${u.state}">${u.state}</span>
+          <span class="meta mono size">${fmtBytes(u.received_bytes)} / ${fmtBytes(u.size)} · ${(u.progress*100).toFixed(1)}%</span></div>
         <div class="bar ${u.state}"><div style="width:${u.progress*100}%"></div></div>
-        <div class="meta">chunks <code>${u.chunks_received}</code> · duplicates <code>${u.duplicate_chunks}</code> · rejected <code>${u.rejected_chunks}</code>
-          · last activity <code>${fmtTime(u.last_activity_at)}</code>${u.detail ? ' · ' + esc(u.detail) : ''}</div>
-        <div class="hashes meta"><span class="label">declared SHA-256</span><code>${esc(u.sha256)}</code>
-        ${u.server_sha256 ? `<span class="label">server SHA-256</span><code>${esc(u.server_sha256)}</code>` : ''}</div>
-        <div class="meta" style="margin-top:10px">integrity analysis: ${u.analysis === 'done'
-          ? `<a href="/uploads/${u.upload_id}/report.html" target="_blank">report</a> · <a href="/uploads/${u.upload_id}/report" target="_blank">JSON</a>`
-          : esc(u.state === 'COMPLETE' ? u.analysis : 'waits for COMPLETE (verified) upload')}</div>
-        <details data-id="${u.upload_id}" ${open.has(u.upload_id) ? 'open' : ''}><summary>events</summary>${ev}</details>
+        <div class="stats meta">
+          <div><span class="label">Pieces</span><b>${u.chunks_received}</b></div>
+          <div><span class="label">Duplicates</span><b>${u.duplicate_chunks}</b></div>
+          <div><span class="label">Rejected</span><b>${u.rejected_chunks}</b></div>
+          <div><span class="label">Last activity</span><b>${fmtTime(u.last_activity_at)}</b></div>
+        </div>
+        <div class="hashes meta">
+          ${u.detail ? `<div class="match ${same ? 'ok' : ''}">${same ? '✓ ' : ''}${esc(u.detail)}</div>` : ''}
+          <span class="label">declared SHA-256</span><code>${esc(u.sha256)}</code>
+          ${u.server_sha256 ? `<span class="label">server SHA-256</span><code>${esc(u.server_sha256)}</code>` : ''}</div>
+        <div class="foot2 meta">${u.analysis === 'done'
+          ? `<a class="btn" href="/uploads/${u.upload_id}/report.html" target="_blank">Open report</a><a href="/uploads/${u.upload_id}/report" target="_blank">JSON</a>`
+          : `integrity analysis: ${esc(u.state === 'COMPLETE' ? u.analysis : 'waits for COMPLETE (verified) upload')}`}
+          <details data-id="${u.upload_id}" ${open.has(u.upload_id) ? 'open' : ''}><summary>events</summary>${ev}</details></div>
       </div>`;
     }));
+    document.getElementById('list').className = '';
     document.getElementById('list').innerHTML = parts.join('');
     document.querySelectorAll('details').forEach(d => d.addEventListener('toggle', () => {
       d.open ? open.add(d.dataset.id) : open.delete(d.dataset.id);
