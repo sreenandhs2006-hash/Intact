@@ -24,6 +24,25 @@
   if (hero && 'IntersectionObserver' in window)
     new IntersectionObserver(([e]) => hero.classList.toggle('idle', !e.isIntersecting)).observe(hero);
 
+  // pipeline: flash each specular node as a travelling piece reaches it. Pieces take 4 s end to end and two run
+  // 2 s apart, so node i (at fraction i/3 of the track) is reached every 2 s at phase (i/3 * 4000) mod 2000 ms.
+  // The phase is read from the CSS animation itself, so the flashes stay in step with what is on screen.
+  const pk = document.querySelector('.pipe .pk');
+  const nodes = [...document.querySelectorAll('.pipe .dot')];
+  if (pk && nodes.length && window.specular && !still) {
+    const anim = () => pk.getAnimations?.()[0];
+    nodes.forEach((dot, i) => {
+      const at = (i / (nodes.length - 1)) * 4000 % 2000;
+      const next = () => {
+        const a = anim();
+        if (!a || a.playState !== 'running') return setTimeout(next, 500);   // paused (busy / off screen)
+        const t = (a.currentTime ?? 0) % 2000;
+        setTimeout(() => { window.specular.flash(dot); setTimeout(next, 100); }, ((at - t + 2000) % 2000) || 2000);
+      };
+      next();
+    });
+  }
+
   // step tracker follows the state capsule
   const state = $('state'), steps = $('steps'), report = $('report');
   const STEP = { STARTING: 0, RECORDING: 0, UPLOADING: 1, RECONNECTING: 1, VERIFYING: 2, COMPLETE: 3 };

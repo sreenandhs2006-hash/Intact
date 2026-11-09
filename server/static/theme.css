@@ -150,22 +150,23 @@ a.btn.big { font-size: 15px; padding: 11px 20px; margin: 0; }
 
 /* animated pipeline: pieces travel record -> send -> verify -> check, and turn green once verified */
 .pipe { position: relative; max-width: 720px; margin: 64px auto 0; }
-.pipe .track { position: absolute; left: 12.5%; right: 12.5%; top: 21px; height: 1px; background: var(--line-strong); }
+.pipe .track { position: absolute; left: 12.5%; right: 12.5%; top: 28px; height: 1px; background: var(--line-strong); }
 .pipe .pk { position: absolute; left: 0; right: 0; top: -5px; height: 10px; animation: travel 4s linear infinite; }
 .pipe .pk::after { content: ""; position: absolute; left: -5px; top: 0; width: 10px; height: 10px; border-radius: 2px;
                    animation: verified 4s linear infinite; animation-delay: inherit; }
 .pipe .pk + .pk { animation-delay: -2s; }
 .pipe .nodes { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); }
 .pipe .node { display: flex; flex-direction: column; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); text-align: center; }
-.pipe .dot { width: 43px; height: 43px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface-solid);
-             display: grid; place-items: center; font: 500 12px var(--mono); color: var(--strong); animation: ping 2s ease-out infinite; }
-.pipe .node:nth-child(2) .dot { animation-delay: 1.333s; }
-.pipe .node:nth-child(3) .dot { animation-delay: 0.667s; }
+/* nodes: specular glass discs (specular.js draws the moving edge light; plain border without WebGL2) */
+.pipe .dot { position: relative; isolation: isolate; width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--line-strong);
+             background: color-mix(in srgb, #ffffff 4%, var(--bg)); box-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.45);
+             display: grid; place-items: center; font: 500 13px var(--mono); color: #f5f5f5; }
+.pipe .dot.spec-on { border: 0; }
+.pipe .dot > span { position: relative; z-index: 2; }
+.spec-light { position: absolute; inset: -24px; z-index: 1; width: calc(100% + 48px); height: calc(100% + 48px); pointer-events: none; }
 @keyframes travel { from { transform: translateX(0); } to { transform: translateX(100%); } }
 @keyframes verified { 0%, 66% { background: var(--strong); box-shadow: 0 0 12px rgba(255, 255, 255, 0.6); }
                       67%, 100% { background: var(--ok); box-shadow: 0 0 14px rgba(52, 211, 153, 0.7); } }
-@keyframes ping { 0% { border-color: rgba(255, 255, 255, 0.75); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.25); }
-                  30%, 100% { border-color: var(--line-strong); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); } }
 .facts { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 44px; }
 .facts span { font: 12px var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
 
