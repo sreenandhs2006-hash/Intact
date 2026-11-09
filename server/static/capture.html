@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Browser Capture</title>
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="/static/theme.css?v=5">
+<link rel="stylesheet" href="/static/theme.css?v=7">
 <style>
   .stage { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#000; aspect-ratio:16/9; }
   video { width:100%; height:100%; object-fit:contain; background:#000; display:block; }
@@ -32,15 +32,14 @@
 </div></header>
 
 <div class="hero" id="hero">
- <div class="tunnel" data-tunnel aria-hidden="true"></div>
- <div class="wrap">
-  <div class="eyebrow reveal">Reliable upload · frame integrity</div>
-  <h1 class="reveal d1">Send a video over a bad network.<br><span>Prove every frame arrived.</span></h1>
-  <p class="lead reveal d2">Record 30 seconds. It goes up in small verified pieces that survive drops and resume where they
-    stopped, then the server checks the file frame by frame.</p>
-  <div class="cta reveal d3"><a class="btn big" href="#record-sec">Start recording</a><a class="ghost" href="#how">How it works</a></div>
+ <div class="rays" data-rays aria-hidden="true"></div>
+ <div class="wrap hero-in">
+  <div class="hero-top">
+   <h1 class="reveal">Send a video over a bad network.<br><span>Prove every frame arrived.</span></h1>
+   <div class="cta reveal d1"><a class="btn big" href="#record-sec">Start recording</a><a class="ghost" href="#how">How it works</a></div>
+  </div>
 
-  <div class="pipe reveal d3" aria-hidden="true">
+  <div class="pipe reveal d2" aria-hidden="true">
     <div class="track"><span class="pk"></span><span class="pk"></span></div>
     <div class="nodes">
       <div class="node"><span class="dot" data-specular><span>01</span></span>Record</div>
@@ -49,7 +48,6 @@
       <div class="node"><span class="dot" data-specular><span>04</span></span>Check frames</div>
     </div>
   </div>
-  <div class="facts reveal"><span>64 KB – 8 MB adaptive pieces</span><span>SHA-256 per piece + whole file</span><span>resumes after drops</span><span>30 fps frame check</span></div>
  </div>
 </div>
 
@@ -112,6 +110,7 @@
   <div class="eyebrow reveal"><b>04</b>How it works</div>
   <h2 class="reveal">Three checks, no guesswork</h2>
   <p class="lead reveal">Every claim in the report comes from the file and the logs, not from estimates.</p>
+  <div class="facts reveal"><span>64 KB – 8 MB adaptive pieces</span><span>SHA-256 per piece + whole file</span><span>resumes after drops</span><span>30 fps frame check</span></div>
   <div class="grid3">
     <div class="card pad feat reveal"><div class="ic">↻</div><h3>Resumable pieces</h3>
       <p>The video is sent in pieces from 64 KB to 8 MB. Pieces grow on a good link and shrink on a bad one; after a drop the
@@ -134,10 +133,10 @@
   </details>
 </div></footer>
 
-<script src="/static/ambient.js?v=5"></script>
-<script src="/static/specular.js?v=5"></script>
-<script src="/static/tunnel.js?v=5"></script>
-<script src="/static/ui.js?v=5"></script>
+<script src="/static/ambient.js?v=7"></script>
+<script src="/static/specular.js?v=7"></script>
+<script src="/static/rays.js?v=7"></script>
+<script src="/static/ui.js?v=7"></script>
 <script type="module" src="/static/capture.js"></script>
 </body>
 </html>
