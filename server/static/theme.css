@@ -134,7 +134,12 @@ h2 { font-size: 28px; font-weight: 600; letter-spacing: -0.025em; color: var(--s
 .card.pad { padding: 26px 28px; }
 
 /* ---------- hero ---------- */
-.hero { padding: 96px 16px 80px; text-align: center; position: relative; overflow: hidden; }
+.hero { padding: 96px 0 80px; text-align: center; position: relative; overflow: hidden; isolation: isolate; }
+.hero .tunnel { position: absolute; inset: 0; z-index: -2; pointer-events: none; }
+.hero .tunnel::after { content: ""; position: absolute; inset: 0;          /* keep the headline readable over the light */
+                       background: radial-gradient(ellipse 46% 40% at 50% 34%, rgba(9, 9, 11, 0.78), transparent 75%),
+                                   linear-gradient(to bottom, transparent 70%, var(--bg)); }
+.tunnel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .hero::before { content: ""; position: absolute; left: 50%; top: 40px; width: min(640px, 100%); height: 320px; transform: translateX(-50%);
                 background: radial-gradient(closest-side, rgba(255, 255, 255, 0.07), transparent); pointer-events: none;
                 z-index: -1; animation: breathe 7s ease-in-out infinite; }

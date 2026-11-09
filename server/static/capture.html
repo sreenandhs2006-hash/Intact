@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Browser Capture</title>
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="/static/theme.css?v=4">
+<link rel="stylesheet" href="/static/theme.css?v=5">
 <style>
   .stage { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#000; aspect-ratio:16/9; }
   video { width:100%; height:100%; object-fit:contain; background:#000; display:block; }
@@ -31,7 +31,9 @@
   <nav><a href="#record-sec" class="on">Record</a><a href="/">Uploads</a><a href="#how">How it works</a></nav>
 </div></header>
 
-<div class="hero wrap" id="hero">
+<div class="hero" id="hero">
+ <div class="tunnel" data-tunnel aria-hidden="true"></div>
+ <div class="wrap">
   <div class="eyebrow reveal">Reliable upload · frame integrity</div>
   <h1 class="reveal d1">Send a video over a bad network.<br><span>Prove every frame arrived.</span></h1>
   <p class="lead reveal d2">Record 30 seconds. It goes up in small verified pieces that survive drops and resume where they
@@ -48,6 +50,7 @@
     </div>
   </div>
   <div class="facts reveal"><span>64 KB – 8 MB adaptive pieces</span><span>SHA-256 per piece + whole file</span><span>resumes after drops</span><span>30 fps frame check</span></div>
+ </div>
 </div>
 
 <section class="sec" id="record-sec"><div class="wrap">
@@ -131,9 +134,10 @@
   </details>
 </div></footer>
 
-<script src="/static/ambient.js?v=4"></script>
-<script src="/static/specular.js?v=4"></script>
-<script src="/static/ui.js?v=4"></script>
+<script src="/static/ambient.js?v=5"></script>
+<script src="/static/specular.js?v=5"></script>
+<script src="/static/tunnel.js?v=5"></script>
+<script src="/static/ui.js?v=5"></script>
 <script type="module" src="/static/capture.js"></script>
 </body>
 </html>

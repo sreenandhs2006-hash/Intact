@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Upload Status</title>
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="/static/theme.css?v=4">
+<link rel="stylesheet" href="/static/theme.css?v=5">
 <style>
   .head { padding:64px 0 40px; }
   .head h1 { font-size:clamp(28px,4.4vw,40px); letter-spacing:-0.03em; margin-bottom:12px; }
@@ -58,8 +58,8 @@
   <div id="list" class="empty">Loading…</div>
 </main>
 
-<script src="/static/ambient.js?v=4"></script>
-<script src="/static/ui.js?v=4"></script>
+<script src="/static/ambient.js?v=5"></script>
+<script src="/static/ui.js?v=5"></script>
 <script>
 const fmtBytes = b => b >= 1048576 ? (b/1048576).toFixed(2)+' MB' : b >= 1024 ? (b/1024).toFixed(1)+' KB' : b+' B';
 const fmtTime = t => t ? new Date(t*1000).toLocaleTimeString() : '–';
