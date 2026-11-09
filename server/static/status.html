@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Upload Status</title>
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="/static/theme.css?v=7">
+<link rel="stylesheet" href="/static/theme.css?v=9">
 <style>
   .head { padding:64px 0 40px; }
   .head h1 { font-size:clamp(28px,4.4vw,40px); letter-spacing:-0.03em; margin-bottom:12px; }
@@ -40,6 +40,7 @@
 <header class="topbar"><div class="in">
   <a class="brand" href="/capture"><span class="mark"></span><span class="txt">Video integrity</span></a>
   <nav><a href="/capture#record-sec">Record</a><a href="/" class="on">Uploads</a><a href="/capture#how">How it works</a></nav>
+  <a class="go" href="/capture#record-sec">Record a video</a>
 </div></header>
 
 <main class="wrap" style="max-width:1040px;padding:0 16px">
@@ -58,8 +59,8 @@
   <div id="list" class="empty">Loading…</div>
 </main>
 
-<script src="/static/ambient.js?v=7"></script>
-<script src="/static/ui.js?v=7"></script>
+<script src="/static/ambient.js?v=9"></script>
+<script src="/static/ui.js?v=9"></script>
 <script>
 const fmtBytes = b => b >= 1048576 ? (b/1048576).toFixed(2)+' MB' : b >= 1024 ? (b/1024).toFixed(1)+' KB' : b+' B';
 const fmtTime = t => t ? new Date(t*1000).toLocaleTimeString() : '–';

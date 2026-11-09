@@ -19,6 +19,14 @@
     els.forEach(e => io.observe(e));
   }
 
+  // floating top bar: clear over the light, frosted once the page scrolls
+  const bar0 = document.querySelector('.topbar.overlay');
+  if (bar0) {
+    const onScroll = () => bar0.classList.toggle('scrolled', scrollY > 24);
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
   // stop the hero loops when the hero is off screen
   const hero = $('hero');
   if (hero && 'IntersectionObserver' in window)

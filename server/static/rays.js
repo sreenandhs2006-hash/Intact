@@ -11,7 +11,8 @@
   const PIXEL_BUDGET = 2.4e6, MAX_PULSES = 4;
   const S = {
     anchor: [0.5, -0.2], dir: [0, 1],                 // top-center
-    color: [1, 1, 1], speed: 1, spread: 0.5, length: 3, density: 1, tilt: 0, sharpness: 0.35, glow: 0.6,
+    dust: 0.5,                                           // added here: faint motes in the beam (not in the original)
+    color: [1, 1, 1], speed: 1, spread: 0.6, length: 3, density: 1, tilt: 0, sharpness: 0.35, glow: 0.45,
     haze: 0.25, atmosphere: 1, intensity: 1, pulsating: false, fade: 1, saturation: 1, follow: true, influence: 0.1,
     cursorShadow: true, clickPulse: true, noise: 0, distortion: 0, intro: true, opacity: 1, maxRatio: 2,
   };
@@ -24,7 +25,7 @@ uniform vec2 uResolution; uniform float uScale; uniform float uTime; uniform vec
 uniform float uReach; uniform vec3 uColor; uniform float uSpread; uniform float uLength; uniform float uFade;
 uniform float uSaturation; uniform float uPulsating; uniform float uNoise; uniform float uDistortion; uniform float uDensity;
 uniform float uSharpness; uniform float uGlow; uniform float uHaze; uniform float uAtmosphere; uniform float uIntensity;
-uniform vec4 uShadow; uniform vec4 uPulses[${MAX_PULSES}]; uniform vec2 uIntro; uniform float uOpacity;
+uniform vec4 uShadow; uniform vec4 uPulses[${MAX_PULSES}]; uniform vec2 uIntro; uniform float uOpacity; uniform float uDust;
 out vec4 fragColor;
 float hash(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float valueNoise(vec2 p) {
@@ -88,6 +89,17 @@ void main() {
     boost += wave.z * exp(-x * x);
   }
   float light = (rayLight * (1.0 + boost) + glowLight) * reveal;
+  // dust motes drifting slowly down through the beam (only where the beam is, so they read as lit dust)
+  if (uDust > 0.0) {
+    vec2 g = coord / 46.0 + vec2(0.0, -uTime * 0.12);
+    vec2 cell = floor(g);
+    float h = hash(cell);
+    vec2 off = vec2(hash(cell + 3.1), hash(cell + 7.7)) - 0.5;
+    off += 0.15 * vec2(sin(uTime * 0.7 + h * 6.28), cos(uTime * 0.5 + h * 6.28));
+    float d = length((fract(g) - 0.5 - off * 0.7) * 46.0);
+    float mote = step(0.8, h) * smoothstep(2.4, 0.4, d) * (0.55 + 0.45 * sin(uTime * 1.3 + h * 40.0));
+    light += mote * min(envelope * 2.2, 1.0) * uDust * reveal;
+  }
   if (uNoise > 0.0) {
     float n = fract(sin(dot(coord * 0.02 + uTime * 0.1, vec2(12.9898, 78.233))) * 43758.5453123);
     light *= 1.0 - uNoise + uNoise * n;
@@ -201,6 +213,7 @@ void main() {
     gl.uniform4fv(u.uPulses, pulseData);
     gl.uniform2f(u.uIntro, eased * 2.6, smoother(opening / 0.5));
     gl.uniform1f(u.uOpacity, S.opacity);
+    gl.uniform1f(u.uDust, S.dust);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     const settling = Math.abs(aim.x - aimX) > 1e-4 || Math.abs(aim.y - aimY) > 1e-4 ||
       (shade.presence > 1e-3 && Math.abs(shade.x - pointer.x) + Math.abs(shade.y - pointer.y) > 1e-4) ||

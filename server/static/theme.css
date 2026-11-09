@@ -118,7 +118,20 @@ td { padding: 4px 10px 4px 0; border-top: 1px solid var(--line); vertical-align:
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--strong); text-decoration: none; }
 .brand .mark { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--strong);
                background: linear-gradient(90deg, var(--strong) 50%, transparent 50%); }
-.topbar nav { margin-left: auto; display: flex; gap: 4px; }
+.topbar nav { margin: 0 auto; display: flex; gap: 4px; }
+.topbar .brand { min-width: 150px; }
+.topbar .go { min-width: 150px; text-align: center; background: var(--strong); color: #000; text-decoration: none; font-weight: 600;
+              font-size: 13px; padding: 8px 16px; border-radius: 10px; box-shadow: 0 4px 18px rgba(255, 255, 255, 0.12); }
+.topbar .go:hover { background: #d4d4d8; }
+/* capture page: the bar floats over the light until you scroll, then turns into the frosted bar */
+.topbar.overlay { background: transparent; border-bottom-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+                  transition: background 0.3s ease, border-color 0.3s ease; }
+.topbar.overlay.scrolled { background: rgba(9, 9, 11, 0.72); border-bottom-color: var(--line);
+                           backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.topbar.overlay + .hero { margin-top: -56px; }
+.topbar.overlay:not(.scrolled) nav a, .topbar.overlay:not(.scrolled) .brand {
+  color: var(--strong); text-shadow: 0 0 2px rgba(0, 0, 0, 0.7), 0 1px 12px rgba(0, 0, 0, 0.85); }
+.topbar.overlay:not(.scrolled) nav a.on { background: rgba(0, 0, 0, 0.35); }
 .topbar nav a { color: var(--muted); text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
 .topbar nav a:hover { color: var(--strong); background: rgba(255, 255, 255, 0.06); }
 .topbar nav a.on { color: var(--strong); background: rgba(255, 255, 255, 0.09); }
@@ -135,12 +148,14 @@ h2 { font-size: 28px; font-weight: 600; letter-spacing: -0.025em; color: var(--s
 
 /* ---------- hero ---------- */
 .hero { position: relative; overflow: hidden; isolation: isolate; text-align: center;
-        min-height: min(calc(100svh - 56px), 900px); display: flex; }
-.hero-in { flex: 1; display: flex; flex-direction: column; padding-top: clamp(96px, 22vh, 220px); padding-bottom: 56px; }
+        min-height: min(100svh, 900px); display: flex; }
+.hero-in { flex: 1; display: flex; flex-direction: column; padding-top: calc(56px + clamp(80px, 20vh, 200px)); padding-bottom: 56px; }
 .hero-top { margin-bottom: 72px; }
 .hero .pipe { margin: auto auto 0; width: 100%; }
 .hero .rays { position: absolute; inset: 0; z-index: -2; pointer-events: none; }
-.hero .rays::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 72%, var(--bg)); }
+.hero .rays::after { content: ""; position: absolute; inset: 0;
+                     background: radial-gradient(ellipse 38% 9% at 50% 82%, rgba(255, 255, 255, 0.045), transparent 70%),
+                                 linear-gradient(to bottom, transparent 72%, var(--bg)); }
 .rays-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .hero h1 { text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55); }
 .hero::before { content: ""; position: absolute; left: 50%; top: 40px; width: min(640px, 100%); height: 320px; transform: translateX(-50%);
@@ -216,11 +231,13 @@ footer.foot { padding: 40px 0 64px; border-top: 1px solid var(--line); }
 @media (max-width: 860px) {
   .grid2, .grid3 { grid-template-columns: 1fr; }
   section.sec { padding: 52px 0; }
-  .hero-in { padding-top: 88px; padding-bottom: 40px; }
+  .hero-in { padding-top: 140px; padding-bottom: 40px; }
   .hero-top { margin-bottom: 56px; }
 }
 @media (max-width: 480px) {
-  .brand .txt { display: none; }
+  .brand .txt, .topbar .go { display: none; }
+  .topbar .brand { min-width: 0; }
+  .topbar nav { margin: 0 0 0 auto; }
   .topbar .in { gap: 8px; }
   .topbar nav a { padding: 6px 9px; }
   h2 { font-size: 23px; }

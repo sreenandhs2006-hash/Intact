@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Browser Capture</title>
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="/static/theme.css?v=7">
+<link rel="stylesheet" href="/static/theme.css?v=9">
 <style>
   .stage { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#000; aspect-ratio:16/9; }
   video { width:100%; height:100%; object-fit:contain; background:#000; display:block; }
@@ -26,9 +26,10 @@
 <body>
 <canvas id="ambient-canvas" aria-hidden="true"></canvas>
 
-<header class="topbar"><div class="in">
+<header class="topbar overlay"><div class="in">
   <a class="brand" href="/capture"><span class="mark"></span><span class="txt">Video integrity</span></a>
   <nav><a href="#record-sec" class="on">Record</a><a href="/">Uploads</a><a href="#how">How it works</a></nav>
+  <a class="go" href="#record-sec">Start recording</a>
 </div></header>
 
 <div class="hero" id="hero">
@@ -133,10 +134,10 @@
   </details>
 </div></footer>
 
-<script src="/static/ambient.js?v=7"></script>
-<script src="/static/specular.js?v=7"></script>
-<script src="/static/rays.js?v=7"></script>
-<script src="/static/ui.js?v=7"></script>
+<script src="/static/ambient.js?v=9"></script>
+<script src="/static/specular.js?v=9"></script>
+<script src="/static/rays.js?v=9"></script>
+<script src="/static/ui.js?v=9"></script>
 <script type="module" src="/static/capture.js"></script>
 </body>
 </html>
