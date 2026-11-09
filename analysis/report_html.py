@@ -23,6 +23,7 @@ th{font-size:11px;color:var(--label);font-weight:600;text-transform:uppercase;le
 .scroll{overflow-x:auto}
 code,pre{font-family:var(--mono);font-size:12px}
 code{display:inline-block;max-width:100%;padding:1px 7px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.04);word-break:break-all;user-select:all}
+code.nw{white-space:nowrap;word-break:normal}
 code:hover{border-color:var(--line2);background:rgba(255,255,255,.08)}
 pre{margin:0;color:var(--muted);white-space:pre-wrap;word-break:break-all}
 svg text{fill:var(--label);font-size:10px;font-family:var(--mono)}
@@ -182,7 +183,7 @@ def render(r):
     tl = r["timeline_30fps"]
     tv = r["tool_versions"]
     rows = "".join(
-        f"<tr id='{e(a['id'])}'><td>{e(a['id'])}</td><td>{e(a['type'])}</td><td><code>{fmt_t(a['time_start_s'])} – {fmt_t(a['time_end_s'])}</code>"
+        f"<tr id='{e(a['id'])}'><td>{e(a['id'])}</td><td>{e(a['type'])}</td><td><code class='nw'>{fmt_t(a['time_start_s'])}</code> – <code class='nw'>{fmt_t(a['time_end_s'])}</code>"
         f"<div class='k' style='margin-top:4px'>frames <code>{e(a['frame_index_start'])}–{e(a['frame_index_end'])}</code></div></td>"
         f"<td>{e(a['evidence'])}</td><td class='{CONF_CLASS.get(a['confidence'],'')}'>{e(a['confidence'])}</td>"
         f"<td><b>{e(a['likely_cause'])}</b><div class='k'>candidates: {e(', '.join(a['other_candidates']) or '–')};"

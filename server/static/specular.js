@@ -1,7 +1,7 @@
 // Specular glass edge: a WebGL light that runs around a rounded box's edge, follows the cursor when it is near,
-// and flashes on demand. Plain-JS port of the SpecularButton component from React Bits (reactbits.dev; check its licence, MIT + Commons Clause at the time of writing),
-// reduced to what these pages use. Elements with [data-specular] get it automatically; window.specular.flash(el)
-// makes one flash. Rendering is on demand: it only draws while the light is moving or fading, and stops while
+// and flashes on demand. Plain-JS port of the SpecularButton component from React Bits (reactbits.dev),
+// Copyright (c) 2026 David Haz, MIT + Commons Clause (see LICENSE-react-bits.md), reduced to what these pages
+// use. Elements with [data-specular] get it automatically; window.specular.flash(el) makes one flash. Rendering is on demand: it only draws while the light is moving or fading, and stops while
 // the page is busy (body.busy: recording/uploading), off screen, or in a hidden tab. Without WebGL2 the element
 // keeps its plain CSS border.
 (() => {

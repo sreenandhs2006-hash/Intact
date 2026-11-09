@@ -1,7 +1,7 @@
 // Light rays behind the opening section: soft shafts of light from above that turn a little toward the cursor;
 // the cursor casts a faint shadow down the rays and a click sends a wave of light along them. Plain-JS port of
-// the LightRays component from React Bits (reactbits.dev; check its licence, MIT + Commons Clause at the time
-// of writing), with the settings fixed to the ones these pages use.
+// the LightRays component from React Bits (reactbits.dev), Copyright (c) 2026 David Haz, MIT + Commons Clause
+// (see LICENSE-react-bits.md), with the settings fixed to the ones these pages use.
 // Cost control: it draws only while its container is on screen, the tab is visible and the page is not busy
 // (body.busy = recording or uploading, so it never competes with the frames being measured). The canvas stays
 // within a pixel budget. Without WebGL2 the section simply has no backdrop.

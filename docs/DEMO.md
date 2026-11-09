@@ -27,9 +27,11 @@ Show the architecture diagram in `README.md`.
 ## 2. Record and upload in the browser (90 s)
 
 1. Open http://127.0.0.1:8000/capture **in Chrome or Edge** (a normal browser window, not an embedded preview: an
-   embedded, busy view displays frames late and the log can then not be aligned).
+   embedded, busy view displays frames late and the log can then not be aligned). Press **Start recording** to
+   jump to the recorder.
 2. Choose **Test pattern (no camera needed)**, tick **simulate a 0.5 s source stall at 10 s**, then press
-   **Record 30 s and upload**.
+   **Record 30 s and upload**. The step tracker above the video moves Record → Upload → Verify → Report, and the
+   page's background animation stops until the result is in.
 3. While it records, point at the status line (*Starting the recorder…* → *Recording… 23 s left*) and explain:
    > "The page records with MediaRecorder and logs every frame that reaches the browser. The 30 seconds count from
    > the moment the recorder really starts. Then it uploads in pieces: each has its own SHA-256, and the server
@@ -97,11 +99,12 @@ Then show [testset/results/HELDOUT.md](../testset/results/HELDOUT.md):
 Open [docs/LIMITATIONS.md](LIMITATIONS.md):
 > "Frames dropped before encoding with new timestamps leave no gap, so without a capture log I say *cannot
 > determine*. Low-motion duplicates and silent byte flips are the detector's known misses. The network tests were
-> emulated, not a real phone network."
+> emulated, not a real phone network: exams left no time for it, and the real switch test I would run next is
+> written down there."
 
 Finish with the tests:
 ```bash
-python -m pytest -q        # 81 passed
+python -m pytest -q        # 82 passed
 ```
 
 ---

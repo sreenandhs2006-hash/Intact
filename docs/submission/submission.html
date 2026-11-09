@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reliable Video Upload &amp; Frame Integrity Detection – Sreenandh S</title>
+<!-- Source of docs/nSEPIA-submission-Sreenandh-S.pdf. Rebuild with:
+     chrome --headless=new --no-pdf-header-footer --print-to-pdf=docs/nSEPIA-submission-Sreenandh-S.pdf docs/submission/submission.html -->
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #18181b; font: 10.2pt/1.5 "Segoe UI", Inter, -apple-system, Roboto, sans-serif; }
+  h1 { font-size: 21pt; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 6px; }
+  h2 { font-size: 13pt; margin: 22px 0 8px; padding-top: 10px; border-top: 1px solid #e4e4e7; break-after: avoid; }
+  h3 { font-size: 10.5pt; margin: 14px 0 6px; break-after: avoid; }
+  p { margin: 0 0 8px; }
+  ul, ol { margin: 0 0 8px; padding-left: 18px; } li { margin: 2px 0; }
+  .meta { color: #52525b; font-size: 9.5pt; }
+  .lead { font-size: 11pt; color: #27272a; margin-top: 12px; }
+  code { font: 8.8pt Consolas, "JetBrains Mono", monospace; background: #f4f4f5; border: 1px solid #e4e4e7;
+         border-radius: 4px; padding: 0 4px; white-space: nowrap; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 6px 0 10px; break-inside: avoid; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #e4e4e7; vertical-align: top; }
+  th { font-size: 8.2pt; text-transform: uppercase; letter-spacing: 0.04em; color: #52525b; border-bottom: 1px solid #a1a1aa; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .key { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 6px; }
+  .key div { border: 1px solid #e4e4e7; border-radius: 8px; padding: 8px 10px; }
+  .key b { display: block; font-size: 15pt; letter-spacing: -0.02em; }
+  .key span { font-size: 8.4pt; color: #52525b; }
+  figure { margin: 8px 0 10px; break-inside: avoid; }
+  figure img { width: 100%; border: 1px solid #d4d4d8; border-radius: 6px; display: block; }
+  figcaption { font-size: 8.6pt; color: #52525b; margin-top: 4px; }
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0 4px; font-size: 8.6pt; }
+  .flow div { flex: 1; border: 1px solid #a1a1aa; border-radius: 6px; padding: 6px 7px; background: #fafafa; }
+  .flow div b { display: block; font-size: 9pt; }
+  .flow i { flex: 0 0 16px; display: grid; place-items: center; font-style: normal; color: #71717a; }
+  .note { border-left: 3px solid #a1a1aa; padding: 4px 0 4px 10px; color: #3f3f46; margin: 8px 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pb { break-before: page; }
+  .small { font-size: 8.8pt; color: #3f3f46; }
+</style>
+</head>
+<body>
+
+<h1>Reliable Video Upload &amp; Frame Integrity Detection</h1>
+<div class="meta">Confluentia 2026 · IIT (BHU) · Nihilent nSEPIA Technical Challenge · solo submission by Sreenandh S · November 2026</div>
+<div class="meta">Code, evidence files and full documentation: the repository linked in the submission email. Every number here comes
+  from a file in that repository.</div>
+
+<p class="lead">A client sends a 30-second video to a backend while the network moves between 20% and 100% strength. The
+backend accepts the video only when every byte has arrived and the whole-file SHA-256 matches the client's. Only then
+does it decode the video, analyse it at 30 FPS and write an integrity report. The report gives the time and frame
+numbers of each missing, duplicated or damaged frame, and says whether the evidence points to transfer, capture or
+encoding, or that it cannot tell.</p>
+
+<div class="key">
+  <div><b>50 / 50</b><span>uploads COMPLETE with matching SHA-256 under 10 emulated network scenarios</span></div>
+  <div><b>0.933 / 0.995</b><span>detector recall / precision on 120 held-out known-fault videos</span></div>
+  <div><b>5</b><span>real browser runs, incl. webcam and iPhone Safari, with a per-frame capture log</span></div>
+  <div><b>82</b><span>automated tests (pytest), one command</span></div>
+</div>
+
+<h2>1. How the system works</h2>
+<div class="flow">
+  <div><b>Client</b>Python uploader, or the browser page (MediaRecorder + frame log)</div><i>→</i>
+  <div><b>Upload API</b>FastAPI. Chunk + SHA-256 at a byte offset</div><i>→</i>
+  <div><b>State machine</b>SQLite + fsync'd file. Verified prefix only</div><i>→</i>
+  <div><b>Finalize gate</b>Re-hash whole file. Match → COMPLETE, else REJECTED</div><i>→</i>
+  <div><b>Analysis</b>ffprobe → full decode → detect → 30 FPS timeline → capture log</div><i>→</i>
+  <div><b>Report</b>JSON + HTML, tool versions, limitations</div>
+</div>
+<ol>
+  <li><b>Session.</b> The client declares the file size and SHA-256.</li>
+  <li><b>Chunks.</b> Each chunk is sent to a byte offset with its own SHA-256. The server keeps only a contiguous,
+    verified prefix and fsyncs it before recording it in SQLite, so the recorded offset is never ahead of the disk. A
+    re-sent identical chunk changes nothing.</li>
+  <li><b>One recovery path for every failure.</b> Dropped network, timeout, client crash or server crash: the client asks
+    the server how many bytes it holds and continues from there. Retries use exponential backoff with full jitter
+    (capped at 30 s); a connection with no progress for 20 s is abandoned and retried; the chunk size adapts between
+    64 KB and 8 MB (doubles after a success, halves after a failure).</li>
+  <li><b>Finalize.</b> The server re-reads the file from disk and hashes it. Only a match gives <code>COMPLETE</code>.
+    Server states: <code>UPLOADING</code>, <code>STALLED</code> (no completed chunk for a while), <code>FAILED</code>,
+    <code>COMPLETE</code>, <code>REJECTED</code>; every change is logged with a reason.</li>
+  <li><b>Analyse.</b> Analysis can open a file only through a function that refuses anything not <code>COMPLETE</code>
+    with a matching hash.</li>
+</ol>
+
+<h2>2. Transfer under bad networks</h2>
+<p>Run on a separate Linux laptop (Ubuntu 24.04, kernel 7.0). netem shapes a private virtual link (rate, delay, loss in
+both directions); Toxiproxy in front of the server cuts, resets or hangs connections. Faults fire when the client's own
+log shows a given fraction of the file sent, so each fault lands mid-transfer. Test video 3,756,860 bytes, max chunk
+512 KB. The link was measured before the runs: ping 22.2 ms at 100% and 401.7 ms at 20%.</p>
+<div class="two">
+<table>
+  <tr><th>Strength</th><th>Rate</th><th class="n">RTT</th><th class="n">Loss</th></tr>
+  <tr><td>100%</td><td>20 Mbit/s</td><td class="n">20 ms</td><td class="n">0%</td></tr>
+  <tr><td>60%</td><td>5 Mbit/s</td><td class="n">80 ms</td><td class="n">1%</td></tr>
+  <tr><td>20%</td><td>500 kbit/s</td><td class="n">400 ms</td><td class="n">5%</td></tr>
+</table>
+<p class="small">At 20% the link delivers only 140–200 kbit/s of useful data: with 5% loss and 400 ms delay TCP cannot
+fill 500 kbit/s. The 3.76 MB test video then takes 2.5–3.6 minutes, and it still completes.</p>
+</div>
+<table>
+  <tr><th>Scenario (5 runs each)</th><th>What happens</th><th class="n">Median s</th><th class="n">Retries</th><th class="n">Verified</th></tr>
+  <tr><td>stable_100 / 60 / 20</td><td>fixed strength</td><td class="n">1.9 / 10.2 / 181</td><td class="n">0</td><td class="n">15/15</td></tr>
+  <tr><td>fluctuating</td><td>100 → 60 → 20 → 60 → 20 → 100 mid-transfer</td><td class="n">32.2</td><td class="n">0.4</td><td class="n">5/5</td></tr>
+  <tr><td>interruption</td><td>at 30%, every connection cut and refused for 10 s</td><td class="n">26.6</td><td class="n">6.2</td><td class="n">5/5</td></tr>
+  <tr><td>network_switch</td><td>100% link drops for 3 s, returns as a 20% link</td><td class="n">66.0</td><td class="n">4.6</td><td class="n">5/5</td></tr>
+  <tr><td>resets</td><td>TCP resets for 2 s at 25%, 50%, 75%</td><td class="n">17.0</td><td class="n">8.8</td><td class="n">5/5</td></tr>
+  <tr><td>timeouts</td><td>data silently dropped for 30 s, twice</td><td class="n">70.2</td><td class="n">5.8</td><td class="n">5/5</td></tr>
+  <tr><td>client_restart</td><td>client killed (SIGKILL) at 40%, restarted</td><td class="n">10.6</td><td class="n">0</td><td class="n">5/5</td></tr>
+  <tr><td>server_restart</td><td>server killed (SIGKILL) at 40%, restarted 3 s later</td><td class="n">17.2</td><td class="n">4.4</td><td class="n">5/5</td></tr>
+</table>
+<p><b>50/50 COMPLETE, server SHA-256 equal to client SHA-256 in every run.</b> The raw logs were checked separately from the
+harness: in every run the acknowledged chunks plus the server's resume offsets cover exactly bytes 0 to 3,756,860. In 13
+runs the client's offset jumps forward after a retry, each time by at most one chunk: the chunk had reached the server
+but its acknowledgement was lost, so the client continued from the server's offset instead of sending it again. After a
+server kill the client re-sent at most 524,288 bytes. Damaged chunks, incomplete uploads and a file changed during
+upload are never accepted (16 tests).</p>
+
+<h2 class="pb">3. Frame integrity analysis</h2>
+<p>Validation and decoding are separate steps, and every error is recorded: ffprobe checks the container and stream;
+PyAV decodes every frame and records every decoder message with its packet time; the ffmpeg command line decodes the
+file a second time as an independent check. Detection runs on the file's own timestamps. Only after that is the 30 FPS
+timeline built (each slot mapped to a source frame), and duplicates created by that conversion are labelled as
+artefacts, not defects.</p>
+<p>Anomaly types: missing frames, duplicated frames, possibly skipped frames, irregular timing, timestamp errors,
+corrupted frames and truncation. Each has a time range, frame indices, the evidence, a confidence and a likely cause.</p>
+<h3>Measured on known faults</h3>
+<p>A generator made 24 kinds of faulty 30 s video with known ground truth. The detector was tuned on seed 1, the code
+frozen, and seeds 2–6 (120 videos) scored once:</p>
+<table>
+  <tr><th>Type</th><th class="n">Expected</th><th class="n">Found</th><th class="n">Recall</th><th class="n">Precision</th></tr>
+  <tr><td>corrupted_frame</td><td class="n">148</td><td class="n">142</td><td class="n">0.959</td><td class="n">1.000</td></tr>
+  <tr><td>missing_frames</td><td class="n">30</td><td class="n">30</td><td class="n">1.000</td><td class="n">0.968</td></tr>
+  <tr><td>duplicated_frame</td><td class="n">20</td><td class="n">17</td><td class="n">0.850</td><td class="n">1.000</td></tr>
+  <tr><td>irregular_timing</td><td class="n">10</td><td class="n">8</td><td class="n">0.800</td><td class="n">1.000</td></tr>
+  <tr><td>possible_skipped_frames</td><td class="n">10</td><td class="n">6</td><td class="n">0.600</td><td class="n">1.000</td></tr>
+  <tr><td>truncation</td><td class="n">5</td><td class="n">5</td><td class="n">1.000</td><td class="n">1.000</td></tr>
+  <tr><td><b>All</b></td><td class="n"><b>223</b></td><td class="n"><b>208</b></td><td class="n"><b>0.933</b></td><td class="n"><b>0.995</b></td></tr>
+</table>
+<p>Every video was classified correctly as valid or invalid, and there were no false alarms on clean control videos.
+All 15 misses and the one false positive are listed in the repository: byte flips that decode without any error (6),
+possibly skipped frames (4), duplicates in low-motion content (3) and timing jitter just under the threshold (2).</p>
+
+<h2>4. Transfer, capture or encoding?</h2>
+<p>A matching hash rules out transfer: the backend has exactly the bytes the client had. It says nothing about frames
+lost before that, in the camera or the encoder. Without more evidence the report says <i>cannot determine</i>, never
+<i>no drops</i>. The browser client adds that evidence: it logs every frame that reaches the page
+(<code>requestVideoFrameCallback</code>) and uploads the log with its own hash. A gap in the file that is also a gap in
+the log means the frames never arrived (<b>capture</b>); a gap only in the file means they arrived and were not recorded
+(<b>encoding</b>). The log's clock is aligned to the file's by a time search, and the result is used only if the frame
+pattern or a shared gap pins the offset down. Otherwise the report says the alignment is ambiguous.</p>
+<table>
+  <tr><th>Browser run</th><th>Finding</th></tr>
+  <tr><td>Webcam, desktop Chrome</td><td>3.3 s gap at 0.30–3.60 s in file and log → capture. Two single frames shown in the page but missing from the file → encoding</td></tr>
+  <tr><td>iPhone, Safari</td><td>No delivery gaps; recorder started 3 ms after the request (Chrome: 1.5–3.8 s), so no start-up loss</td></tr>
+  <tr><td>Test pattern, 0.5 s stall injected</td><td>File gap 10.046–10.575 s, log gap 529.5 ms with no frames inside → capture</td></tr>
+  <tr><td>Test pattern / fake camera</td><td>Start-up loss located and attributed (encoding / capture)</td></tr>
+</table>
+
+<h2>5. Sample integrity report</h2>
+<p>A 30 s video with frame 47 repeated twice and frames 356–361 removed (timestamps kept), uploaded through the system.
+Upload verified, video valid, both faults found at the right place. No capture log exists for this file, so the cause
+stays <i>undetermined</i>.</p>
+<figure><img src="sample-report.png" alt="Integrity report for mixed_dup_gap.mp4">
+<figcaption>Top of the HTML report (docs/samples/mixed_dup_gap.html). The JSON next to it holds every frame and the tool
+versions (Python, OS, FFmpeg, PyAV, OpenCV, NumPy).</figcaption></figure>
+<p class="small">Two other samples: a file cut to about half its length (reported <code>VALID_WITH_ERRORS</code>, truncation from
+15.33 s: "header declares 900 frames, file contains 462 packets"), and a text file named <code>.mp4</code>
+(<code>INVALID</code>, "Invalid data found when processing input").</p>
+
+<h2>6. The capture page</h2>
+<figure><img src="capture-page.png" alt="The browser capture page">
+<figcaption>Record 30 s in the browser, watch it upload in verified pieces, read the verdict. The page's animations stop
+while recording and uploading so they do not compete with the frame log.</figcaption></figure>
+
+<h2>7. Limitations and what was not tested</h2>
+<ul>
+  <li><b>A perfect transfer does not prove a clean recording.</b> Frames dropped before encoding with new timestamps leave no
+    gap; only a motion jump hints at them (recall 0.60).</li>
+  <li><b>The capture log is written by the client.</b> The server checks its integrity, not its authenticity. Its time
+    resolution is about 17 ms, and it is unreliable when the page is hidden or the browser is busy.</li>
+  <li><b>Detector limits:</b> low-motion duplicates and byte flips that decode without error are missed. Thresholds are
+    fixed.</li>
+  <li><b>STALLED is a timer, not proof of a fault.</b> One slow first chunk on the 20% link was marked STALLED and then
+    completed.</li>
+  <li><b>Network conditions were emulated.</b> The only real-device run is one iPhone recording over a hotspot. I did
+    this project alone during end-semester exams, which left no time for a real mobile-network test or a real connection
+    switch (in the emulated switch the client's address does not change). The test I would run next: the server on a second
+    computer, both on one router, and the client laptop switching between the router's 2.4 GHz and 5 GHz networks halfway
+    through an upload, so its address really changes. Pass: <code>COMPLETE</code>, hashes match, at most one chunk re-sent.
+    A public tunnel was considered and rejected for this: through it the server would see every request coming from the
+    tunnel process, so the address change would be invisible.</li>
+  <li>Not tested: Firefox, the browser client under netem, resuming a browser upload after a page reload. No
+    authentication; size limits only.</li>
+</ul>
+
+<h2>8. Run it</h2>
+<p class="small">Python 3.12 or 3.13 and FFmpeg on PATH.</p>
+<p><code>pip install -r requirements.txt</code> · <code>python -m pytest -q</code> (82 tests, 4–6 min, run on mains
+power) · <code>uvicorn server.app:app --port 8000</code>, then open <code>http://127.0.0.1:8000/capture</code> ·
+<code>python -m client.uploader video.mp4 --server http://127.0.0.1:8000</code></p>
+<p class="small">Two WebGL effects on the capture page are ports of React Bits components (MIT + Commons Clause, licence
+file included). Repository map: <code>server/</code> upload API and pages, <code>client/</code> uploaders,
+<code>analysis/</code> validation, detection and reports, <code>nettest/</code> network harness and the 50-run evidence,
+<code>evidence/m5/</code> browser runs, <code>testset/</code> known-fault generator and scores, <code>docs/</code>
+design notes, limitations, demo script and samples.</p>
+
+</body>
+</html>
