@@ -75,5 +75,10 @@ What the system cannot do, and what was not tested. Each point is stated as foun
   Toxiproxy with a server crash) passed 3 of 3 on its own.
 - On 2026-11-09 a later full run (82 tests) failed that same test once: the upload did not finish within the 300 s
   limit. It passed on its own (90 s) and in the next five full runs (82/82 each). Treat it as flaky under load.
+- On 2026-11-10, a full run made while Chrome was busy rendering the PDF failed two browser tests (the simulated
+  stall, and resets plus server crash): "no finished upload appeared" within the limit. Both passed when run on their
+  own (200 s), and the next full run passed 82/82. A later full run that day failed the resets-plus-crash test once
+  more (81/82, same timeout) and it passed on its own (91 s). The browser tests depend on machine load; run them on an
+  idle laptop.
 - The page's animations stop while recording and uploading, so they do not compete with the frame log (measured
   for the light-rays background: no WebGL draw calls while busy; for the other animations this is by code only). Their graphics cost on a slow laptop or a phone was not measured.

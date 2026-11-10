@@ -116,7 +116,7 @@ td { padding: 4px 10px 4px 0; border-top: 1px solid var(--line); vertical-align:
           backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .topbar .in { max-width: 1040px; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 24px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--strong); text-decoration: none; }
-.brand .mark { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--strong);
+.brand .mark { width: 18px; height: 18px; flex-shrink: 0; border-radius: 50%; border: 1.5px solid var(--strong);
                background: linear-gradient(90deg, var(--strong) 50%, transparent 50%); }
 .topbar nav { margin: 0 auto; display: flex; gap: 4px; }
 .topbar .brand { min-width: 150px; }
@@ -235,7 +235,7 @@ footer.foot { padding: 40px 0 64px; border-top: 1px solid var(--line); }
   .hero-top { margin-bottom: 56px; }
 }
 @media (max-width: 480px) {
-  .brand .txt, .topbar .go { display: none; }
+  .topbar .go { display: none; }
   .topbar .brand { min-width: 0; }
   .topbar nav { margin: 0 0 0 auto; }
   .topbar .in { gap: 8px; }

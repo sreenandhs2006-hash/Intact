@@ -29,7 +29,7 @@ async def lifespan(_app):
     yield
 
 
-app = FastAPI(title="Reliable video upload", lifespan=lifespan)
+app = FastAPI(title="Intact", lifespan=lifespan)
 STATIC = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 

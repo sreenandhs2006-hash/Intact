@@ -198,9 +198,9 @@ def render(r):
     vid = v["ffprobe"].get("video") or {}
     tr = r["transfer"]
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Integrity Report</title><style>{CSS}</style></head>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Intact · Integrity report</title><style>{CSS}</style></head>
 <body><main>
-<h1>Video integrity report</h1>
+<h1>Intact · Integrity report</h1>
 <div class="muted">{e(r['input']['file'])} · <code>{r['input']['size_bytes']:,} bytes</code> · generated <code>{e(r['generated_at'])}</code></div>
 <div class="muted" style="margin-top:6px">SHA-256 <code>{e(r['input'].get('sha256'))}</code></div>
 

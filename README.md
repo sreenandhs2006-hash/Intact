@@ -1,8 +1,10 @@
-# Reliable Video Upload & Frame Integrity Detection
+# Intact
 
-Confluentia 2026 (IIT BHU) · Nihilent nSEPIA Technical Challenge · solo submission by Sreenandh S.
+**Reliable video upload & frame integrity detection.** A video is accepted only when every byte is intact; then every frame is checked.
 
-Short write-up for judges (6 pages): [docs/nSEPIA-submission-Sreenandh-S.pdf](docs/nSEPIA-submission-Sreenandh-S.pdf).
+Confluentia 2026 (IIT BHU) · Nihilent nSEPIA Technical Challenge · solo submission by Sreenandh Sudheesh Puthalath.
+
+Short write-up for judges (6 pages): [docs/Intact-nSEPIA-Sreenandh-S.pdf](docs/Intact-nSEPIA-Sreenandh-S.pdf).
 
 A client sends a 30-second video to a backend over a network that swings between 20% and 100% strength. The
 backend accepts the video **only when every byte has arrived and the whole-file SHA-256 matches**, then decodes
